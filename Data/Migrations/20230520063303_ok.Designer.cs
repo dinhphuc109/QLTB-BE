@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NETCORE3.Data;
 
@@ -11,9 +12,11 @@ using NETCORE3.Data;
 namespace NETCORE3.Data.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230520063303_ok")]
+    partial class ok
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -336,50 +339,6 @@ namespace NETCORE3.Data.Migrations
                     b.HasIndex("PhongbanId");
 
                     b.ToTable("BoPhans");
-                });
-
-            modelBuilder.Entity("NETCORE3.Models.ChiTietLoaiThongTinThietBi", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("LoaiThietBi_Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ThongTinThietBi_Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedBy");
-
-                    b.HasIndex("LoaiThietBi_Id");
-
-                    b.HasIndex("ThongTinThietBi_Id");
-
-                    b.ToTable("chiTietLoaiThongTinThietBis");
                 });
 
             modelBuilder.Entity("NETCORE3.Models.ChucVu", b =>
@@ -1506,33 +1465,6 @@ namespace NETCORE3.Data.Migrations
                     b.Navigation("User_Created");
                 });
 
-            modelBuilder.Entity("NETCORE3.Models.ChiTietLoaiThongTinThietBi", b =>
-                {
-                    b.HasOne("NETCORE3.Data.MyDbContext+ApplicationUser", "User_Created")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("NETCORE3.Models.LoaiThietBi", "LoaiThietBi")
-                        .WithMany()
-                        .HasForeignKey("LoaiThietBi_Id")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("NETCORE3.Models.ThongTinThietBi", "ThongTinThietBi")
-                        .WithMany("ChiTietLoaiThongTinThietBis")
-                        .HasForeignKey("ThongTinThietBi_Id")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("LoaiThietBi");
-
-                    b.Navigation("ThongTinThietBi");
-
-                    b.Navigation("User_Created");
-                });
-
             modelBuilder.Entity("NETCORE3.Models.ChucVu", b =>
                 {
                     b.HasOne("NETCORE3.Models.BoPhan", "BoPhan")
@@ -1684,7 +1616,7 @@ namespace NETCORE3.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("NETCORE3.Models.ThongTinThietBi", "ThongTinThietBi")
-                        .WithMany()
+                        .WithMany("loaiThongTinThietBis")
                         .HasForeignKey("ThongTinThietBi_Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1900,7 +1832,7 @@ namespace NETCORE3.Data.Migrations
 
             modelBuilder.Entity("NETCORE3.Models.ThongTinThietBi", b =>
                 {
-                    b.Navigation("ChiTietLoaiThongTinThietBis");
+                    b.Navigation("loaiThongTinThietBis");
                 });
 #pragma warning restore 612, 618
         }

@@ -124,6 +124,11 @@ namespace NETCORE3.Data
         public DbSet<LoaiThietBi> loaiThietBis{ get; set; }
         public DbSet<LoaiHangThietBi> loaiHangThietBis { get; set; }
         public DbSet<HeThong> heThongs { get; set; }
+        public DbSet<ThongTinThietBi> thongTinThietBis { get; set; }
+        public DbSet<LoaiThongTinThietBi> loaiThongTinThietBis { get; set; }
+        public DbSet<ThongTinHangThietBi> thongTinHangThietBis { get; set; }
+        public DbSet<ChiTietLoaiThongTinThietBi> chiTietLoaiThongTinThietBis { get; set; }
+
         
     }
 }
