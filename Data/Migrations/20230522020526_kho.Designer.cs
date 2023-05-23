@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NETCORE3.Data;
 
@@ -11,9 +12,11 @@ using NETCORE3.Data;
 namespace NETCORE3.Data.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230522020526_kho")]
+    partial class kho
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -772,9 +775,6 @@ namespace NETCORE3.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("DanhMucKho_Id")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -790,8 +790,18 @@ namespace NETCORE3.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("MaKho")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int>("SoLuong")
                         .HasColumnType("int");
+
+                    b.Property<string>("TenKho")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("TinhTrangThietBi")
                         .HasColumnType("nvarchar(max)");
@@ -802,9 +812,6 @@ namespace NETCORE3.Data.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("User_Id")
                         .HasColumnType("uniqueidentifier");
 
@@ -812,13 +819,11 @@ namespace NETCORE3.Data.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.HasIndex("DanhMucKho_Id");
-
                     b.HasIndex("DonViTinh_Id");
 
                     b.HasIndex("DonVi_Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("User_Id");
 
                     b.ToTable("khos");
                 });
@@ -1857,11 +1862,6 @@ namespace NETCORE3.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("NETCORE3.Models.DanhMucKho", "DanhMucKho")
-                        .WithMany()
-                        .HasForeignKey("DanhMucKho_Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("NETCORE3.Models.DonViTinh", "DonViTinh")
                         .WithMany()
                         .HasForeignKey("DonViTinh_Id")
@@ -1874,10 +1874,8 @@ namespace NETCORE3.Data.Migrations
 
                     b.HasOne("NETCORE3.Data.MyDbContext+ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("User_Id")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("DanhMucKho");
 
                     b.Navigation("DonVi");
 

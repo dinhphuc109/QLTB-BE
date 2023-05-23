@@ -40,7 +40,7 @@ namespace NETCORE3.Data
 
             public Guid? ChucVu_Id { get; set; }
             public ChucVu ChucVu { get; set; }
-            [ForeignKey("PhongBan")]
+            [ForeignKey("Phongban")]
             public Guid? PhongBan_Id { get; set; }
             public Phongban PhongBan { get; set; }
             [ForeignKey("DonViTraLuong")]
@@ -128,7 +128,12 @@ namespace NETCORE3.Data
         public DbSet<LoaiThongTinThietBi> loaiThongTinThietBis { get; set; }
         public DbSet<ThongTinHangThietBi> thongTinHangThietBis { get; set; }
         public DbSet<ChiTietLoaiThongTinThietBi> chiTietLoaiThongTinThietBis { get; set; }
+        public DbSet<DanhMucKho> danhMucKhos { get; set; }
+        public DbSet<Kho> khos { get; set; }
+        public DbSet<KhoLoaiThietBi> khoLoaiThietBis { get; set; }
+        public DbSet<KhoThongTinThietBi> khoThongTinThietBis { get; set; }
+  
 
-        
+
     }
 }
