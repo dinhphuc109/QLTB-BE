@@ -38,7 +38,7 @@ namespace NETCORE3.Controllers
     public ActionResult Get(string keyword)
     {
       if (keyword == null) keyword = "";
-      string[] include = { "PhongBan" };
+      string[] include = { "Phongban" };
       var data = uow.BoPhans.GetAll(t => !t.IsDeleted && (t.MaBoPhan.ToLower().Contains(keyword.ToLower()) || t.TenBoPhan.ToLower().Contains(keyword.ToLower())),null, include).Select(x => new
       {
         x.Id,

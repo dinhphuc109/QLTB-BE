@@ -17,7 +17,7 @@ namespace NETCORE3.Models
     [StringLength(250)]
     [Required(ErrorMessage = "Tên bắt buộc")]
     public string TenDonVi { get; set; }
-        [ForeignKey("Tập đoàn")]
+        [ForeignKey("TapDoan")]
         public Guid? TapDoan_Id { get; set; }
         public TapDoan TapDoan { get; set; }
 

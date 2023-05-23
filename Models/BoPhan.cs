@@ -17,7 +17,7 @@ namespace NETCORE3.Models
     [StringLength(250)]
     [Required(ErrorMessage = "Tên bắt buộc")]
     public string TenBoPhan { get; set; }
-    [ForeignKey("Phòng ban")]
+    [ForeignKey("Phongban")]
     public Guid? PhongBan_Id {get; set;}
     public Phongban Phongban  {get; set;}
   }

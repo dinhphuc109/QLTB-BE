@@ -192,6 +192,17 @@ namespace NETCORE3.Models
         public List<DonViViewModel> children { set; get; }
         public List<User_PhanQuyen> lst_user_phanquyen { set; get; }
     }
+
+    public class ClassListKho
+    {
+        public Guid Id { get; set; }
+        public string MaKho { get; set; }
+        public string TenKho { get; set; }
+        public string TenDonVi { get; set; }
+        public string DonViTinh { get; set; }
+        public string TinhTrangThietBi { get; set; }
+        public int SoLuong { get; set; }
+    }
     public class ImportDonVi
     {
         public IFormFile file { get; set; }
