@@ -33,6 +33,7 @@ namespace NETCORE3.Controllers
         public ActionResult Get(string keyword)
         {
             if (keyword == null) keyword = "";
+
             string[] include = {"User", "DanhMucKho", "DonViTinh", "DonVi", "khoLoaiThietBis", "khoLoaiThietBis.LoaiThietBi", "khoThongTinThietBis", "khoThongTinThietBis.ThongTinThietBi" };
             var data = uow.khos.GetAll(t => !t.IsDeleted, null, include).Select(x => new
             {
@@ -55,7 +56,7 @@ namespace NETCORE3.Controllers
                     y.ThongTinThietBi.ThoiGianBaoHanh,
                     y.ThongTinThietBi.SoSeri,
                     y.ThongTinThietBi.ModelThietBi,
-                    y.ThongTinThietBi.NhaCungCap
+
                 })
 
             });
@@ -84,7 +85,7 @@ namespace NETCORE3.Controllers
                 x.SoLuong,
                 x.TinhTrangThietBi,
                 x.DonVi_Id,
-                x.User.FullName,
+                x.User.UserName,
                 LstLoai = x.khoLoaiThietBis.Select(y => new
                 {
                     y.LoaiThietBi.TenLoaiThietBi,
@@ -96,7 +97,7 @@ namespace NETCORE3.Controllers
                     y.ThongTinThietBi.ThoiGianBaoHanh,
                     y.ThongTinThietBi.SoSeri,
                     y.ThongTinThietBi.ModelThietBi,
-                    y.ThongTinThietBi.NhaCungCap
+      
                 })
             })
             .OrderBy(x => x.TenKho);

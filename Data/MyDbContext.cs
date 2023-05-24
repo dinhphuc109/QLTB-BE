@@ -42,7 +42,7 @@ namespace NETCORE3.Data
             public ChucVu ChucVu { get; set; }
             [ForeignKey("Phongban")]
             public Guid? PhongBan_Id { get; set; }
-            public Phongban PhongBan { get; set; }
+            public Phongban Phongban { get; set; }
             [ForeignKey("DonViTraLuong")]
             public Guid? DonViTraLuong_Id { get; set; }
             public DonViTraLuong DonViTraLuong { get; set; }
@@ -125,13 +125,16 @@ namespace NETCORE3.Data
         public DbSet<LoaiHangThietBi> loaiHangThietBis { get; set; }
         public DbSet<HeThong> heThongs { get; set; }
         public DbSet<ThongTinThietBi> thongTinThietBis { get; set; }
-        public DbSet<LoaiThongTinThietBi> loaiThongTinThietBis { get; set; }
+      
         public DbSet<ThongTinHangThietBi> thongTinHangThietBis { get; set; }
         public DbSet<ChiTietLoaiThongTinThietBi> chiTietLoaiThongTinThietBis { get; set; }
         public DbSet<DanhMucKho> danhMucKhos { get; set; }
         public DbSet<Kho> khos { get; set; }
         public DbSet<KhoLoaiThietBi> khoLoaiThietBis { get; set; }
         public DbSet<KhoThongTinThietBi> khoThongTinThietBis { get; set; }
+        public DbSet<BanGiaoTB> banGiaoTBs { get; set; }
+        public DbSet<BanGiaoThongTinThietBi> banGiaoThongTinThietBis { get; set; }
+        public DbSet<BanGiaoNguoiNhan> banGiaoNguoiNhans { get; set; }
   
 
 
