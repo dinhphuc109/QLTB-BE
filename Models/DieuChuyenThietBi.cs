@@ -19,12 +19,17 @@ namespace NETCORE3.Models
                 public virtual ICollection<DieuChuyenBanGiao> dieuChuyenBanGiao { get; set; }
                 [NotMapped]
                 public List<DieuChuyenBanGiao> Lstdcbg { get; set; }*/
-        [ForeignKey("BanGiaoTB")]
-        public Guid? BanGiaoTB_Id { get; set; }
-        public Guid? UserDieuChuyen_Id { get; set; }
-        public ApplicationUser UserDieuChuyen { get; set; }
+        [ForeignKey("Kho")]
+        public Guid? Kho_Id { get; set; }
+        public Kho Kho { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<NguoiNhanDieuChuyen> nguoiNhanDieuChuyens { get; set; }
+        [NotMapped]
+        public List<NguoiNhanDieuChuyen> Lstnndc { get; set; }
         [ForeignKey("DonVi")]
         public Guid? DonVi_Id { get; set; }
+        public DonVi DonVi { get; set; }
+        [ForeignKey("User")]
         public Guid? User_Id { get; set; }
         public ApplicationUser User { get; set; }
         public DateTime NgayDieuChuyen { get; set; }

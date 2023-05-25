@@ -40,7 +40,9 @@ namespace NETCORE3.Infrastructure
         IBanGiaoThongTinThietBiRepository banGiaoThongTinThietBis { get; }
         IBanGiaoTBRepository banGiaoTBs { get; }
         IBanGiaoNguoiNhanRepository banGiaoNguoiNhans { get; }
-
+        IDieuChuyenThietBiRepository dieuChuyenThietBis { get; }
+        INguoiNhanDieuChuyenRepository nguoiNhanDieuChuyens { get; }
+        IThanhLyThietBiRepository thanhLyThietBis { get; }
         int Complete();
   }
 }

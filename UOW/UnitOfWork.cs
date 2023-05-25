@@ -41,6 +41,9 @@ namespace NETCORE3.UOW
         public IBanGiaoTBRepository banGiaoTBs { get; private set; }
         public IBanGiaoThongTinThietBiRepository banGiaoThongTinThietBis { get; private set; }
         public IBanGiaoNguoiNhanRepository banGiaoNguoiNhans { get; private set; }
+        public IDieuChuyenThietBiRepository dieuChuyenThietBis { get;private set; }
+        public INguoiNhanDieuChuyenRepository nguoiNhanDieuChuyens { get; private set; }
+        public IThanhLyThietBiRepository thanhLyThietBis { get; private set; }
 
     private MyDbContext db;
     public UnitofWork(MyDbContext _db)
@@ -80,6 +83,9 @@ namespace NETCORE3.UOW
             banGiaoTBs=new BanGiaoTBRepository(db);
             banGiaoThongTinThietBis = new BanGiaoThongTinThietBiRepository(db);
             banGiaoNguoiNhans = new BanGiaoNguoiNhanRepository(db);
+            dieuChuyenThietBis = new DieuChuyenThietBiRepository(db);
+            nguoiNhanDieuChuyens = new NguoiNhanDieuChuyenRepository(db);
+            thanhLyThietBis = new ThanhLyThietBiRepository(db);
       }
     public void Dispose()
     {

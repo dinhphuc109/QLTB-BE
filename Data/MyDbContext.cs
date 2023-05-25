@@ -135,7 +135,9 @@ namespace NETCORE3.Data
         public DbSet<BanGiaoTB> banGiaoTBs { get; set; }
         public DbSet<BanGiaoThongTinThietBi> banGiaoThongTinThietBis { get; set; }
         public DbSet<BanGiaoNguoiNhan> banGiaoNguoiNhans { get; set; }
-  
+        public DbSet<DieuChuyenThietBi> dieuChuyenThietBis { get; set; }
+        public DbSet<NguoiNhanDieuChuyen> nguoiNhanDieuChuyens { get; set; }
+        public DbSet<ThanhLyThietBi> thanhLyThietBis { get; set; }
 
 
     }

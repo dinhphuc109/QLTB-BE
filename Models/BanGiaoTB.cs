@@ -16,6 +16,7 @@ namespace NETCORE3.Models
         [StringLength(50)]
         [Required(ErrorMessage = "Mã bắt buộc")]
         public string MaBanGIao { get; set; }
+        [ForeignKey("User")]
         public Guid? User_Id { get; set; }
         public ApplicationUser User { get; set; }
         [JsonIgnore]

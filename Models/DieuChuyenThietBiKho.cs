@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NETCORE3.Models
 {
-    public class DieuChuyenBanGiao :Auditable
+    public class DieuChuyenThietBiKho : Auditable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -13,8 +13,8 @@ namespace NETCORE3.Models
         [ForeignKey("DieuChuyenThietBi")]
         public Guid DieuChuyenThietBi_Id { get; set; }
         public DieuChuyenThietBi DieuChuyenThietBi { get; set; }
-        [ForeignKey("BanGiaoTB")]
-        public Guid BanGiaoTB_Id { get; set; }
-        public BanGiaoTB BanGiaoTB { get; set; }
+        [ForeignKey("Kho")]
+        public Guid Kho_Id { get; set; }
+        public Kho Kho { get; set; }
     }
 }
