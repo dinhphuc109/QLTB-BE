@@ -21,9 +21,9 @@ namespace NETCORE3.Models
         public Guid? HeThong_Id { get; set; }
         public HeThong HeThong { get; set; }
         [JsonIgnore]
-        public virtual ICollection<LoaiHangThietBi> loaiHangThietBis { get; set; }
+        public virtual ICollection<Loai_HangThietBi> loaiHangThietBis { get; set; }
         [NotMapped]
-        public List<LoaiHangThietBi> LstLoai { get; set; }
+        public List<Loai_HangThietBi> LstLoai { get; set; }
 
     }
 }

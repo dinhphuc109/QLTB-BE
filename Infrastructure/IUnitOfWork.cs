@@ -31,8 +31,8 @@ namespace NETCORE3.Infrastructure
         ILoaiHangThietBiRepository loaiHangThietBis { get; }
        
         IThongTinThietBiRepository thongTinThietBis { get; }
-        IThongTinHangThietBiRepository thongTinHangThietBis { get; }
-        IChiTietLoaiThongTinThietBiRepository chiTietLoaiThongTinThietBis { get; }
+     
+    
         IKhoRepository khos { get; }
         IDanhMucKhoRepository danhMucKhos {get;}
         IKhoLoaiThietBiRepository khoLoaiThietBis { get; }
@@ -43,6 +43,7 @@ namespace NETCORE3.Infrastructure
         IDieuChuyenThietBiRepository dieuChuyenThietBis { get; }
         INguoiNhanDieuChuyenRepository nguoiNhanDieuChuyens { get; }
         IThanhLyThietBiRepository thanhLyThietBis { get; }
+        IThanhLyKhoRepository thanhLyKhos { get; }
         int Complete();
   }
 }

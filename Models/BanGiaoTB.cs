@@ -20,13 +20,13 @@ namespace NETCORE3.Models
         public Guid? User_Id { get; set; }
         public ApplicationUser User { get; set; }
         [JsonIgnore]
-        public virtual ICollection<BanGiaoNguoiNhan> banGiaoNguoiNhans { get; set; }
+        public virtual ICollection<BanGiao_NguoiNhan> banGiaoNguoiNhans { get; set; }
         [NotMapped]
-        public List<BanGiaoNguoiNhan> Lstbgnn { get; set; }
+        public List<BanGiao_NguoiNhan> Lstbgnn { get; set; }
         [JsonIgnore]
-        public virtual ICollection<BanGiaoThongTinThietBi> banGiaoThongTinThietBis { get; set; }
+        public virtual ICollection<BanGiao_ThongTinThietBi> banGiaoThongTinThietBis { get; set; }
         [NotMapped]
-        public List<BanGiaoThongTinThietBi> Lstbgtttb { get; set; }
+        public List<BanGiao_ThongTinThietBi> Lstbgtttb { get; set; }
         public int SoLuong { get; set; }
         public string TinhTrangThietBi { get; set; }
         [ForeignKey("DonViTinh")]

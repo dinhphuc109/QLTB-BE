@@ -91,6 +91,8 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
+                if (uow.phongbans.Exists(x => x.MaPhongBan == data.MaPhongBan && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaPhongBan + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;
                 uow.phongbans.Update(data);

@@ -23,9 +23,9 @@ namespace NETCORE3.Models
         public Guid? Kho_Id { get; set; }
         public Kho Kho { get; set; }
         [JsonIgnore]
-        public virtual ICollection<NguoiNhanDieuChuyen> nguoiNhanDieuChuyens { get; set; }
+        public virtual ICollection<NguoiNhan_DieuChuyen> nguoiNhanDieuChuyens { get; set; }
         [NotMapped]
-        public List<NguoiNhanDieuChuyen> Lstnndc { get; set; }
+        public List<NguoiNhan_DieuChuyen> Lstnndc { get; set; }
         [ForeignKey("DonVi")]
         public Guid? DonVi_Id { get; set; }
         public DonVi DonVi { get; set; }

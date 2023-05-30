@@ -33,10 +33,11 @@ namespace NETCORE3.Models
         public string ModelThietBi { get; set; }
         public DateTime ThoiGianBaoHanh { get; set; }
 
-        [JsonIgnore]
-        public virtual ICollection<ChiTietLoaiThongTinThietBi> ChiTietLoaiThongTinThietBis { get; set; }
-        [NotMapped]
-        public List<ChiTietLoaiThongTinThietBi> LstLoai { get; set; }
+        [ForeignKey("LoaiThietBi")]
+        public Guid? LoaiThietBi_Id { get; set; }
+        public LoaiThietBi LoaiThietBi { get; set; }
+
+
 
     }
 }

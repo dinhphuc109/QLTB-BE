@@ -1,24 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NETCORE3.Models
 {
-    public class ChiTietLoaiThongTinThietBi:Auditable
+    public class Loai_HangThietBi:Auditable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-        [ForeignKey("ThongTinThietBi")]
-        public Guid ThongTinThietBi_Id { get; set; }
-        public ThongTinThietBi ThongTinThietBi { get; set; }
 
+        [ForeignKey("HangThietBi")]
+        public Guid HangThietBi_Id { get; set; }
+        public HangThietBi HangThietBi { get; set; }
         [ForeignKey("LoaiThietBi")]
         public Guid LoaiThietBi_Id { get; set; }
         public LoaiThietBi LoaiThietBi { get; set; }
-
     }
 }

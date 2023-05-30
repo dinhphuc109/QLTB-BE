@@ -5,15 +5,14 @@ using static NETCORE3.Data.MyDbContext;
 
 namespace NETCORE3.Models
 {
-    public class NguoiNhanDieuChuyen: Auditable
+    public class BanGiao_NguoiNhan: Auditable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-
-        [ForeignKey("DieuChuyenThietBi")]
-        public Guid DieuChuyenThietBi_Id { get; set; }
-        public DieuChuyenThietBi DieuChuyenThietBi { get; set; }
+        [ForeignKey("BanGiaoTB")]
+        public Guid BanGiaoTB_Id { get; set; }
+        public BanGiaoTB BanGiaoTB { get; set; }
         [ForeignKey("User")]
         public Guid User_Id { get; set; }
         public ApplicationUser User { get; set; }

@@ -66,6 +66,8 @@ namespace NETCORE3.Controllers
             public string MaThietBi { get; set; }
             public string TenThietBi { get; set; }
             public string CauHinh { get; set; }
+            public int SoLuong { get; set; }
+            public string DonViTinh { get; set; }
             public string TinhTrangMay { get; set; }
             public string NguoiNhanDieuChuyen { get; set; }
             public string TenDonViNguoiNhan { get; set; }
@@ -111,8 +113,8 @@ namespace NETCORE3.Controllers
                 infor.MaDieuChuyen = item.MaDieuChuyen;
                 infor.Tenkho = khotttb[0].TenKho;
                 infor.DonVi = item.TenDonVi;
-                var tbtt = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Kho_Id, null, null).Select(x => new { x.ThongTinThietBi_Id }).ToList();
-                var kho = uow.khos.GetAll(x => !x.IsDeleted && x.Id == item.Kho_Id, null, null).Select(x => new { x.TinhTrangThietBi }).ToList();
+                var tbtt = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Kho_Id, null, null).Select(x => new { x.ThongTinThietBi_Id, x.SoLuong, x.DonViTinh.TenDonViTinh, x.TinhTrangThietBi }).ToList();
+                var kho = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Kho_Id, null, null).Select(x => new { x.TinhTrangThietBi }).ToList();
                 foreach (var l in tbtt)
                 {
                     var tenthietbi = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.TenThietBi }).ToList();
@@ -121,8 +123,11 @@ namespace NETCORE3.Controllers
                     infor.MaThietBi = mathietbi[0].MaThongTinThietBi;
                     infor.TenThietBi = tenthietbi[0].TenThietBi;
                     infor.CauHinh = cauhinh[0].CauHinh;
+
                 }
-                infor.TinhTrangMay = kho[0].TinhTrangThietBi;
+                infor.SoLuong = tbtt[0].SoLuong;
+                infor.DonViTinh = tbtt[0].TenDonViTinh;
+                infor.TinhTrangMay = tbtt[0].TinhTrangThietBi;
                 infor.NgayDieuChuyen = item.NgayDieuChuyen;
                 var nvnn = uow.nguoiNhanDieuChuyens.GetAll(x => !x.IsDeleted && x.DieuChuyenThietBi_Id == item.Id, null, null).Select(x => new { x.User }).ToList();
                 foreach (var nn in nvnn)
@@ -147,6 +152,19 @@ namespace NETCORE3.Controllers
             return Ok(new { data, totalPage, totalRow });
         }
 
+
+        [HttpGet("{id}")]
+        public ActionResult Get(Guid id)
+        {
+            string[] includes = { "User", "Kho", "DonVi", "nguoiNhanDieuChuyens", "nguoiNhanDieuChuyens.User" };
+            var duLieu = uow.dieuChuyenThietBis.GetAll(x => !x.IsDeleted && x.Id == id, null, includes);
+            if (duLieu == null)
+            {
+                return NotFound();
+            }
+            return Ok(duLieu);
+        }
+
         [HttpPost]
         public ActionResult Post(DieuChuyenThietBi data)
         {
@@ -158,7 +176,7 @@ namespace NETCORE3.Controllers
                 }
                 if (uow.dieuChuyenThietBis.Exists(x => x.Id == data.Id && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDieuChuyen + " đã tồn tại trong hệ thống");
-                else if (uow.khos.Exists(x => x.Id == data.Id && !x.IsDeleted))
+                else if (uow.khos.Exists(x => x.Id == data.Id && x.IsDeleted))
                 {
                     var banGiaotb = uow.dieuChuyenThietBis.GetAll(x => x.Id == data.Id).ToArray();
                     banGiaotb[0].IsDeleted = false;
@@ -215,6 +233,32 @@ namespace NETCORE3.Controllers
                 if (id != data.Id)
                 {
                     return BadRequest();
+                }
+                if (uow.dieuChuyenThietBis.Exists(x => x.Id == data.Id && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDieuChuyen + " đã tồn tại trong hệ thống");
+                else if (uow.khos.Exists(x => x.Id == data.Id && x.IsDeleted))
+                {
+                    var banGiaotb = uow.dieuChuyenThietBis.GetAll(x => x.Id == data.Id).ToArray();
+                    banGiaotb[0].IsDeleted = false;
+                    banGiaotb[0].DeletedBy = null;
+                    banGiaotb[0].DeletedDate = null;
+                    banGiaotb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
+                    banGiaotb[0].UpdatedDate = DateTime.Now;
+                    banGiaotb[0].MaDieuChuyen = data.MaDieuChuyen;
+                    banGiaotb[0].Kho_Id = data.Kho_Id;
+                    banGiaotb[0].NgayDieuChuyen = data.NgayDieuChuyen;
+                    banGiaotb[0].DonVi_Id = data.DonVi_Id;
+                    banGiaotb[0].User_Id = data.User_Id;
+
+
+                    uow.dieuChuyenThietBis.Update(banGiaotb[0]);
+                }
+                else
+                {
+                    data.Id = id;
+                    data.CreatedDate = DateTime.Now;
+                    data.CreatedBy = Guid.Parse(User.Identity.Name);
+                    uow.dieuChuyenThietBis.Update(data);
                 }
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;

@@ -4,13 +4,13 @@ using NETCORE3.Models;
 
 namespace NETCORE3.Repositories
 {
-    public interface IBanGiaoNguoiNhanRepository : IRepository<BanGiao_NguoiNhan>
+    public interface IThanhLyKhoRepository : IRepository<ThanhLy_Kho>
     {
 
     }
-    public class BanGiaoNguoiNhanRepository : Repository<BanGiao_NguoiNhan>, IBanGiaoNguoiNhanRepository
+    public class ThanhLyKhoRepository : Repository<ThanhLy_Kho>, IThanhLyKhoRepository
     {
-        public BanGiaoNguoiNhanRepository(MyDbContext _db) : base(_db)
+        public ThanhLyKhoRepository(MyDbContext _db) : base(_db)
         {
         }
         public MyDbContext MyDbContext

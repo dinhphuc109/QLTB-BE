@@ -94,7 +94,9 @@ namespace NETCORE3.Controllers
         {
           return BadRequest();
         }
-        data.UpdatedBy = Guid.Parse(User.Identity.Name);
+                if (uow.DonViTinhs.Exists(x => x.MaDonViTinh == data.MaDonViTinh && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDonViTinh + " đã tồn tại trong hệ thống");
+                data.UpdatedBy = Guid.Parse(User.Identity.Name);
         data.UpdatedDate = DateTime.Now;
         uow.DonViTinhs.Update(data);
         uow.Complete();

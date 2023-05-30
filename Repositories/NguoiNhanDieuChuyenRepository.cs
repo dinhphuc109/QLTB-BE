@@ -5,11 +5,11 @@ using NETCORE3.Models;
 namespace NETCORE3.Repositories
 {
 
-    public interface INguoiNhanDieuChuyenRepository : IRepository<NguoiNhanDieuChuyen>
+    public interface INguoiNhanDieuChuyenRepository : IRepository<NguoiNhan_DieuChuyen>
     {
 
     }
-    public class NguoiNhanDieuChuyenRepository : Repository<NguoiNhanDieuChuyen>, INguoiNhanDieuChuyenRepository
+    public class NguoiNhanDieuChuyenRepository : Repository<NguoiNhan_DieuChuyen>, INguoiNhanDieuChuyenRepository
     {
         public NguoiNhanDieuChuyenRepository(MyDbContext _db) : base(_db)
         {

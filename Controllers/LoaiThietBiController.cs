@@ -88,6 +88,8 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
+                if (uow.loaiThietBis.Exists(x => x.MaLoaiThietBi == data.MaLoaiThietBi && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaLoaiThietBi + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;
                 uow.loaiThietBis.Update(data);

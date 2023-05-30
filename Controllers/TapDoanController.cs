@@ -88,6 +88,8 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
+                if (uow.tapDoans.Exists(x => x.MaTapDoan == data.MaTapDoan && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaTapDoan + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;
                 uow.tapDoans.Update(data);

@@ -88,6 +88,8 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
+                if (uow.donViTraLuongs.Exists(x => x.MaDonViTraLuong == data.MaDonViTraLuong && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDonViTraLuong + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;
                 uow.donViTraLuongs.Update(data);

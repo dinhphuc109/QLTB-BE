@@ -108,7 +108,7 @@ namespace NETCORE3.Controllers
                 }
                 if (uow.hangThietBis.Exists(x => x.MaHangThietBi == data.MaHangThietBi && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHangThietBi + " đã tồn tại trong hệ thống");
-                else if (uow.hangThietBis.Exists(x => x.MaHangThietBi == data.MaHangThietBi && !x.IsDeleted))
+                else if (uow.hangThietBis.Exists(x => x.MaHangThietBi == data.MaHangThietBi && x.IsDeleted))
                 {
                     var hangtb = uow.hangThietBis.GetAll(x => x.MaHangThietBi == data.MaHangThietBi).ToArray();
                     hangtb[0].IsDeleted = false;
@@ -161,10 +161,30 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                data.UpdatedBy = Guid.Parse(User.Identity.Name);
-                data.UpdatedDate = DateTime.Now;
+                if (uow.hangThietBis.Exists(x => x.MaHangThietBi == data.MaHangThietBi && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHangThietBi + " đã tồn tại trong hệ thống");
+                else if (uow.hangThietBis.Exists(x => x.MaHangThietBi == data.MaHangThietBi && x.IsDeleted))
+                {
+                    var hangtb = uow.hangThietBis.GetAll(x => x.MaHangThietBi == data.MaHangThietBi).ToArray();
+                    hangtb[0].IsDeleted = false;
+                    hangtb[0].DeletedBy = null;
+                    hangtb[0].DeletedDate = null;
+                    hangtb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
+                    hangtb[0].UpdatedDate = DateTime.Now;
+                    hangtb[0].MaHangThietBi = data.MaHangThietBi;
+                    hangtb[0].TenHang = data.TenHang;
+                    hangtb[0].HeThong_Id = data.HeThong_Id;
+                    uow.hangThietBis.Update(hangtb[0]);
+                }
+                else
+                {
+                    data.UpdatedBy = Guid.Parse(User.Identity.Name);
+                    data.UpdatedDate = DateTime.Now;
 
-                uow.hangThietBis.Update(data);
+                    uow.hangThietBis.Update(data);
+
+                }
+
                 var lstLoai = data.LstLoai;
                 var dataCheck = uow.loaiHangThietBis.GetAll(x => !x.IsDeleted && x.HangThietBi_Id == id).ToList();
                 if (dataCheck.Count() > 0)

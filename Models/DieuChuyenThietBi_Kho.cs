@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NETCORE3.Models
 {
-    public class DieuChuyenThietBiKho : Auditable
+    public class DieuChuyenThietBi_Kho : Auditable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

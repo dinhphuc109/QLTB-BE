@@ -70,7 +70,7 @@ namespace NETCORE3.Controllers
                 }
                 if (uow.danhMucKhos.Exists(x => x.MaKho == data.MaKho && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaKho + " đã tồn tại trong hệ thống");
-                else if (uow.danhMucKhos.Exists(x => x.MaKho == data.MaKho && !x.IsDeleted))
+                else if (uow.danhMucKhos.Exists(x => x.MaKho == data.MaKho && x.IsDeleted))
                 {
                     var vattu = uow.danhMucKhos.GetAll(x => x.MaKho == data.MaKho).ToArray();
                     vattu[0].IsDeleted = false;
@@ -112,10 +112,30 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                data.UpdatedBy = Guid.Parse(User.Identity.Name);
-                data.UpdatedDate = DateTime.Now;
-                uow.danhMucKhos.Update(data);
-                    
+                if (uow.danhMucKhos.Exists(x => x.MaKho == data.MaKho && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaKho + " đã tồn tại trong hệ thống");
+                else if (uow.danhMucKhos.Exists(x => x.MaKho == data.MaKho && x.IsDeleted))
+                {
+                    var vattu = uow.danhMucKhos.GetAll(x => x.MaKho == data.MaKho).ToArray();
+                    vattu[0].IsDeleted = false;
+                    vattu[0].DeletedBy = null;
+                    vattu[0].DeletedDate = null;
+                    vattu[0].UpdatedBy = Guid.Parse(User.Identity.Name);
+                    vattu[0].UpdatedDate = DateTime.Now;
+                    vattu[0].MaKho = data.MaKho;
+                    vattu[0].TenKho = data.TenKho;
+                    vattu[0].User.Id = data.User.Id;
+
+                    uow.danhMucKhos.Update(vattu[0]);
+
+                }
+                else
+                {
+                    data.UpdatedBy = Guid.Parse(User.Identity.Name);
+                    data.UpdatedDate = DateTime.Now;
+                    uow.danhMucKhos.Update(data);
+                }
+                   
              }
                 uow.Complete();
                 return StatusCode(StatusCodes.Status204NoContent);
