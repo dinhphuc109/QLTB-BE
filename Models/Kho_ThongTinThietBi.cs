@@ -11,13 +11,14 @@ namespace NETCORE3.Models
         public Guid Id { get; set; }
 
         [ForeignKey("Kho")]
-        public Guid Kho_Id { get; set; }
+        public Guid? Kho_Id { get; set; }
         public Kho Kho { get; set; }
         [ForeignKey("ThongTinThietBi")]
         public Guid ThongTinThietBi_Id { get; set; }
         public ThongTinThietBi ThongTinThietBi { get; set; }
-
+        [Range(0, 250)]
         public int SoLuong { get; set; }
+        [StringLength(250)]
         public string TinhTrangThietBi { get; set; }
         [ForeignKey("DonViTinh")]
         public Guid? DonViTinh_Id { get; set; }

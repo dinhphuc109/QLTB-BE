@@ -11,10 +11,10 @@ namespace NETCORE3.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         [ForeignKey("BanGiaoTB")]
-        public Guid BanGiaoTB_Id { get; set; }
+        public Guid? BanGiaoTB_Id { get; set; }
         public BanGiaoTB BanGiaoTB { get; set; }
         [ForeignKey("User")]
-        public Guid User_Id { get; set; }
+        public Guid? User_Id { get; set; }
         public ApplicationUser User { get; set; }
     }
 }

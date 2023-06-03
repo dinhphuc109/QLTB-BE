@@ -33,15 +33,16 @@ namespace NETCORE3.Controllers
         {
             if (keyword == null) keyword = "";
             string[] include = { "HeThong", "loaiHangThietBis", "loaiHangThietBis.LoaiThietBi" };
-            var data = uow.hangThietBis.GetAll(t => !t.IsDeleted && (t.MaHangThietBi.ToLower().Contains(keyword.ToLower()) || t.TenHang.ToLower().Contains(keyword.ToLower())),null,include).Select(x => new
+            var data = uow.hangThietBis.GetAll(t => !t.IsDeleted && (t.MaHang.ToLower().Contains(keyword.ToLower()) || t.TenHang.ToLower().Contains(keyword.ToLower())),null,include).Select(x => new
             {
                 x.Id,
-                x.MaHangThietBi,
+                x.MaHang,
                 x.TenHang,
-                x.HeThong.TenHeThong,
+                
                 LstLoai = x.loaiHangThietBis.Select(y => new
                 {
                     y.LoaiThietBi.TenLoaiThietBi,
+                    y.LoaiThietBi.HeThong.TenHeThong,
                 })
 
             });
@@ -59,15 +60,16 @@ namespace NETCORE3.Controllers
             var duLieu = uow.hangThietBis.GetAll(x => !x.IsDeleted && x.Id == id, null, include).Select(x => new
             {
                 x.Id,
-                x.MaHangThietBi,
+                x.MaHang,
                 x.TenHang,
-                x.HeThong_Id,
+
                 LstLoai = x.loaiHangThietBis.Select(y => new
                 {
                     y.LoaiThietBi.TenLoaiThietBi,
+                    y.LoaiThietBi.HeThong.TenHeThong,
                 })
 
-            });
+            }); ;
             if (duLieu == null)
             {
                 return NotFound();
@@ -83,10 +85,10 @@ namespace NETCORE3.Controllers
         }
 
         [HttpGet("GetChiTietHang")]
-        public ActionResult GetChiTietHang(Guid idHeThong,Guid idLoaiThietBi)
+        public ActionResult GetChiTietHang(Guid idLoaiThietBi)
         {
             string[] include = { "Hang" };
-            var data = uow.loaiHangThietBis.GetAll(x => x.HangThietBi_Id == idHeThong && !x.IsDeleted).GroupBy(x => x.HangThietBi_Id).Select(x => new { x.Key });
+            var data = uow.loaiHangThietBis.GetAll(x => x.HangThietBi_Id == idLoaiThietBi).GroupBy(x => x.HangThietBi_Id).Select(x => new { x.Key });
             var dataHang = uow.hangThietBis.GetAll(x => !x.IsDeleted).Select(x => new { x.Id, x.TenHang });
             List<ChiTietHangThietBi> list = new List<ChiTietHangThietBi>();
             foreach (var x in data)
@@ -106,24 +108,21 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                if (uow.hangThietBis.Exists(x => x.MaHangThietBi == data.MaHangThietBi && !x.IsDeleted))
-                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHangThietBi + " đã tồn tại trong hệ thống");
-                else if (uow.hangThietBis.Exists(x => x.MaHangThietBi == data.MaHangThietBi && x.IsDeleted))
+                if (uow.hangThietBis.Exists(x => x.MaHang == data.MaHang && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHang + " đã tồn tại trong hệ thống");
+                else if (uow.hangThietBis.Exists(x => x.MaHang == data.MaHang && x.IsDeleted))
                 {
-                    var hangtb = uow.hangThietBis.GetAll(x => x.MaHangThietBi == data.MaHangThietBi).ToArray();
+                    var hangtb = uow.hangThietBis.GetAll(x => x.MaHang == data.MaHang).ToArray();
                     hangtb[0].IsDeleted = false;
                     hangtb[0].DeletedBy = null;
                     hangtb[0].DeletedDate = null;
                     hangtb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
                     hangtb[0].UpdatedDate = DateTime.Now;
-                    hangtb[0].MaHangThietBi = data.MaHangThietBi;
+                    hangtb[0].MaHang = data.MaHang;
                     hangtb[0].TenHang = data.TenHang;
-                    hangtb[0].HeThong_Id = data.HeThong_Id;
                     uow.hangThietBis.Update(hangtb[0]);
                     foreach (var item in data.LstLoai)
                     {
-                        item.CreatedBy = Guid.Parse(User.Identity.Name);
-                        item.CreatedDate = DateTime.Now;
                         item.HangThietBi_Id = hangtb[0].Id;
                         uow.loaiHangThietBis.Add(item);
                     }
@@ -137,8 +136,6 @@ namespace NETCORE3.Controllers
                     uow.hangThietBis.Add(data);
                     foreach (var item in data.LstLoai)
                     {
-                        item.CreatedBy = Guid.Parse(User.Identity.Name);
-                        item.CreatedDate = DateTime.Now;
                         item.HangThietBi_Id = id;
                         uow.loaiHangThietBis.Add(item);
                     }
@@ -161,19 +158,18 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                if (uow.hangThietBis.Exists(x => x.MaHangThietBi == data.MaHangThietBi && !x.IsDeleted))
-                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHangThietBi + " đã tồn tại trong hệ thống");
-                else if (uow.hangThietBis.Exists(x => x.MaHangThietBi == data.MaHangThietBi && x.IsDeleted))
+                if (uow.hangThietBis.Exists(x => x.MaHang == data.MaHang && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHang + " đã tồn tại trong hệ thống");
+                else if (uow.hangThietBis.Exists(x => x.MaHang == data.MaHang && x.IsDeleted))
                 {
-                    var hangtb = uow.hangThietBis.GetAll(x => x.MaHangThietBi == data.MaHangThietBi).ToArray();
+                    var hangtb = uow.hangThietBis.GetAll(x => x.MaHang == data.MaHang).ToArray();
                     hangtb[0].IsDeleted = false;
                     hangtb[0].DeletedBy = null;
                     hangtb[0].DeletedDate = null;
                     hangtb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
                     hangtb[0].UpdatedDate = DateTime.Now;
-                    hangtb[0].MaHangThietBi = data.MaHangThietBi;
+                    hangtb[0].MaHang = data.MaHang;
                     hangtb[0].TenHang = data.TenHang;
-                    hangtb[0].HeThong_Id = data.HeThong_Id;
                     uow.hangThietBis.Update(hangtb[0]);
                 }
                 else
@@ -186,7 +182,7 @@ namespace NETCORE3.Controllers
                 }
 
                 var lstLoai = data.LstLoai;
-                var dataCheck = uow.loaiHangThietBis.GetAll(x => !x.IsDeleted && x.HangThietBi_Id == id).ToList();
+                var dataCheck = uow.loaiHangThietBis.GetAll(x=>x.HangThietBi_Id == id).ToList();
                 if (dataCheck.Count() > 0)
                 {
                     foreach (var item in dataCheck)
@@ -201,8 +197,6 @@ namespace NETCORE3.Controllers
                         if (!dataCheck.Exists(x => x.LoaiThietBi_Id == item.LoaiThietBi_Id))
                         {
                             item.HangThietBi_Id = id;
-                            item.CreatedDate = DateTime.Now;
-                            item.CreatedBy = Guid.Parse(User.Identity.Name);
                             uow.loaiHangThietBis.Add(item);
                         }
                     }
@@ -212,8 +206,6 @@ namespace NETCORE3.Controllers
                     foreach (var item in lstLoai)
                     {
                         item.HangThietBi_Id = id;
-                        item.CreatedDate = DateTime.Now;
-                        item.CreatedBy = Guid.Parse(User.Identity.Name);
                         uow.loaiHangThietBis.Add(item);
                     }
                 }
@@ -234,7 +226,7 @@ namespace NETCORE3.Controllers
                     {
                         return NotFound();
                     }
-                    var dataCheck = uow.loaiHangThietBis.GetAll(x => !x.IsDeleted && x.HangThietBi_Id == id).ToList();
+                    var dataCheck = uow.loaiHangThietBis.GetAll(x => x.HangThietBi_Id == id).ToList();
                     foreach (var item in dataCheck)
                     {
                         uow.loaiHangThietBis.Delete(item.Id);

@@ -117,10 +117,10 @@ namespace NETCORE3.Controllers
                 var kho = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Kho_Id, null, null).Select(x => new { x.TinhTrangThietBi }).ToList();
                 foreach (var l in tbtt)
                 {
-                    var tenthietbi = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.TenThietBi }).ToList();
-                    var mathietbi = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.MaThongTinThietBi }).ToList();
-                    var cauhinh = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.CauHinh }).ToList();
-                    infor.MaThietBi = mathietbi[0].MaThongTinThietBi;
+                    var tenthietbi = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.DanhMucThietBi.TenThietBi }).ToList();
+                    var mathietbi = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.DanhMucThietBi.MaThietBi }).ToList();
+                    var cauhinh = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.DanhMucThietBi.CauHinh }).ToList();
+                    infor.MaThietBi = mathietbi[0].MaThietBi;
                     infor.TenThietBi = tenthietbi[0].TenThietBi;
                     infor.CauHinh = cauhinh[0].CauHinh;
 

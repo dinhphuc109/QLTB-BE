@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NETCORE3.Data;
 
@@ -11,9 +12,11 @@ using NETCORE3.Data;
 namespace NETCORE3.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230531080448_chinhsualon_thongtinthietbi")]
+    partial class chinhsualon_thongtinthietbi
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -573,9 +576,6 @@ namespace NETCORE3.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("DonVi_Id")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -602,8 +602,6 @@ namespace NETCORE3.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DonVi_Id");
 
                     b.HasIndex("User_CreatedId");
 
@@ -937,6 +935,9 @@ namespace NETCORE3.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("HeThong_Id")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -960,6 +961,8 @@ namespace NETCORE3.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("HeThong_Id");
 
                     b.HasIndex("User_CreatedId");
 
@@ -1034,6 +1037,9 @@ namespace NETCORE3.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("DonVi_Id")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -1049,6 +1055,8 @@ namespace NETCORE3.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DanhMucKho_Id");
+
+                    b.HasIndex("DonVi_Id");
 
                     b.HasIndex("User_CreatedId");
 
@@ -1132,9 +1140,6 @@ namespace NETCORE3.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("HeThong_Id")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -1164,8 +1169,6 @@ namespace NETCORE3.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("HeThong_Id");
 
                     b.HasIndex("ParentLoaiThietBiId");
 
@@ -2073,11 +2076,6 @@ namespace NETCORE3.Migrations
 
             modelBuilder.Entity("NETCORE3.Models.DanhMucKho", b =>
                 {
-                    b.HasOne("NETCORE3.Models.DonVi", "DonVi")
-                        .WithMany()
-                        .HasForeignKey("DonVi_Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("NETCORE3.Data.MyDbContext+ApplicationUser", "User_Created")
                         .WithMany()
                         .HasForeignKey("User_CreatedId")
@@ -2087,8 +2085,6 @@ namespace NETCORE3.Migrations
                         .WithMany()
                         .HasForeignKey("User_Id")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("DonVi");
 
                     b.Navigation("User");
 
@@ -2102,7 +2098,7 @@ namespace NETCORE3.Migrations
                         .HasForeignKey("HangThietBi_Id")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("NETCORE3.Models.LoaiThietBi", "LoaiThietBi")
+                    b.HasOne("NETCORE3.Models.Loai_HangThietBi", "LoaiThietBi")
                         .WithMany()
                         .HasForeignKey("LoaiThietBiId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2182,10 +2178,17 @@ namespace NETCORE3.Migrations
 
             modelBuilder.Entity("NETCORE3.Models.HangThietBi", b =>
                 {
+                    b.HasOne("NETCORE3.Models.HeThong", "HeThong")
+                        .WithMany()
+                        .HasForeignKey("HeThong_Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("NETCORE3.Data.MyDbContext+ApplicationUser", "User_Created")
                         .WithMany()
                         .HasForeignKey("User_CreatedId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("HeThong");
 
                     b.Navigation("User_Created");
                 });
@@ -2207,12 +2210,19 @@ namespace NETCORE3.Migrations
                         .HasForeignKey("DanhMucKho_Id")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("NETCORE3.Models.DonVi", "DonVi")
+                        .WithMany()
+                        .HasForeignKey("DonVi_Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("NETCORE3.Data.MyDbContext+ApplicationUser", "User_Created")
                         .WithMany()
                         .HasForeignKey("User_CreatedId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("DanhMucKho");
+
+                    b.Navigation("DonVi");
 
                     b.Navigation("User_Created");
                 });
@@ -2251,11 +2261,6 @@ namespace NETCORE3.Migrations
 
             modelBuilder.Entity("NETCORE3.Models.LoaiThietBi", b =>
                 {
-                    b.HasOne("NETCORE3.Models.HeThong", "HeThong")
-                        .WithMany()
-                        .HasForeignKey("HeThong_Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("NETCORE3.Models.LoaiThietBi", "ParentLoaiThietBi")
                         .WithMany("ChildLoaiThietBis")
                         .HasForeignKey("ParentLoaiThietBiId")
@@ -2265,8 +2270,6 @@ namespace NETCORE3.Migrations
                         .WithMany()
                         .HasForeignKey("User_CreatedId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("HeThong");
 
                     b.Navigation("ParentLoaiThietBi");
 

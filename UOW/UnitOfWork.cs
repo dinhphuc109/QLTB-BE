@@ -30,8 +30,8 @@ namespace NETCORE3.UOW
         public IHeThongRepository heThongs { get; private set; }
         public IHangThietBiRepository hangThietBis { get; private set; }
         public ILoaiHangThietBiRepository loaiHangThietBis { get; private set; }
-        
-   
+
+        public IDanhMucThietBiRepository danhMucThietBis { get; private set; }
         public IThongTinThietBiRepository thongTinThietBis { get; private set; }
      
         public IDanhMucKhoRepository danhMucKhos { get; private set; }
@@ -73,7 +73,7 @@ namespace NETCORE3.UOW
             heThongs=new HeThongRepository(db);
             hangThietBis = new HangThietBiRepository(db);
             loaiHangThietBis = new LoaiHangThietBiRepository(db);
-           
+            danhMucThietBis = new DanhMucThietBiRepository(db);
             thongTinThietBis = new ThongTinThietBiRepository(db);
          
          

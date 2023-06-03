@@ -29,7 +29,8 @@ namespace NETCORE3.Infrastructure
         IHeThongRepository heThongs { get; }
         IHangThietBiRepository hangThietBis { get; }
         ILoaiHangThietBiRepository loaiHangThietBis { get; }
-       
+        IDanhMucThietBiRepository danhMucThietBis { get; }
+
         IThongTinThietBiRepository thongTinThietBis { get; }
      
     

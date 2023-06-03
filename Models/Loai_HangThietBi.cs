@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NETCORE3.Models
 {
-    public class Loai_HangThietBi:Auditable
+    public class Loai_HangThietBi
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

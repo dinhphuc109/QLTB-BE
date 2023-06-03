@@ -19,5 +19,8 @@ namespace NETCORE3.Models
         [ForeignKey("User")]
         public Guid? User_Id { get; set; }
         public ApplicationUser User { get; set; }
+        [ForeignKey("DonVi")]
+        public Guid? DonVi_Id { get; set; }
+        public DonVi DonVi { get; set; }
     }
 }

@@ -34,24 +34,24 @@ namespace NETCORE3.Controllers
         {
             if (keyword == null) keyword = "";
 
-            string[] include = {"User", "DanhMucKho", "DonVi",
-                "khoThongTinThietBis", "khoThongTinThietBis.ThongTinThietBi", "khoThongTinThietBis.DonViTinh"};
+            string[] include = {"DanhMucKho.User", "DanhMucKho", "DanhMucKho.DonVi",
+                "khoThongTinThietBis", "khoThongTinThietBis.ThongTinThietBi", "khoThongTinThietBis.ThongTinThietBi.DanhMucThietBi", "khoThongTinThietBis.DonViTinh"};
             var data = uow.khos.GetAll(t => !t.IsDeleted, null, include).Select(x => new
             {
                 x.Id,
                 x.DanhMucKho.MaKho,
                 x.DanhMucKho.TenKho,
-                x.DonVi.TenDonVi,
-                x.User.FullName,
+                x.DanhMucKho.DonVi_Id,
+                x.DanhMucKho.User_Id,
 /*
                 LstLoai = x.khoLoaiThietBis.Select(y => new
                 {
                     y.LoaiThietBi.TenLoaiThietBi,
                 }),*/
-                LstKhotttb = x.khoThongTinThietBis.Select(y => new
+                LstKhotttb = x.khoThongTinThietBis?.Select(y => new
                 {
-                    y.ThongTinThietBi.TenThietBi,
-                    y.ThongTinThietBi.CauHinh,
+                    y.ThongTinThietBi.DanhMucThietBi.TenThietBi,
+                    y.ThongTinThietBi.DanhMucThietBi.CauHinh,
                     y.ThongTinThietBi.ThoiGianBaoHanh,
                     y.ThongTinThietBi.SoSeri,
                     y.ThongTinThietBi.ModelThietBi,
@@ -75,25 +75,26 @@ namespace NETCORE3.Controllers
         public ActionResult GetDataPagnigation(int page = 1, int pageSize = 20, string keyword = null)
         {
             if (keyword == null) keyword = "";
-            string[] include = { "User", "DanhMucKho", "DonVi",
-                "khoThongTinThietBis", "khoThongTinThietBis.ThongTinThietBi", "khoThongTinThietBis.DonViTinh" };
+            string[] include = { "DanhMucKho.User", "DanhMucKho", "DanhMucKho.DonVi",
+                "khoThongTinThietBis", "khoThongTinThietBis.ThongTinThietBi", "khoThongTinThietBis.ThongTinThietBi.DanhMucThietBi", "khoThongTinThietBis.DonViTinh" };
             var query = uow.khos.GetAll(t => !t.IsDeleted, null, include)
             .Select(x => new
             {
+                x.DanhMucKho,
                 x.DanhMucKho_Id,
                 x.DanhMucKho.TenKho,
                 x.Id,
                 x.DanhMucKho.MaKho,
-                x.DonVi_Id,
-                x.User.UserName,
+                x.DanhMucKho.DonVi_Id,
+                x.DanhMucKho.User_Id,
 /*                LstLoai = x.khoLoaiThietBis.Select(y => new
                 {
                     y.LoaiThietBi.TenLoaiThietBi,
                 }),*/
-                LstKhotttb = x.khoThongTinThietBis.Select(y => new
+                LstKhotttb = x.khoThongTinThietBis?.Select(y => new
                 {
-                    y.ThongTinThietBi.TenThietBi,
-                    y.ThongTinThietBi.CauHinh,
+                    y.ThongTinThietBi.DanhMucThietBi.TenThietBi,
+                    y.ThongTinThietBi.DanhMucThietBi.CauHinh,
                     y.ThongTinThietBi.ThoiGianBaoHanh,
                     y.ThongTinThietBi.SoSeri,
                     y.ThongTinThietBi.ModelThietBi,
@@ -108,7 +109,7 @@ namespace NETCORE3.Controllers
 
             foreach (var item in query)
             {
-                var donvi = uow.DonVis.GetAll(x => !x.IsDeleted && x.Id == item.DonVi_Id, null, null).Select(x => new { x.TenDonVi }).ToList();
+                var donvi = uow.DonVis.GetAll(x => !x.IsDeleted && x.Id == item.DanhMucKho.DonVi_Id, null, null).Select(x => new { x.TenDonVi }).ToList();
                 var danhmmuckho = uow.danhMucKhos.GetAll(x => !x.IsDeleted && x.Id == item.DanhMucKho_Id, null, null).Select(x => new { x.TenKho }).ToList();
 
                 var infor = new ClassListKho();
@@ -116,6 +117,20 @@ namespace NETCORE3.Controllers
                 infor.TenKho = item.TenKho;
                 infor.MaKho = item.MaKho;
                 infor.TenDonVi = donvi[0].TenDonVi;
+                var ttbt = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Id, null, null).Select(x => new { x.ThongTinThietBi }).ToList();
+                var ttbtdvt = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Id, null, null).Select(x => new { x.DonViTinh }).ToList();
+                var ttbt2 = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Id, null, null).ToList();
+                foreach (var x in ttbt)
+                {
+                    infor.TenThietBi = ttbt[0].ThongTinThietBi.DanhMucThietBi.TenThietBi;
+                    infor.MaThietBi = ttbt[0].ThongTinThietBi.DanhMucThietBi.MaThietBi;
+                    infor.Cauhinh = ttbt[0].ThongTinThietBi.DanhMucThietBi.CauHinh;
+                    infor.SoSeri = ttbt[0].ThongTinThietBi.SoSeri;
+                    infor.ModelThietBi = ttbt[0].ThongTinThietBi.ModelThietBi;
+                    infor.TinhTrangThietBi = ttbt2[0].TinhTrangThietBi;
+                    infor.SoLuong = ttbt2[0].SoLuong;
+                    infor.DonViTinh = ttbtdvt[0].DonViTinh.TenDonViTinh;
+                }
                 list.Add(infor);
             }
             int totalRow = list.Count();
@@ -150,27 +165,27 @@ namespace NETCORE3.Controllers
             var query = uow.khos.GetAll(t => !t.IsDeleted, null, include)
             .Select(x => new
             {
+                x.DanhMucKho,
                 x.DanhMucKho_Id,
                 x.DanhMucKho.TenKho,
                 x.Id,
                 x.DanhMucKho.MaKho,
-                x.DonVi_Id,
-                x.User.UserName,
+                x.DanhMucKho.DonVi.TenDonVi,
+                x.DanhMucKho.User.FullName,
 /*                LstLoai = x.khoLoaiThietBis.Select(y => new
                 {
                     y.LoaiThietBi.TenLoaiThietBi,
                 }),*/
                 LstKhotttb = x.khoThongTinThietBis.Select(y => new
                 {
-                    y.ThongTinThietBi.TenThietBi,
-                    y.ThongTinThietBi.CauHinh,
+                    y.ThongTinThietBi.DanhMucThietBi.TenThietBi,
+                    y.ThongTinThietBi.DanhMucThietBi.CauHinh,
                     y.ThongTinThietBi.ThoiGianBaoHanh,
                     y.ThongTinThietBi.SoSeri,
                     y.ThongTinThietBi.ModelThietBi,
                     y.DonViTinh.TenDonViTinh,
                     y.SoLuong,
                     y.TinhTrangThietBi,
-                    y.ThongTinThietBi.LoaiThietBi_Id,
                 })
             })
             .OrderBy(x => x.TenKho);
@@ -178,7 +193,7 @@ namespace NETCORE3.Controllers
 
             foreach (var item in query)
             {
-                var donvi = uow.DonVis.GetAll(x => !x.IsDeleted && x.Id == item.DonVi_Id, null, null).Select(x => new { x.TenDonVi }).ToList();
+                var donvi = uow.DonVis.GetAll(x => !x.IsDeleted && x.Id == item.DanhMucKho.DonVi_Id, null, null).Select(x => new { x.TenDonVi }).ToList();
                 var danhmmuckho = uow.danhMucKhos.GetAll(x => !x.IsDeleted && x.Id == item.DanhMucKho_Id, null, null).Select(x => new { x.TenKho }).ToList();
 
                 var infor = new ClassListKho();
@@ -226,8 +241,8 @@ namespace NETCORE3.Controllers
                     kho[0].UpdatedBy = Guid.Parse(User.Identity.Name);
                     kho[0].UpdatedDate = DateTime.Now;
                     kho[0].DanhMucKho_Id = data.DanhMucKho_Id;
-                    kho[0].DonVi_Id = data.DonVi_Id;
-                    kho[0].User_Id = data.User_Id;
+
+                    
  
                     uow.khos.Update(kho[0]);
 /*                    foreach (var item in data.LstLoai)
@@ -298,8 +313,8 @@ namespace NETCORE3.Controllers
                     kho[0].UpdatedBy = Guid.Parse(User.Identity.Name);
                     kho[0].UpdatedDate = DateTime.Now;
                     kho[0].DanhMucKho_Id = data.DanhMucKho_Id;
-                    kho[0].DonVi_Id = data.DonVi_Id;
-                    kho[0].User_Id = data.User_Id;
+
+                  
 
                     uow.khos.Update(kho[0]);
                 }

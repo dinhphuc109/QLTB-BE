@@ -27,13 +27,7 @@ namespace NETCORE3.Models
         public virtual ICollection<BanGiao_ThongTinThietBi> banGiaoThongTinThietBis { get; set; }
         [NotMapped]
         public List<BanGiao_ThongTinThietBi> Lstbgtttb { get; set; }
-        public int SoLuong { get; set; }
-        public string TinhTrangThietBi { get; set; }
-        [ForeignKey("DonViTinh")]
-        public Guid? DonViTinh_Id { get; set; }
-        public DonViTinh DonViTinh { get; set; }
-        public DateTime NgayNhan { get; set; }
-        public string GhiChu { get; set; }
+
 
     }
 }

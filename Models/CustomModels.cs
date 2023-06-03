@@ -199,6 +199,11 @@ namespace NETCORE3.Models
         public string MaKho { get; set; }
         public string TenKho { get; set; }
         public string TenDonVi { get; set; }
+        public string MaThietBi { get; set; }
+        public string TenThietBi { get; set; }
+        public string Cauhinh { get; set; }
+        public string SoSeri { get; set; }
+        public string ModelThietBi { get; set; }
         public string DonViTinh { get; set; }
         public string TinhTrangThietBi { get; set; }
         public int SoLuong { get; set; }

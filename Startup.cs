@@ -45,7 +45,9 @@ namespace NETCORE3
       services.AddTransient<IUnitofWork, UnitofWork>();
       services.AddDbContext<MyDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
       services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<MyDbContext>().AddDefaultTokenProviders();
-      services.AddCors(options => options.AddPolicy("CorsApi",
+            string connectionString = "Server =.; Database = QLTB; User ID = sa; password = 123123; TrustServerCertificate = True; MultipleActiveResultSets = true; Timeout = 300; ";
+            services.AddSingleton<IMyAdapter>(new MyAdapter(connectionString));
+            services.AddCors(options => options.AddPolicy("CorsApi",
         builder =>
         {
           builder.AllowAnyHeader()

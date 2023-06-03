@@ -24,12 +24,10 @@ namespace NETCORE3.Models
         [NotMapped]
         public List<Kho_ThongTinThietBi> LstKhotttb { get; set; }
 
-        [ForeignKey("DonVi")]
-        public Guid? DonVi_Id { get; set; }
-        public DonVi DonVi { get; set; }
-        [ForeignKey("User")]
+
+/*        [ForeignKey("User")]
         public Guid? User_Id { get; set; }
-        public ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; }*/
 
     }
 }
