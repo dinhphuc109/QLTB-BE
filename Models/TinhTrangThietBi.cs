@@ -1,24 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NETCORE3.Models
 {
-    public class Phongban: Auditable
+    public class TinhTrangThietBi :Auditable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         [StringLength(50)]
         [Required(ErrorMessage = "Mã bắt buộc")]
-        public string MaPhongBan { get; set; }
+        public string MaTinhTrangThietBi { get; set; }
         [StringLength(250)]
         [Required(ErrorMessage = "Tên bắt buộc")]
-        public string TenPhongBan { get; set; }
-        [ForeignKey("DonVi")]
-        public Guid? DonVi_Id { get; set; }
-        public DonVi DonVi { get; set; }
-        public ICollection<BoPhan> BoPhans { get; set; }
+        public string TenTinhTrangThietBi { get; set; }
     }
 }

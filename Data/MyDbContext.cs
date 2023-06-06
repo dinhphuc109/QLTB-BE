@@ -141,7 +141,8 @@ namespace NETCORE3.Data
         public DbSet<NguoiNhan_DieuChuyen> NguoiNhan_DieuChuyens { get; set; }
         public DbSet<ThanhLyThietBi> ThanhLyThietBis { get; set; }
         public DbSet<ThanhLy_Kho> ThanhLy_Khos { get; set; }
-
+        public DbSet<DieuChuyenNhanVien> DieuChuyenNhanViens { get; set; }
+        public DbSet<LichSuThietBi> LichSuThietBis { get; set; }
 
     }
 }

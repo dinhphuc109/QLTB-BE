@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NETCORE3.Data;
 
@@ -11,9 +12,11 @@ using NETCORE3.Data;
 namespace NETCORE3.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230605020805_addlichsuthietbi")]
+    partial class addlichsuthietbi
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -640,6 +643,9 @@ namespace NETCORE3.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("LoaiThietBiId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("LoaiThietbi_Id")
                         .HasColumnType("uniqueidentifier");
 
@@ -666,7 +672,7 @@ namespace NETCORE3.Migrations
 
                     b.HasIndex("HangThietBi_Id");
 
-                    b.HasIndex("LoaiThietbi_Id");
+                    b.HasIndex("LoaiThietBiId");
 
                     b.HasIndex("User_CreatedId");
 
@@ -2017,7 +2023,7 @@ namespace NETCORE3.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("DanhMucThietBi_Id")
+                    b.Property<Guid?>("DanhMucThietBI_Id")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("DeletedBy")
@@ -2064,7 +2070,7 @@ namespace NETCORE3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DanhMucThietBi_Id");
+                    b.HasIndex("DanhMucThietBI_Id");
 
                     b.HasIndex("Domain_Id");
 
@@ -2254,7 +2260,7 @@ namespace NETCORE3.Migrations
             modelBuilder.Entity("NETCORE3.Models.BoPhan", b =>
                 {
                     b.HasOne("NETCORE3.Models.Phongban", "Phongban")
-                        .WithMany("BoPhans")
+                        .WithMany()
                         .HasForeignKey("PhongBan_Id")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2264,7 +2270,7 @@ namespace NETCORE3.Migrations
             modelBuilder.Entity("NETCORE3.Models.ChucVu", b =>
                 {
                     b.HasOne("NETCORE3.Models.BoPhan", "BoPhan")
-                        .WithMany("ChucVus")
+                        .WithMany()
                         .HasForeignKey("BoPhan_Id")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2303,8 +2309,8 @@ namespace NETCORE3.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("NETCORE3.Models.LoaiThietBi", "LoaiThietBi")
-                        .WithMany("DanhMucThietBis")
-                        .HasForeignKey("LoaiThietbi_Id")
+                        .WithMany()
+                        .HasForeignKey("LoaiThietBiId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("NETCORE3.Data.MyDbContext+ApplicationUser", "User_Created")
@@ -2564,7 +2570,7 @@ namespace NETCORE3.Migrations
             modelBuilder.Entity("NETCORE3.Models.LoaiThietBi", b =>
                 {
                     b.HasOne("NETCORE3.Models.HeThong", "HeThong")
-                        .WithMany("LoaiThietBis")
+                        .WithMany()
                         .HasForeignKey("HeThong_Id")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2709,7 +2715,7 @@ namespace NETCORE3.Migrations
             modelBuilder.Entity("NETCORE3.Models.Phongban", b =>
                 {
                     b.HasOne("NETCORE3.Models.DonVi", "DonVi")
-                        .WithMany("Phongbans")
+                        .WithMany()
                         .HasForeignKey("DonVi_Id")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2782,8 +2788,8 @@ namespace NETCORE3.Migrations
             modelBuilder.Entity("NETCORE3.Models.ThongTinThietBi", b =>
                 {
                     b.HasOne("NETCORE3.Models.DanhMucThietBi", "DanhMucThietBi")
-                        .WithMany("ThongTinThietBis")
-                        .HasForeignKey("DanhMucThietBi_Id")
+                        .WithMany()
+                        .HasForeignKey("DanhMucThietBI_Id")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("NETCORE3.Models.Domain", "Domain")
@@ -2838,19 +2844,12 @@ namespace NETCORE3.Migrations
 
             modelBuilder.Entity("NETCORE3.Models.BoPhan", b =>
                 {
-                    b.Navigation("ChucVus");
-
                     b.Navigation("User_Created");
                 });
 
             modelBuilder.Entity("NETCORE3.Models.ChucVu", b =>
                 {
                     b.Navigation("User_Created");
-                });
-
-            modelBuilder.Entity("NETCORE3.Models.DanhMucThietBi", b =>
-                {
-                    b.Navigation("ThongTinThietBis");
                 });
 
             modelBuilder.Entity("NETCORE3.Models.DieuChuyenThietBi", b =>
@@ -2860,8 +2859,6 @@ namespace NETCORE3.Migrations
 
             modelBuilder.Entity("NETCORE3.Models.DonVi", b =>
                 {
-                    b.Navigation("Phongbans");
-
                     b.Navigation("User_Created");
                 });
 
@@ -2875,11 +2872,6 @@ namespace NETCORE3.Migrations
                     b.Navigation("loaiHangThietBis");
                 });
 
-            modelBuilder.Entity("NETCORE3.Models.HeThong", b =>
-                {
-                    b.Navigation("LoaiThietBis");
-                });
-
             modelBuilder.Entity("NETCORE3.Models.Kho", b =>
                 {
                     b.Navigation("khoThongTinThietBis");
@@ -2888,8 +2880,6 @@ namespace NETCORE3.Migrations
             modelBuilder.Entity("NETCORE3.Models.LoaiThietBi", b =>
                 {
                     b.Navigation("ChildLoaiThietBis");
-
-                    b.Navigation("DanhMucThietBis");
                 });
 
             modelBuilder.Entity("NETCORE3.Models.Menu", b =>
@@ -2899,8 +2889,6 @@ namespace NETCORE3.Migrations
 
             modelBuilder.Entity("NETCORE3.Models.Phongban", b =>
                 {
-                    b.Navigation("BoPhans");
-
                     b.Navigation("User_Created");
                 });
 

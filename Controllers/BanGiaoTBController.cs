@@ -403,6 +403,13 @@ namespace NETCORE3.Controllers
                     data.CreatedBy = Guid.Parse(User.Identity.Name);
 
                     uow.banGiaoTBs.Add(data);
+                    foreach (var item in data.Lstbgnn)
+                    {
+                        item.CreatedBy = Guid.Parse(User.Identity.Name);
+                        item.CreatedDate = DateTime.Now;
+                        item.BanGiaoTB_Id = id;
+                        uow.banGiaoNguoiNhans.Add(item);
+                    }
                     foreach (var item in data.Lstbgtttb)
                     {
                         item.CreatedBy = Guid.Parse(User.Identity.Name);
@@ -426,24 +433,67 @@ namespace NETCORE3.Controllers
                                     khotb.SoLuong = item.SoLuong;
                                     khotb.DonViTinh_Id = item.DonViTinh_Id;
                                     khotb.TinhTrangThietBi = item.TinhTrangThietBi;
-                                    uow.khoThongTinThietBis.Add(khotb);
-                                
-
+                                    uow.khoThongTinThietBis.Add(khotb);                                
                             }
-
                             else
                             {
                                 return StatusCode(StatusCodes.Status409Conflict, "Mã đã tồn tại trong hệ thống");
                             }
+                        }                                               
+                        LichSuThietBi lichsuthietbi = new LichSuThietBi();
+                        if (item.Kho_Id == null)
+                        {
+                            foreach(var item2 in data.Lstbgnn)
+                            {
+                                
+                                if (!uow.lichSuThietBis.Exists(x => x.User_Id == item2.User_Id))
+                                {
+                                    Guid lstbid = Guid.NewGuid();
+                                    /*UserInfoModel model;
+                                    model.Id = item2.User_Id.ToString();*/
+                                    var appUser = userManager.FindByIdAsync(item2.User_Id.ToString()).Result;
+                                    lichsuthietbi.CreatedBy = Guid.Parse(User.Identity.Name);
+                                    lichsuthietbi.CreatedDate = DateTime.Now;
+                                    lichsuthietbi.Id = lstbid;
+                                    lichsuthietbi.User_Id = item2.User_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.DonVi_Id = appUser.DonVi_Id;
+                                    lichsuthietbi.PhongBan_Id = appUser.PhongBan_Id;
+                                    lichsuthietbi.BoPhan_Id = appUser.BoPhan_Id;
+                                    lichsuthietbi.ChucVu_Id = appUser.ChucVu_Id;
+                                    lichsuthietbi.DonViTraLuong_Id = appUser.DonViTraLuong_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.TinhTrangThietBi = item.TinhTrangThietBi;
+                                    lichsuthietbi.NgayBatDau = DateTime.Now;
+                                    lichsuthietbi.NgayKetThuc = null;
+                                    uow.lichSuThietBis.Add(lichsuthietbi);
+                                }
+                                else if (uow.lichSuThietBis.Exists(x => x.User_Id == item2.User_Id) && item.Kho_Id == null)
+                                {
+                                    Guid lstbid = Guid.NewGuid();
+                                    var existingLichSu = uow.lichSuThietBis.GetAll(x => x.User_Id == item2.User_Id && x.NgayKetThuc == null).ToArray();
+                                    /*existingLichSu[0].NgayKetThuc = DateTime.Now;
+                                    uow.lichSuThietBis.Update(existingLichSu[0]);*/
+                                    var appUser = userManager.FindByIdAsync(item2.User_Id.ToString()).Result;
+                                    lichsuthietbi.CreatedBy = Guid.Parse(User.Identity.Name);
+                                    lichsuthietbi.CreatedDate = DateTime.Now;
+                                    lichsuthietbi.Id = lstbid;
+                                    lichsuthietbi.User_Id = item2.User_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.DonVi_Id = appUser.DonVi_Id;
+                                    lichsuthietbi.PhongBan_Id = appUser.PhongBan_Id;
+                                    lichsuthietbi.BoPhan_Id = appUser.BoPhan_Id;
+                                    lichsuthietbi.ChucVu_Id = appUser.ChucVu_Id;
+                                    lichsuthietbi.DonViTraLuong_Id = appUser.DonViTraLuong_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.TinhTrangThietBi = item.TinhTrangThietBi;
+                                    lichsuthietbi.NgayBatDau = DateTime.Now;
+                                    lichsuthietbi.NgayKetThuc = null;
+                                    uow.lichSuThietBis.Add(lichsuthietbi);
+                                }
+                            }
+
                         }
-                        
-                    }
-                    foreach (var item in data.Lstbgnn)
-                    {
-                        item.CreatedBy = Guid.Parse(User.Identity.Name);
-                        item.CreatedDate = DateTime.Now;
-                        item.BanGiaoTB_Id = id;
-                        uow.banGiaoNguoiNhans.Add(item);
                     }
                 }
                 uow.Complete();

@@ -14,7 +14,7 @@ namespace NETCORE3.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         [ForeignKey("DanhMucThietBi")]
-        public Guid? DanhMucThietBI_Id { get; set; }
+        public Guid? DanhMucThietBi_Id { get; set; }
         public DanhMucThietBi DanhMucThietBi { get; set; }
         [ForeignKey("Domain")]
         public Guid? Domain_Id { get; set; }

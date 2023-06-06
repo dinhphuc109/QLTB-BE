@@ -20,5 +20,6 @@ namespace NETCORE3.Models
     [ForeignKey("Phongban")]
     public Guid? PhongBan_Id {get; set;}
     public Phongban Phongban  {get; set;}
-  }
+        public ICollection<ChucVu> ChucVus { get; set; }
+    }
 }

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using NETCORE3.Infrastructure;
 using NETCORE3.Models;
 using OfficeOpenXml;
 using static NETCORE3.Data.MyDbContext;
@@ -24,11 +25,13 @@ namespace NETCORE3.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        private readonly IUnitofWork uow;
         private readonly UserManager<ApplicationUser> userManager;
         public static IWebHostEnvironment environment;
         private readonly IConfiguration config;
-        public AccountController(UserManager<ApplicationUser> _userManager, IWebHostEnvironment _environment, IConfiguration _config)
+        public AccountController(IUnitofWork _uow, UserManager<ApplicationUser> _userManager, IWebHostEnvironment _environment, IConfiguration _config)
         {
+            uow = _uow;
             userManager = _userManager;
             environment = _environment;
             config = _config;
@@ -110,6 +113,64 @@ namespace NETCORE3.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, "Thông tin tài khoản, email đã tồn tại");
             }
             var appUser = await userManager.FindByIdAsync(model.Id);
+/*            DieuChuyenNhanVien dieuChuyenNhanVien = new DieuChuyenNhanVien();
+            Guid dcnvId = Guid.NewGuid();
+            if (uow.dieuChuyenNhanViens.Exists(x => x.User_Id.ToString() == model.Id 
+            && x.DonViNew_Id==model.DonVi_Id
+            && x.BoPhanNew_Id==model.BoPhan_Id
+            && x.PhongBanNew_Id==model.PhongBan_Id
+            && x.ChucVuNew_Id==model.ChucVu_Id))
+            {
+                var dieuchuyen = uow.dieuChuyenNhanViens.GetAll(x => x.User_Id.ToString() == model.Id).ToArray();
+                dieuchuyen[0].MaNhanVien = model.MaNhanVien;
+                dieuchuyen[0].UserName = model.UserName;
+                uow.dieuChuyenNhanViens.Update(dieuchuyen[0]);
+            }
+            else if (!uow.dieuChuyenNhanViens.Exists(x => x.User_Id.ToString() == model.Id))
+            {
+                var user = await userManager.Users.ToListAsync();
+                
+                dieuChuyenNhanVien.Id = dcnvId;
+                dieuChuyenNhanVien.CreatedDate = DateTime.Now;
+                dieuChuyenNhanVien.CreatedBy = Guid.Parse(User.Identity.Name);
+                dieuChuyenNhanVien.User_Id = appUser.Id;
+                dieuChuyenNhanVien.MaNhanVien = appUser.MaNhanVien;
+                dieuChuyenNhanVien.UserName = appUser.UserName;
+                dieuChuyenNhanVien.DonVi_Id = appUser.DonVi_Id;
+                dieuChuyenNhanVien.ChucVu_Id = appUser.ChucVu_Id;
+                dieuChuyenNhanVien.PhongBan_Id = appUser.PhongBan_Id;
+                dieuChuyenNhanVien.BoPhan_Id = appUser.BoPhan_Id;
+                dieuChuyenNhanVien.DonViTraLuong_Id = appUser.DonViTraLuong_Id;
+                dieuChuyenNhanVien.DonViNew_Id = appUser.DonVi_Id;
+                dieuChuyenNhanVien.ChucVuNew_Id = appUser.ChucVu_Id;
+                dieuChuyenNhanVien.PhongBanNew_Id = appUser.PhongBan_Id;
+                dieuChuyenNhanVien.BoPhanNew_Id = appUser.BoPhan_Id;
+                dieuChuyenNhanVien.DonViTraLuongNew_Id = appUser.DonViTraLuong_Id;
+                dieuChuyenNhanVien.NgayDieuChuyen = DateTime.Now;
+                uow.dieuChuyenNhanViens.Add(dieuChuyenNhanVien);
+            }
+            else if(uow.dieuChuyenNhanViens.Exists(x => x.User_Id.ToString() == model.Id 
+            ))
+            {
+                dieuChuyenNhanVien.Id = dcnvId;
+                dieuChuyenNhanVien.CreatedDate = DateTime.Now;
+                dieuChuyenNhanVien.CreatedBy = Guid.Parse(User.Identity.Name);
+                dieuChuyenNhanVien.User_Id = appUser.Id;
+                dieuChuyenNhanVien.MaNhanVien = appUser.MaNhanVien;
+                dieuChuyenNhanVien.UserName = appUser.UserName;
+                dieuChuyenNhanVien.DonVi_Id = appUser.DonVi_Id;
+                dieuChuyenNhanVien.ChucVu_Id = appUser.ChucVu_Id;
+                dieuChuyenNhanVien.PhongBan_Id = appUser.PhongBan_Id;
+                dieuChuyenNhanVien.BoPhan_Id = appUser.BoPhan_Id;
+                dieuChuyenNhanVien.DonViTraLuong_Id = appUser.DonViTraLuong_Id;
+                dieuChuyenNhanVien.DonViNew_Id = null;
+                dieuChuyenNhanVien.ChucVuNew_Id = null;
+                dieuChuyenNhanVien.PhongBanNew_Id = null;
+                dieuChuyenNhanVien.BoPhanNew_Id = null;
+                dieuChuyenNhanVien.DonViTraLuongNew_Id = null;
+                dieuChuyenNhanVien.NgayDieuChuyen = DateTime.Now;
+                uow.dieuChuyenNhanViens.Add(dieuChuyenNhanVien);
+            }*/
             appUser.UserName = UserName;
             appUser.NormalizedUserName = UserName.ToUpper();
             appUser.FullName = model.FullName;
@@ -124,6 +185,151 @@ namespace NETCORE3.Controllers
             appUser.PhongBan_Id = model.PhongBan_Id;
             appUser.DonViTraLuong_Id = model.DonViTraLuong_Id;
             var result = await userManager.UpdateAsync(appUser);
+/*            if (uow.dieuChuyenNhanViens.Exists(x => x.User_Id.ToString() == model.Id
+                && x.DonViNew_Id == model.DonVi_Id
+                && x.BoPhanNew_Id == model.BoPhan_Id
+                && x.PhongBanNew_Id == model.PhongBan_Id
+                && x.ChucVuNew_Id == model.ChucVu_Id))
+            {
+                
+            }
+            else if (uow.dieuChuyenNhanViens.Exists(x => x.User_Id.ToString() == model.Id && x.DonViNew_Id == null))
+            {
+                var dieuchuyen = uow.dieuChuyenNhanViens.GetAll(x => x.User_Id.ToString() == model.Id && x.Id==dcnvId).ToArray();
+                if (dieuchuyen[0].BoPhan_Id != model.BoPhan_Id)
+                {
+                    dieuchuyen[0].BoPhanNew_Id = model.BoPhan_Id;
+                }
+                else
+                {
+                    dieuchuyen[0].BoPhanNew_Id = model.BoPhan_Id;
+                }
+                if (dieuchuyen[0].ChucVu_Id != model.ChucVu_Id)
+                {
+                    dieuchuyen[0].ChucVuNew_Id = model.ChucVu_Id;
+                }
+                else
+                {
+                    dieuchuyen[0].ChucVuNew_Id = model.ChucVu_Id;
+                }
+                if (dieuchuyen[0].DonVi_Id != model.DonVi_Id)
+                {
+                    dieuchuyen[0].DonViNew_Id = model.DonVi_Id;
+                }
+                else
+                {
+                    dieuchuyen[0].DonViNew_Id = model.DonVi_Id;
+                }
+                if (dieuchuyen[0].PhongBan_Id != model.PhongBan_Id)
+                {
+                    dieuchuyen[0].PhongBanNew_Id = model.PhongBan_Id;
+                }
+                else
+                {
+                    dieuchuyen[0].PhongBanNew_Id = model.PhongBan_Id;
+                }
+                if (dieuchuyen[0].DonViTraLuong_Id != model.DonViTraLuong_Id)
+                {
+                    dieuchuyen[0].DonViTraLuongNew_Id = model.DonViTraLuong_Id;
+                }
+                else
+                {
+                    dieuchuyen[0].DonViTraLuongNew_Id = model.DonViTraLuong_Id;
+                }
+
+                uow.dieuChuyenNhanViens.Update(dieuchuyen[0]);
+                LichSuThietBi lichSuThietBi = new LichSuThietBi();
+                //thêm vòng lặp chứ không sai!! chưa thêm
+                if (uow.lichSuThietBis.Exists(x => x.User_Id == dieuchuyen[0].User_Id))
+                {
+                    var lichsutb = uow.lichSuThietBis.GetAll(x => x.User_Id == dieuchuyen[0].User_Id).ToArray();
+                    lichsutb[0].NgayKetThuc = DateTime.Now;
+                    uow.lichSuThietBis.Update(lichsutb[0]);
+                    Guid lstbId = Guid.NewGuid();
+                    lichSuThietBi.Id = lstbId;
+                    lichSuThietBi.CreatedDate = DateTime.Now;
+                    lichSuThietBi.CreatedBy = Guid.Parse(User.Identity.Name);
+                    lichSuThietBi.User_Id = dieuchuyen[0].User_Id;
+                    lichSuThietBi.ThongTinThietBi_Id = lichsutb[0].ThongTinThietBi_Id;
+                    lichSuThietBi.TinhTrangThietBi = lichsutb[0].TinhTrangThietBi;
+                    lichSuThietBi.DonVi_Id = dieuchuyen[0].DonViNew_Id;
+                    lichSuThietBi.PhongBan_Id = dieuchuyen[0].PhongBanNew_Id;
+                    lichSuThietBi.BoPhan_Id = dieuchuyen[0].BoPhanNew_Id;
+                    lichSuThietBi.ChucVu_Id = dieuchuyen[0].ChucVuNew_Id;
+                    lichSuThietBi.DonViTraLuong_Id = dieuchuyen[0].DonViTraLuongNew_Id;
+                    lichSuThietBi.NgayBatDau = DateTime.Now;
+                    lichSuThietBi.NgayKetThuc = null;
+                    uow.lichSuThietBis.Add(lichSuThietBi);
+                }
+            }
+            else
+            {
+                var dieuchuyen = uow.dieuChuyenNhanViens.GetAll(x => x.User_Id.ToString() == model.Id && x.Id == dcnvId).ToArray();
+
+                    if (dieuchuyen[0].BoPhan_Id != model.BoPhan_Id)
+                    {
+                        dieuchuyen[0].BoPhanNew_Id = model.BoPhan_Id;
+                    }
+                    else
+                    {
+                        dieuchuyen[0].BoPhanNew_Id = model.BoPhan_Id;
+                    }
+                    if (dieuchuyen[0].ChucVu_Id != model.ChucVu_Id)
+                    {
+                        dieuchuyen[0].ChucVuNew_Id = model.ChucVu_Id;
+                    }
+                    else
+                    {
+                        dieuchuyen[0].ChucVuNew_Id = model.ChucVu_Id;
+                    }
+                    if (dieuchuyen[0].DonVi_Id != model.DonVi_Id)
+                    {
+                        dieuchuyen[0].DonViNew_Id = model.DonVi_Id;
+                    }
+                    else
+                    {
+                        dieuchuyen[0].DonViNew_Id = model.DonVi_Id;
+                    }
+                    if (dieuchuyen[0].PhongBan_Id != model.PhongBan_Id)
+                    {
+                        dieuchuyen[0].PhongBanNew_Id = model.PhongBan_Id;
+                    }
+                    else
+                    {
+                        dieuchuyen[0].PhongBanNew_Id = model.PhongBan_Id;
+                    }
+                    if (dieuchuyen[0].DonViTraLuong_Id != model.DonViTraLuong_Id)
+                    {
+                        dieuchuyen[0].DonViTraLuongNew_Id = model.DonViTraLuong_Id;
+                    }
+                    else
+                    {
+                        dieuchuyen[0].DonViTraLuongNew_Id = model.DonViTraLuong_Id;
+                    }
+                    uow.dieuChuyenNhanViens.Update(dieuchuyen[0]);
+                LichSuThietBi lichSuThietBi = new LichSuThietBi();
+                if (uow.lichSuThietBis.Exists(x => x.User_Id == dieuchuyen[0].User_Id))
+                {
+                    var lichsutb = uow.lichSuThietBis.GetAll(x=>x.User_Id==dieuchuyen[0].User_Id).ToArray();
+                    lichsutb[0].NgayKetThuc = DateTime.Now;
+                    uow.lichSuThietBis.Update(lichsutb[0]);
+                    Guid lstbId = Guid.NewGuid();
+                    lichSuThietBi.Id = lstbId;
+                    lichSuThietBi.CreatedDate = DateTime.Now;
+                    lichSuThietBi.CreatedBy = Guid.Parse(User.Identity.Name);
+                    lichSuThietBi.User_Id = dieuchuyen[0].User_Id;
+                    lichSuThietBi.ThongTinThietBi_Id = lichsutb[0].ThongTinThietBi_Id;
+                    lichSuThietBi.TinhTrangThietBi = lichsutb[0].TinhTrangThietBi;
+                    lichSuThietBi.DonVi_Id= dieuchuyen[0].DonViNew_Id;
+                    lichSuThietBi.PhongBan_Id= dieuchuyen[0].PhongBanNew_Id;
+                    lichSuThietBi.BoPhan_Id = dieuchuyen[0].BoPhanNew_Id;
+                    lichSuThietBi.ChucVu_Id = dieuchuyen[0].ChucVuNew_Id;
+                    lichSuThietBi.DonViTraLuong_Id = dieuchuyen[0].DonViTraLuongNew_Id;
+                    lichSuThietBi.NgayBatDau = DateTime.Now;
+                    lichSuThietBi.NgayKetThuc = null;
+                    uow.lichSuThietBis.Add(lichSuThietBi);
+                }
+                } */         
             if (result.Succeeded)
             {
                 var roles = await userManager.GetRolesAsync(appUser);

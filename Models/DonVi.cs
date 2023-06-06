@@ -20,7 +20,7 @@ namespace NETCORE3.Models
         [ForeignKey("TapDoan")]
         public Guid? TapDoan_Id { get; set; }
         public TapDoan TapDoan { get; set; }
-
+        public ICollection<Phongban> Phongbans { get; set; }
 
     }
 }
