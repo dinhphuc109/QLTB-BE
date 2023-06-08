@@ -7,7 +7,7 @@ namespace NETCORE3.Models
   public class Auditable
   {
     public DateTime CreatedDate { get; set; }
-    [ForeignKey("User_Created")]
+    //[ForeignKey("User_Created")]
     public Guid CreatedBy { get; set; }
     public ApplicationUser User_Created { get; set; }
     public DateTime? UpdatedDate { get; set; }

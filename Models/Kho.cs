@@ -15,24 +15,19 @@ namespace NETCORE3.Models
         [ForeignKey("DanhMucKho")]
         public Guid? DanhMucKho_Id { get; set; }
         public DanhMucKho DanhMucKho { get; set; }
-        [JsonIgnore]
+/*        [JsonIgnore]
         public virtual ICollection<KhoLoaiThietBi> khoLoaiThietBis { get; set; }
         [NotMapped]
-        public List<KhoLoaiThietBi> LstLoai { get; set; }
+        public List<KhoLoaiThietBi> LstLoai { get; set; }*/
         [JsonIgnore]
-        public virtual ICollection<KhoThongTinThietBi> khoThongTinThietBis { get; set; }
+        public virtual ICollection<Kho_ThongTinThietBi> khoThongTinThietBis { get; set; }
         [NotMapped]
-        public List<KhoThongTinThietBi> LstKhotttb { get; set; }
-        public int SoLuong { get; set; }
-        public string TinhTrangThietBi { get; set; }
-        [ForeignKey("DonViTinh")]
-        public Guid? DonViTinh_Id { get; set; }
-        public DonViTinh DonViTinh { get; set; }
-        [ForeignKey("DonVi")]
-        public Guid? DonVi_Id { get; set; }
-        public DonVi DonVi { get; set; }
+        public List<Kho_ThongTinThietBi> LstKhotttb { get; set; }
+
+
+/*        [ForeignKey("User")]
         public Guid? User_Id { get; set; }
-        public ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; }*/
 
     }
 }

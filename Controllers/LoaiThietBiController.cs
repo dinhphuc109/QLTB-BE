@@ -37,6 +37,7 @@ namespace NETCORE3.Controllers
                 x.Id,
                 x.MaLoaiThietBi,
                 x.TenLoaiThietBi,
+                x.LoaiThietBi_Id,
             });
             if (data == null)
             {
@@ -65,14 +66,38 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest(ModelState);
                 }
+
                 if (uow.loaiThietBis.Exists(x => x.MaLoaiThietBi == data.MaLoaiThietBi && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaLoaiThietBi + " đã tồn tại trong hệ thống");
+                if (!IsValidCayPhanCap(data))
+                {
+                    return BadRequest("Loại thiết bị không phù hợp với cây phân cấp");
+                }
                 data.CreatedDate = DateTime.Now;
                 data.CreatedBy = Guid.Parse(User.Identity.Name);
                 uow.loaiThietBis.Add(data);
                 uow.Complete();
                 return Ok();
             }
+        }
+
+        private bool IsValidCayPhanCap(LoaiThietBi loaiThietBi)
+        {
+            if (loaiThietBi.LoaiThietBi_Id == null)
+            {
+                return true; // Nếu không có loại cha, cây phân cấp đúng
+            }
+
+            // Lấy loại cha từ cơ sở dữ liệu
+            var parentLoaiThietBi = uow.loaiThietBis.GetById(loaiThietBi.LoaiThietBi_Id);
+
+            if (parentLoaiThietBi == null)
+            {
+                return false; // Nếu không tìm thấy loại cha, cây phân cấp không đúng
+            }
+
+            // Kiểm tra đệ quy cho loại cha
+            return IsValidCayPhanCap(parentLoaiThietBi);
         }
 
         [HttpPut("{id}")]
@@ -87,6 +112,12 @@ namespace NETCORE3.Controllers
                 if (id != data.Id)
                 {
                     return BadRequest();
+                }
+                if (uow.loaiThietBis.Exists(x => x.MaLoaiThietBi == data.MaLoaiThietBi && x.Id!=data.Id && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaLoaiThietBi + " đã tồn tại trong hệ thống");
+                if (!IsValidCayPhanCap(data))
+                {
+                    return BadRequest("Loại thiết bị không phù hợp với cây phân cấp");
                 }
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;

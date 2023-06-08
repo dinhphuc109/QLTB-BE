@@ -33,7 +33,7 @@ namespace NETCORE3.Controllers
         {
             if (keyword == null) keyword = "";
             string[] include = { "DonVi" };
-            var data = uow.phongBans.GetAll(t => !t.IsDeleted && (t.MaPhongBan.ToLower().Contains(keyword.ToLower()) || t.TenPhongBan.ToLower().Contains(keyword.ToLower())), null, include).Select(x => new
+            var data = uow.phongbans.GetAll(t => !t.IsDeleted && (t.MaPhongBan.ToLower().Contains(keyword.ToLower()) || t.TenPhongBan.ToLower().Contains(keyword.ToLower())), null, include).Select(x => new
             {
                 x.Id,
                 x.MaPhongBan,
@@ -51,7 +51,7 @@ namespace NETCORE3.Controllers
         public ActionResult Get(Guid id)
         {
             string[] include = { "DonVi" };
-            var duLieu = uow.phongBans.GetAll(x => !x.IsDeleted && x.Id == id, null, include);
+            var duLieu = uow.phongbans.GetAll(x => !x.IsDeleted && x.Id == id, null, include);
             if (duLieu == null)
             {
                 return NotFound();
@@ -68,11 +68,11 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                if (uow.phongBans.Exists(x => x.MaPhongBan == data.MaPhongBan && !x.IsDeleted))
+                if (uow.phongbans.Exists(x => x.MaPhongBan == data.MaPhongBan && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaPhongBan + " đã tồn tại trong hệ thống");
                 data.CreatedDate = DateTime.Now;
                 data.CreatedBy = Guid.Parse(User.Identity.Name);
-                uow.phongBans.Add(data);
+                uow.phongbans.Add(data);
                 uow.Complete();
                 return Ok();
             }
@@ -91,9 +91,11 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
+                if (uow.phongbans.Exists(x => x.MaPhongBan == data.MaPhongBan && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaPhongBan + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;
-                uow.phongBans.Update(data);
+                uow.phongbans.Update(data);
                 uow.Complete();
                 return StatusCode(StatusCodes.Status204NoContent);
             }
@@ -104,7 +106,7 @@ namespace NETCORE3.Controllers
         {
             lock (Commons.LockObjectState)
             {
-                Phongban duLieu = uow.phongBans.GetById(id);
+                Phongban duLieu = uow.phongbans.GetById(id);
                 if (duLieu == null)
                 {
                     return NotFound();
@@ -112,7 +114,7 @@ namespace NETCORE3.Controllers
                 duLieu.DeletedDate = DateTime.Now;
                 duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
                 duLieu.IsDeleted = true;
-                uow.phongBans.Update(duLieu);
+                uow.phongbans.Update(duLieu);
                 uow.Complete();
                 return Ok(duLieu);
             }
@@ -123,7 +125,7 @@ namespace NETCORE3.Controllers
         {
             lock (Commons.LockObjectState)
             {
-                uow.phongBans.Delete(id);
+                uow.phongbans.Delete(id);
                 uow.Complete();
                 return Ok();
             }

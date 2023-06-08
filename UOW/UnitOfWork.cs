@@ -22,7 +22,7 @@ namespace NETCORE3.UOW
     public ILogRepository Logs { get; private set; }
     public IBoPhanRepository BoPhans { get; private set; }
     public ITapDoanRepository tapDoans { get; private set; }
-    public IPhongBanRepository phongBans { get; private set; }
+    public IPhongbanRepository phongbans { get; private set; }
     public IChucVuRepository chucVus { get; private set; }
     public IDonViTraLuongRepository donViTraLuongs { get; private set; }
     public IDomainRepository domains { get; private set; }
@@ -30,14 +30,21 @@ namespace NETCORE3.UOW
         public IHeThongRepository heThongs { get; private set; }
         public IHangThietBiRepository hangThietBis { get; private set; }
         public ILoaiHangThietBiRepository loaiHangThietBis { get; private set; }
-        public ILoaiThongTinThietBiRepository loaiThongTinThietBis { get; private set; }
-        public IThongTinHangThietBiRepository thongTinHangThietBis { get; private set; }
+
+        public IDanhMucThietBiRepository danhMucThietBis { get; private set; }
         public IThongTinThietBiRepository thongTinThietBis { get; private set; }
-        public IChiTietLoaiThongTinThietBiRepository chiTietLoaiThongTinThietBis { get; private set; }
+     
         public IDanhMucKhoRepository danhMucKhos { get; private set; }
         public IKhoRepository khos { get; private set; }
         public IKhoThongTinThietBiRepository khoThongTinThietBis { get; private set; }
         public IKhoLoaiThietBiRepository khoLoaiThietBis { get; private set; }
+        public IBanGiaoTBRepository banGiaoTBs { get; private set; }
+        public IBanGiaoThongTinThietBiRepository banGiaoThongTinThietBis { get; private set; }
+        public IBanGiaoNguoiNhanRepository banGiaoNguoiNhans { get; private set; }
+        public IDieuChuyenThietBiRepository dieuChuyenThietBis { get;private set; }
+        public INguoiNhanDieuChuyenRepository nguoiNhanDieuChuyens { get; private set; }
+        public IThanhLyThietBiRepository thanhLyThietBis { get; private set; }
+        public IThanhLyKhoRepository thanhLyKhos { get; private set; }
 
     private MyDbContext db;
     public UnitofWork(MyDbContext _db)
@@ -58,7 +65,7 @@ namespace NETCORE3.UOW
       Logs = new LogRepository(db);
       BoPhans = new BoPhanRepository(db);
       tapDoans = new TapDoanRepository(db);
-      phongBans = new PhongBanRepository(db);
+      phongbans = new PhongbanRepository(db);
       chucVus = new ChucVuRepository(db);
       donViTraLuongs = new DonViTraLuongRepository(db);
             domains = new DomainRepository(db);
@@ -66,14 +73,21 @@ namespace NETCORE3.UOW
             heThongs=new HeThongRepository(db);
             hangThietBis = new HangThietBiRepository(db);
             loaiHangThietBis = new LoaiHangThietBiRepository(db);
-            loaiThongTinThietBis = new LoaiThongTinThietBiRepository(db);
+            danhMucThietBis = new DanhMucThietBiRepository(db);
             thongTinThietBis = new ThongTinThietBiRepository(db);
-            thongTinHangThietBis = new ThongTinHangThietBiRepository(db);
-            chiTietLoaiThongTinThietBis = new ChiTietLoaiThongTinThietBiRepository(db);
+         
+         
             danhMucKhos = new DanhMucKhoRepository(db);
             khos = new KhoRepository(db);
             khoThongTinThietBis = new KhoThongTinThietBiRepository(db);
             khoLoaiThietBis = new KhoLoaiThietBiRepository(db);
+            banGiaoTBs=new BanGiaoTBRepository(db);
+            banGiaoThongTinThietBis = new BanGiaoThongTinThietBiRepository(db);
+            banGiaoNguoiNhans = new BanGiaoNguoiNhanRepository(db);
+            dieuChuyenThietBis = new DieuChuyenThietBiRepository(db);
+            nguoiNhanDieuChuyens = new NguoiNhanDieuChuyenRepository(db);
+            thanhLyThietBis = new ThanhLyThietBiRepository(db);
+            thanhLyKhos = new ThanhLyKhoRepository(db);
       }
     public void Dispose()
     {

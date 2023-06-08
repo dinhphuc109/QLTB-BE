@@ -11,7 +11,7 @@ namespace NETCORE3.Infrastructure
         INhomRepository Nhoms { get; }
 
         IDonViTinhRepository DonViTinhs { get; }
-        IPhongBanRepository phongBans { get; }
+        IPhongbanRepository phongbans { get; }
         IDonViRepository DonVis { get; }
         INhaCungCapRepository NhaCungCaps { get; }
 
@@ -29,15 +29,22 @@ namespace NETCORE3.Infrastructure
         IHeThongRepository heThongs { get; }
         IHangThietBiRepository hangThietBis { get; }
         ILoaiHangThietBiRepository loaiHangThietBis { get; }
-        ILoaiThongTinThietBiRepository loaiThongTinThietBis { get; }
+        IDanhMucThietBiRepository danhMucThietBis { get; }
+
         IThongTinThietBiRepository thongTinThietBis { get; }
-        IThongTinHangThietBiRepository thongTinHangThietBis { get; }
-        IChiTietLoaiThongTinThietBiRepository chiTietLoaiThongTinThietBis { get; }
+     
+    
         IKhoRepository khos { get; }
         IDanhMucKhoRepository danhMucKhos {get;}
         IKhoLoaiThietBiRepository khoLoaiThietBis { get; }
         IKhoThongTinThietBiRepository khoThongTinThietBis { get; }
-
+        IBanGiaoThongTinThietBiRepository banGiaoThongTinThietBis { get; }
+        IBanGiaoTBRepository banGiaoTBs { get; }
+        IBanGiaoNguoiNhanRepository banGiaoNguoiNhans { get; }
+        IDieuChuyenThietBiRepository dieuChuyenThietBis { get; }
+        INguoiNhanDieuChuyenRepository nguoiNhanDieuChuyens { get; }
+        IThanhLyThietBiRepository thanhLyThietBis { get; }
+        IThanhLyKhoRepository thanhLyKhos { get; }
         int Complete();
   }
 }

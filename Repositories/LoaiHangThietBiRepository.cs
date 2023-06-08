@@ -4,11 +4,11 @@ using NETCORE3.Models;
 
 namespace NETCORE3.Repositories
 {
-    public interface ILoaiHangThietBiRepository : IRepository<LoaiHangThietBi>
+    public interface ILoaiHangThietBiRepository : IRepository<Loai_HangThietBi>
     {
 
     }
-    public class LoaiHangThietBiRepository : Repository<LoaiHangThietBi>, ILoaiHangThietBiRepository
+    public class LoaiHangThietBiRepository : Repository<Loai_HangThietBi>, ILoaiHangThietBiRepository
     {
         public LoaiHangThietBiRepository(MyDbContext _db) : base(_db)
         {

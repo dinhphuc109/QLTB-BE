@@ -176,7 +176,7 @@ namespace NETCORE3.Controllers
         public async Task<ActionResult> GetListUser()
         {
             var query = await userManager.Users.Include(u => u.DonVi)
-            .Include(u => u.BoPhan).Include(u=>u.ChucVu).Include(u=>u.PhongBan).Include(u=>u.DonViTraLuong).ToListAsync();
+            .Include(u => u.BoPhan).Include(u=>u.ChucVu).Include(u=>u.Phongban).Include(u=>u.DonViTraLuong).ToListAsync();
             List<ListUserModel> list = new List<ListUserModel>();
 
             foreach (var item in query)
@@ -187,7 +187,7 @@ namespace NETCORE3.Controllers
                 infor.TenBoPhan = item.BoPhan.TenBoPhan;
                 infor.TenDonVi = item.DonVi.TenDonVi;
                 infor.TenChucVu = item.ChucVu.TenChucVu;
-                infor.TenPhongBan = item.PhongBan.TenPhongBan;
+                infor.TenPhongBan = item.Phongban.TenPhongBan;
                 infor.TenDonViTraLuong = item.DonViTraLuong.TenDonViTraLuong;
                 list.Add(infor);
             }
@@ -200,7 +200,7 @@ namespace NETCORE3.Controllers
             .Include(u => u.DonVi)
             .Include(u => u.BoPhan)
             .Include(u=>u.ChucVu)
-            .Include(u=>u.PhongBan)
+            .Include(u=>u.Phongban)
             .Include(u=>u.DonViTraLuong);
             List<UserInfoModel> list = new List<UserInfoModel>();
             foreach (var item in query)
@@ -219,7 +219,7 @@ namespace NETCORE3.Controllers
                     info.TenBoPhan = item.BoPhan.TenBoPhan;
                     info.TenDonVi = item.DonVi.TenDonVi;
                     info.TenChucVu = item.ChucVu.TenChucVu;
-                    info.TenPhongBan = item.PhongBan.TenPhongBan;
+                    info.TenPhongBan = item.Phongban.TenPhongBan;
                     info.TenDonViTraLuong = item.DonViTraLuong.TenDonViTraLuong;
                     list.Add(info);
                 }

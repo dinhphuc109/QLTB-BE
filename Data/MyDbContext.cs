@@ -42,7 +42,7 @@ namespace NETCORE3.Data
             public ChucVu ChucVu { get; set; }
             [ForeignKey("Phongban")]
             public Guid? PhongBan_Id { get; set; }
-            public Phongban PhongBan { get; set; }
+            public Phongban Phongban { get; set; }
             [ForeignKey("DonViTraLuong")]
             public Guid? DonViTraLuong_Id { get; set; }
             public DonViTraLuong DonViTraLuong { get; set; }
@@ -105,7 +105,7 @@ namespace NETCORE3.Data
             });
         }
         public DbSet<Menu> Menus { get; set; }
-        public DbSet<ChucVu> chucVus { get; set; }
+        public DbSet<ChucVu> ChucVus { get; set; }
         public DbSet<Nhom> Nhoms { get; set; }
         public DbSet<Phongban> phongbans { get; set; }
 
@@ -117,22 +117,30 @@ namespace NETCORE3.Data
         public DbSet<Menu_Role> Menu_Roles { get; set; }
         public DbSet<Log> Logs { get; set; }
         public DbSet<BoPhan> BoPhans { get; set; }
-        public DbSet<TapDoan> tapDoans { get; set; }
-        public DbSet<DonViTraLuong> donViTraLuongs { get; set; }
-        public DbSet<Domain> domains { get; set; }
-        public DbSet<HangThietBi> hangThietBis { get; set; }
-        public DbSet<LoaiThietBi> loaiThietBis{ get; set; }
-        public DbSet<LoaiHangThietBi> loaiHangThietBis { get; set; }
-        public DbSet<HeThong> heThongs { get; set; }
-        public DbSet<ThongTinThietBi> thongTinThietBis { get; set; }
-        public DbSet<LoaiThongTinThietBi> loaiThongTinThietBis { get; set; }
-        public DbSet<ThongTinHangThietBi> thongTinHangThietBis { get; set; }
-        public DbSet<ChiTietLoaiThongTinThietBi> chiTietLoaiThongTinThietBis { get; set; }
-        public DbSet<DanhMucKho> danhMucKhos { get; set; }
-        public DbSet<Kho> khos { get; set; }
-        public DbSet<KhoLoaiThietBi> khoLoaiThietBis { get; set; }
-        public DbSet<KhoThongTinThietBi> khoThongTinThietBis { get; set; }
-  
+        public DbSet<TapDoan> TapDoans { get; set; }
+        public DbSet<DonViTraLuong> DonViTraLuongs { get; set; }
+        public DbSet<Domain> Domains { get; set; }
+        public DbSet<HangThietBi> HangThietBis { get; set; }
+        public DbSet<LoaiThietBi> LoaiThietBis{ get; set; }
+        public DbSet<Loai_HangThietBi> Loai_HangThietBis { get; set; }
+        public DbSet<DanhMucThietBi> DanhMucThietBis { get; set; }
+        public DbSet<HeThong> HeThongs { get; set; }
+        public DbSet<ThongTinThietBi> ThongTinThietBis { get; set; }
+      
+        /*public DbSet<ThongTinHangThietBi> ThongTinHangThietBis { get; set; }*/
+        /*public DbSet<ChiTietLoaiThongTinThietBi> chiTietLoaiThongTinThietBis { get; set; }*/
+        public DbSet<DanhMucKho> DanhMucKhos { get; set; }
+        public DbSet<Kho> Khos { get; set; }
+        /*public DbSet<KhoLoaiThietBi> khoLoaiThietBis { get; set; }*/
+        public DbSet<BanGiao_NguoiNhan> BanGiao_NguoiNhans { get; set; }
+        public DbSet<Kho_ThongTinThietBi> Kho_ThongTinThietBis { get; set; }
+        public DbSet<BanGiaoTB> BanGiaoTBs { get; set; }
+        public DbSet<BanGiao_ThongTinThietBi> BanGiao_ThongTinThietBis { get; set; }
+
+        public DbSet<DieuChuyenThietBi> DieuChuyenThietBis { get; set; }
+        public DbSet<NguoiNhan_DieuChuyen> NguoiNhan_DieuChuyens { get; set; }
+        public DbSet<ThanhLyThietBi> ThanhLyThietBis { get; set; }
+        public DbSet<ThanhLy_Kho> ThanhLy_Khos { get; set; }
 
 
     }

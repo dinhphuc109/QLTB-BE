@@ -88,6 +88,8 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
+                if (uow.domains.Exists(x => x.MaDomain == data.MaDomain && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDomain + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;
                 uow.domains.Update(data);
