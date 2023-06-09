@@ -53,10 +53,32 @@ namespace NETCORE3.Controllers
       return Ok(data);
     }
 
-    [HttpGet("{id}")]
+        [HttpGet("search-bo-phan")]
+        public IActionResult SearchBoPhan(string keyword)
+        {
+            if (keyword == null) keyword = "";
+            string[] include = { "Phongban" };
+            var data = uow.BoPhans.GetAll(x => !x.IsDeleted
+            && (x.TenBoPhan.ToLower().Contains(keyword.ToLower())
+            || x.MaBoPhan.ToLower().Contains(keyword.ToLower())), null, include).Select(x => new
+            {
+                x.Id,
+                x.MaBoPhan,
+                x.TenBoPhan,
+                x.Phongban.TenPhongBan
+
+            });
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data.OrderBy(x => x.MaBoPhan));
+        }
+
+        [HttpGet("{id}")]
     public ActionResult Get(Guid id)
     {
-      string[] include = { "PhongBan" };
+      string[] include = { "Phongban" };
       var duLieu = uow.BoPhans.GetAll(x => !x.IsDeleted && x.Id == id, null, include);
       if (duLieu == null)
       {
@@ -97,9 +119,9 @@ namespace NETCORE3.Controllers
         {
           return BadRequest();
         }
-        if (uow.BoPhans.Exists(x => x.MaBoPhan == data.MaBoPhan && !x.IsDeleted))
+        if (uow.BoPhans.Exists(x => x.MaBoPhan == data.MaBoPhan && x.Id != data.Id && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaBoPhan + " đã tồn tại trong hệ thống");
-                data.UpdatedBy = Guid.Parse(User.Identity.Name);
+        data.UpdatedBy = Guid.Parse(User.Identity.Name);
         data.UpdatedDate = DateTime.Now;
         uow.BoPhans.Update(data);
         uow.Complete();

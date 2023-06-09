@@ -128,7 +128,7 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                if (uow.danhMucKhos.Exists(x => x.MaKho == data.MaKho && !x.IsDeleted))
+                if (uow.danhMucKhos.Exists(x => x.MaKho == data.MaKho && x.Id != data.Id && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaKho + " đã tồn tại trong hệ thống");
                 else if (uow.danhMucKhos.Exists(x => x.MaKho == data.MaKho && x.IsDeleted))
                 {

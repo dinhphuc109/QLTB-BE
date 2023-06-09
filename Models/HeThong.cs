@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,5 +16,6 @@ namespace NETCORE3.Models
         [StringLength(250)]
         [Required(ErrorMessage = "Tên bắt buộc")]
         public string TenHeThong { get; set; }
+        public ICollection<LoaiThietBi> LoaiThietBis { get; set; }
     }
 }

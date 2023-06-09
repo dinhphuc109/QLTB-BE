@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -46,6 +47,10 @@ namespace NETCORE3.Data
             [ForeignKey("DonViTraLuong")]
             public Guid? DonViTraLuong_Id { get; set; }
             public DonViTraLuong DonViTraLuong { get; set; }
+            public bool NghiViec { get; set; }
+            public DateTime? NgayNghiViec { get; set; }
+            [StringLength(50)]
+            public string GhiChu { get; set; }
 
         }
         public class ApplicationRole : IdentityRole<Guid>
@@ -126,9 +131,9 @@ namespace NETCORE3.Data
         public DbSet<DanhMucThietBi> DanhMucThietBis { get; set; }
         public DbSet<HeThong> HeThongs { get; set; }
         public DbSet<ThongTinThietBi> ThongTinThietBis { get; set; }
-      
+
         /*public DbSet<ThongTinHangThietBi> ThongTinHangThietBis { get; set; }*/
-        /*public DbSet<ChiTietLoaiThongTinThietBi> chiTietLoaiThongTinThietBis { get; set; }*/
+        public DbSet<DieuChuyenThietBi_Kho> DieuChuyenThietBi_Khos { get; set; }
         public DbSet<DanhMucKho> DanhMucKhos { get; set; }
         public DbSet<Kho> Khos { get; set; }
         /*public DbSet<KhoLoaiThietBi> khoLoaiThietBis { get; set; }*/
@@ -141,7 +146,8 @@ namespace NETCORE3.Data
         public DbSet<NguoiNhan_DieuChuyen> NguoiNhan_DieuChuyens { get; set; }
         public DbSet<ThanhLyThietBi> ThanhLyThietBis { get; set; }
         public DbSet<ThanhLy_Kho> ThanhLy_Khos { get; set; }
-
+        public DbSet<DieuChuyenNhanVien> DieuChuyenNhanViens { get; set; }
+        public DbSet<LichSuThietBi> LichSuThietBis { get; set; }
 
     }
 }

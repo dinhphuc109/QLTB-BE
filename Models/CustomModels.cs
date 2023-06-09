@@ -80,6 +80,22 @@ namespace NETCORE3.Models
         public string? TenDonViTraLuong { get; set; }
 
     }
+
+    public class ListUserModelNghiViec
+    {
+        public string Id { get; set; }
+
+        public string FullName { get; set; }
+        public string? TenDonVi { get; set; }
+        public string? TenBoPhan { get; set; }
+        public string? TenChucVu { get; set; }
+        public string? TenPhongBan { get; set; }
+        public string? TenDonViTraLuong { get; set; }
+        public DateTime? NgayNghiViec { get; set; }
+        public string GhiChu { get; set; }
+
+    }
+
     public class UserInfoModel
     {
         public string Id { get; set; }
@@ -101,6 +117,9 @@ namespace NETCORE3.Models
         public string? TenPhongBan { get; set; }
         public Guid? DonViTraLuong_Id { get; set; }
         public string? TenDonViTraLuong { get; set; }
+        public bool NghiViec { get; set; }
+        public DateTime? NgayNghiViec { get; set; }
+        public string? GhiChu { get; set; }
     }
     public class UserToken
     {

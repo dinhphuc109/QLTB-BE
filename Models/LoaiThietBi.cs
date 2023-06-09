@@ -24,6 +24,7 @@ namespace NETCORE3.Models
 
         public virtual LoaiThietBi ParentLoaiThietBi { get; set; }
         public virtual ICollection<LoaiThietBi> ChildLoaiThietBis { get; set; }
+        public ICollection<DanhMucThietBi> DanhMucThietBis { get; set; }
 
 
     }

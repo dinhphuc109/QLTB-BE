@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -18,5 +19,6 @@ namespace NETCORE3.Models
         [ForeignKey("DonVi")]
         public Guid? DonVi_Id { get; set; }
         public DonVi DonVi { get; set; }
+        public ICollection<BoPhan> BoPhans { get; set; }
     }
 }

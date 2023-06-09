@@ -335,9 +335,11 @@ namespace NETCORE3.Controllers
                     uow.banGiaoTBs.Update(banGiaotb[0]);
                     foreach (var item in data.Lstbgtttb)
                     {
+                        var tttb = uow.thongTinThietBis.GetAll(t => !t.IsDeleted && t.qrCodeData != null && t.Id == item.ThongTinThietBi_Id).ToArray();
                         item.CreatedBy = Guid.Parse(User.Identity.Name);
                         item.CreatedDate = DateTime.Now;
                         item.BanGiaoTB_Id = banGiaotb[0].Id;
+                        item.qrCodeData = tttb[0].qrCodeData;
                         var bangiaotttb = uow.banGiaoThongTinThietBis.GetAll(x => x.BanGiaoTB_Id == item.BanGiaoTB_Id).ToArray();
                         var kho = uow.khos.GetAll(x => x.Id == item.Kho_Id).ToArray();
                         var khotttb=uow.khoThongTinThietBis.GetAll(x => x.Id == item.Kho_Id).ToArray();
@@ -351,6 +353,7 @@ namespace NETCORE3.Controllers
                                     k.CreatedBy = Guid.Parse(User.Identity.Name);
                                     k.CreatedDate = DateTime.Now;
                                     k.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    k.qrCodeData = tttb[0].qrCodeData;
                                     k.SoLuong = item.SoLuong;
                                     k.DonViTinh_Id = item.DonViTinh_Id;
                                     k.TinhTrangThietBi = item.TinhTrangThietBi;
@@ -386,13 +389,20 @@ namespace NETCORE3.Controllers
                             uow.khos.Update(kho[0]);
                         }*/
                         uow.banGiaoThongTinThietBis.Add(item);
+                        tttb[0].qrCodeData = null;
+                        uow.thongTinThietBis.Update(tttb[0]);
                     }
                     foreach (var item in data.Lstbgnn)
                     {
-                        item.CreatedBy = Guid.Parse(User.Identity.Name);
-                        item.CreatedDate = DateTime.Now;
-                        item.BanGiaoTB_Id = banGiaotb[0].Id;
-                        uow.banGiaoNguoiNhans.Add(item);
+                        var appUser = userManager.FindByIdAsync(item.User_Id.ToString()).Result;
+                        if (appUser.NghiViec == false)
+                        {
+                            item.CreatedBy = Guid.Parse(User.Identity.Name);
+                            item.CreatedDate = DateTime.Now;
+                            item.BanGiaoTB_Id = banGiaotb[0].Id;
+                            uow.banGiaoNguoiNhans.Add(item);
+                        }
+  
                     }
                 }
                 else
@@ -401,17 +411,30 @@ namespace NETCORE3.Controllers
                     data.Id = id;
                     data.CreatedDate = DateTime.Now;
                     data.CreatedBy = Guid.Parse(User.Identity.Name);
-
+                    
                     uow.banGiaoTBs.Add(data);
+                    foreach (var item in data.Lstbgnn)
+                    {
+                        var appUser = userManager.FindByIdAsync(item.User_Id.ToString()).Result;
+                        if(appUser.NghiViec==false){
+                            item.CreatedBy = Guid.Parse(User.Identity.Name);
+                            item.CreatedDate = DateTime.Now;
+                            item.BanGiaoTB_Id = id;
+                            uow.banGiaoNguoiNhans.Add(item);
+                        }
+
+                    }
                     foreach (var item in data.Lstbgtttb)
                     {
+                        var tttb = uow.thongTinThietBis.GetAll(t => !t.IsDeleted && t.qrCodeData != null && t.Id == item.ThongTinThietBi_Id).ToArray();
                         item.CreatedBy = Guid.Parse(User.Identity.Name);
                         item.CreatedDate = DateTime.Now;
                         item.BanGiaoTB_Id = id;
+                        item.qrCodeData = tttb[0].qrCodeData;
                         var bangiaotttb = uow.banGiaoThongTinThietBis.GetAll(x => x.BanGiaoTB_Id == item.BanGiaoTB_Id).ToArray();
                         var kho = uow.khos.GetAll(x => x.Id == item.Kho_Id).ToArray();
                         
-                        uow.banGiaoThongTinThietBis.Add(item);
+                        
                         if (item.Kho_Id != null && kho[0].Id == item.Kho_Id)
                         {
                             if (!uow.khoThongTinThietBis.Exists(x => x.ThongTinThietBi_Id == item.ThongTinThietBi_Id))
@@ -423,27 +446,74 @@ namespace NETCORE3.Controllers
                                     khotb.CreatedBy = Guid.Parse(User.Identity.Name);
                                     khotb.CreatedDate = DateTime.Now;
                                     khotb.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
-                                    khotb.SoLuong = item.SoLuong;
+                                khotb.qrCodeData = tttb[0].qrCodeData;
+                                khotb.SoLuong = item.SoLuong;
                                     khotb.DonViTinh_Id = item.DonViTinh_Id;
                                     khotb.TinhTrangThietBi = item.TinhTrangThietBi;
                                     uow.khoThongTinThietBis.Add(khotb);
-                                
-
                             }
-
                             else
                             {
                                 return StatusCode(StatusCodes.Status409Conflict, "Mã đã tồn tại trong hệ thống");
                             }
                         }
-                        
-                    }
-                    foreach (var item in data.Lstbgnn)
-                    {
-                        item.CreatedBy = Guid.Parse(User.Identity.Name);
-                        item.CreatedDate = DateTime.Now;
-                        item.BanGiaoTB_Id = id;
-                        uow.banGiaoNguoiNhans.Add(item);
+                        uow.banGiaoThongTinThietBis.Add(item);
+                        tttb[0].qrCodeData = null;
+                        uow.thongTinThietBis.Update(tttb[0]);
+                        LichSuThietBi lichsuthietbi = new LichSuThietBi();
+                        if (item.Kho_Id == null)
+                        {
+                            foreach(var item2 in data.Lstbgnn)
+                            {
+                                
+                                if (!uow.lichSuThietBis.Exists(x => x.User_Id == item2.User_Id))
+                                {
+                                    Guid lstbid = Guid.NewGuid();
+                                    /*UserInfoModel model;
+                                    model.Id = item2.User_Id.ToString();*/
+                                    var appUser = userManager.FindByIdAsync(item2.User_Id.ToString()).Result;
+                                    lichsuthietbi.CreatedBy = Guid.Parse(User.Identity.Name);
+                                    lichsuthietbi.CreatedDate = DateTime.Now;
+                                    lichsuthietbi.Id = lstbid;
+                                    lichsuthietbi.User_Id = item2.User_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.DonVi_Id = appUser.DonVi_Id;
+                                    lichsuthietbi.PhongBan_Id = appUser.PhongBan_Id;
+                                    lichsuthietbi.BoPhan_Id = appUser.BoPhan_Id;
+                                    lichsuthietbi.ChucVu_Id = appUser.ChucVu_Id;
+                                    lichsuthietbi.DonViTraLuong_Id = appUser.DonViTraLuong_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.TinhTrangThietBi = item.TinhTrangThietBi;
+                                    lichsuthietbi.NgayBatDau = DateTime.Now;
+                                    lichsuthietbi.NgayKetThuc = null;
+                                    uow.lichSuThietBis.Add(lichsuthietbi);
+                                }
+                                else if (uow.lichSuThietBis.Exists(x => x.User_Id == item2.User_Id) && item.Kho_Id == null)
+                                {
+                                    Guid lstbid = Guid.NewGuid();
+                                    var existingLichSu = uow.lichSuThietBis.GetAll(x => x.User_Id == item2.User_Id && x.NgayKetThuc == null).ToArray();
+                                    /*existingLichSu[0].NgayKetThuc = DateTime.Now;
+                                    uow.lichSuThietBis.Update(existingLichSu[0]);*/
+                                    var appUser = userManager.FindByIdAsync(item2.User_Id.ToString()).Result;
+                                    lichsuthietbi.CreatedBy = Guid.Parse(User.Identity.Name);
+                                    lichsuthietbi.CreatedDate = DateTime.Now;
+                                    lichsuthietbi.Id = lstbid;
+                                    lichsuthietbi.User_Id = item2.User_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.DonVi_Id = appUser.DonVi_Id;
+                                    lichsuthietbi.PhongBan_Id = appUser.PhongBan_Id;
+                                    lichsuthietbi.BoPhan_Id = appUser.BoPhan_Id;
+                                    lichsuthietbi.ChucVu_Id = appUser.ChucVu_Id;
+                                    lichsuthietbi.DonViTraLuong_Id = appUser.DonViTraLuong_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.TinhTrangThietBi = item.TinhTrangThietBi;
+                                    lichsuthietbi.NgayBatDau = DateTime.Now;
+                                    lichsuthietbi.NgayKetThuc = null;
+                                    uow.lichSuThietBis.Add(lichsuthietbi);
+                                }
+                            }
+
+                        }
                     }
                 }
                 uow.Complete();
@@ -464,7 +534,7 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                if (uow.banGiaoTBs.Exists(x => x.MaBanGIao == data.MaBanGIao && !x.IsDeleted))
+                if (uow.banGiaoTBs.Exists(x => x.MaBanGIao == data.MaBanGIao && x.Id != data.Id && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaBanGIao + " đã tồn tại trong hệ thống");
                 else if (uow.banGiaoTBs.Exists(x => x.MaBanGIao == data.MaBanGIao && x.IsDeleted))
                 {

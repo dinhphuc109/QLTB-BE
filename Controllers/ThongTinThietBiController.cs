@@ -41,11 +41,54 @@ namespace NETCORE3.Controllers
         public ActionResult Get(string keyword)
         {
             if (keyword == null) keyword = "";
-            string[] include = { "Domain", "NhaCungCap", "DonViTinh", "DanhMucThietBi", "DanhMucThietBi.HangThietBi" };
-            var data = uow.thongTinThietBis.GetAll(t => !t.IsDeleted, null, include).Select(x => new
+            
+            string[] include = { "Domain", "NhaCungCap", "DonViTinh", "DanhMucThietBi", "DanhMucThietBi.HangThietBi", "DanhMucThietBi.LoaiThietBi.HeThong" };
+            var data = uow.thongTinThietBis.GetAll(t => !t.IsDeleted && t.qrCodeData!=null, null, include).Select(x => new
             {
                 x.Id,
-                x.DanhMucThietBI_Id,
+                x.qrCodeData,
+                x.DanhMucThietBi_Id,
+                x.DanhMucThietBi.MaThietBi,
+                x.DanhMucThietBi.TenThietBi,
+                x.DanhMucThietBi.CauHinh,
+                x.DanhMucThietBi.HangThietBi.TenHang,
+                x.DanhMucThietBi.LoaiThietbi_Id,
+                x.DanhMucThietBi.LoaiThietBi.HeThong_Id,
+                x.Domain.TenDomain,
+                x.SoSeri,
+                x.ModelThietBi,
+                x.NhaCungCap.TenNhaCungCap,
+                x.DonViTinh.TenDonViTinh,
+                x.TinhTrangThietBi,
+                x.ThoiGianBaoHanh,
+            });
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data.OrderBy(x => x.TenThietBi));
+        }
+
+        [HttpGet("search-thong-tin-thiet-bi")]
+        public IActionResult SearchThongTinThietBi(string keyword, Guid? HeThongId, Guid? LoaiThietBiId)
+        {
+            if (keyword == null) keyword = "";
+            string[] include = { "Domain", "NhaCungCap", "DonViTinh", 
+                                "DanhMucThietBi", "DanhMucThietBi.HangThietBi"
+                                , "DanhMucThietBi.LoaiThietBi", "DanhMucThietBi.LoaiThietBi.HeThong" };
+            var data = uow.thongTinThietBis.GetAll(x=> !x.IsDeleted && x.qrCodeData!=null
+            &&x.DanhMucThietBi.LoaiThietbi_Id == (LoaiThietBiId==null?x.DanhMucThietBi.LoaiThietbi_Id:LoaiThietBiId)
+            && x.DanhMucThietBi.LoaiThietBi.HeThong_Id == (HeThongId==null?x.DanhMucThietBi.LoaiThietBi.HeThong_Id:HeThongId)
+            && (x.DanhMucThietBi.TenThietBi.ToLower().Contains(keyword.ToLower())
+            || x.DanhMucThietBi.MaThietBi.ToLower().Contains(keyword.ToLower())
+            || x.SoSeri.ToLower().Contains(keyword.ToLower())
+            || x.ModelThietBi.ToLower().Contains(keyword.ToLower())
+            || x.Domain.TenDomain.ToLower().Contains(keyword.ToLower())
+            || x.DanhMucThietBi.HangThietBi.TenHang.ToLower().Contains(keyword.ToLower())),null, include).Select(x=> new
+            {
+                x.Id,
+                x.qrCodeData,
+                x.DanhMucThietBi_Id,
                 x.DanhMucThietBi.MaThietBi,
                 x.DanhMucThietBi.TenThietBi,
                 x.DanhMucThietBi.CauHinh,
@@ -66,135 +109,137 @@ namespace NETCORE3.Controllers
             return Ok(data.OrderBy(x => x.TenThietBi));
         }
 
-/*        public class ClassListThongTinThietBi
-        {
-            public Guid Id { get; set; }
-            public string MaThietBi { get; set; }
-            public string TenThietBi { get; set; }
-            public string TenDomain { get; set; }
-            public string TenHang { get; set; }
-            public string TenNhaCungCap { get; set; }
-            public string SoSeri { get; set; }
-        }
 
-        [HttpGet("GetDataPagnigation")]
-        public ActionResult GetDataPagnigation(int page = 1, int pageSize = 20, string keyword = null)
-        {
-            if (keyword == null) keyword = "";
-            string[] include = { "Domain", "NhaCungCap", "HangThietBi", "LoaiThietBi" };
-            var query = uow.thongTinThietBis.GetAll(t => !t.IsDeleted && (t.TenThietBi.ToLower().Contains(keyword.ToLower()) || t.MaThietBi.ToLower().Contains(keyword.ToLower())), null, include)
-            .Select(x => new
-            {
-                x.TenThietBi,
-                x.Id,
-                x.MaThietBi,
-                x.CauHinh,
-                x.Domain_Id,
-                x.HangThietBi_Id,
-                x.SoSeri,
-                x.ModelThietBi,
-                x.NhaCungCap_Id,
-                x.ThoiGianBaoHanh,
-                x.LoaiThietBi_Id,
 
-            })
-            .OrderBy(x => x.TenThietBi);
-            List<ClassListThongTinThietBi> list = new List<ClassListThongTinThietBi>();
+        /*        public class ClassListThongTinThietBi
+                {
+                    public Guid Id { get; set; }
+                    public string MaThietBi { get; set; }
+                    public string TenThietBi { get; set; }
+                    public string TenDomain { get; set; }
+                    public string TenHang { get; set; }
+                    public string TenNhaCungCap { get; set; }
+                    public string SoSeri { get; set; }
+                }
 
-            foreach (var item in query)
-            {
-                var domain = uow.domains.GetAll(x => !x.IsDeleted && x.Id == item.Domain_Id, null, null).Select(x => new { x.TenDomain }).ToList();
-                var hangtb = uow.hangThietBis.GetAll(x => !x.IsDeleted && x.Id == item.HangThietBi_Id, null, null).Select(x => new { x.TenHang }).ToList();
-                var nhaCungCap = uow.NhaCungCaps.GetAll(x => !x.IsDeleted && x.Id == item.NhaCungCap_Id, null, null).Select(x => new { x.TenNhaCungCap }).ToList();
+                [HttpGet("GetDataPagnigation")]
+                public ActionResult GetDataPagnigation(int page = 1, int pageSize = 20, string keyword = null)
+                {
+                    if (keyword == null) keyword = "";
+                    string[] include = { "Domain", "NhaCungCap", "HangThietBi", "LoaiThietBi" };
+                    var query = uow.thongTinThietBis.GetAll(t => !t.IsDeleted && (t.TenThietBi.ToLower().Contains(keyword.ToLower()) || t.MaThietBi.ToLower().Contains(keyword.ToLower())), null, include)
+                    .Select(x => new
+                    {
+                        x.TenThietBi,
+                        x.Id,
+                        x.MaThietBi,
+                        x.CauHinh,
+                        x.Domain_Id,
+                        x.HangThietBi_Id,
+                        x.SoSeri,
+                        x.ModelThietBi,
+                        x.NhaCungCap_Id,
+                        x.ThoiGianBaoHanh,
+                        x.LoaiThietBi_Id,
 
-                var infor = new ClassListThongTinThietBi();
-                infor.Id = item.Id;
-                infor.MaThietBi = item.MaThietBi;
-                infor.TenThietBi = item.TenThietBi;
-                infor.SoSeri = item.SoSeri;
-                infor.TenNhaCungCap = nhaCungCap[0].TenNhaCungCap;
-                infor.TenDomain = domain[0].TenDomain;
-                infor.TenHang = hangtb[0].TenHang;
-                list.Add(infor);
-            }
-            int totalRow = list.Count();
-            int totalPage = (int)Math.Ceiling(totalRow / (double)pageSize);
-            var data = list.OrderByDescending(a => a.Id).Skip((page - 1) * pageSize).Take(pageSize);
-            return Ok(new { data, totalPage, totalRow });
-        }
+                    })
+                    .OrderBy(x => x.TenThietBi);
+                    List<ClassListThongTinThietBi> list = new List<ClassListThongTinThietBi>();
 
-        public class ClassThongTinThietBiDetail
-        {
-            public Guid Id { get; set; }
-            public string MaThietBi { get; set; }
-            public string TenThietBi { get; set; }
-            public string TenDomain { get; set; }
-            public string TenHang { get; set; }
-            public string TenNhaCungCap { get; set; }
-            public string SoSeri { get; set; }
-            public string ModelThietBi { get; set; }
-            public string CauHinh { get; set; }
-            public DateTime ThoiGianBaoHanh { get; set; }
-            public string TenLoai { get; set; }
+                    foreach (var item in query)
+                    {
+                        var domain = uow.domains.GetAll(x => !x.IsDeleted && x.Id == item.Domain_Id, null, null).Select(x => new { x.TenDomain }).ToList();
+                        var hangtb = uow.hangThietBis.GetAll(x => !x.IsDeleted && x.Id == item.HangThietBi_Id, null, null).Select(x => new { x.TenHang }).ToList();
+                        var nhaCungCap = uow.NhaCungCaps.GetAll(x => !x.IsDeleted && x.Id == item.NhaCungCap_Id, null, null).Select(x => new { x.TenNhaCungCap }).ToList();
 
-        }
+                        var infor = new ClassListThongTinThietBi();
+                        infor.Id = item.Id;
+                        infor.MaThietBi = item.MaThietBi;
+                        infor.TenThietBi = item.TenThietBi;
+                        infor.SoSeri = item.SoSeri;
+                        infor.TenNhaCungCap = nhaCungCap[0].TenNhaCungCap;
+                        infor.TenDomain = domain[0].TenDomain;
+                        infor.TenHang = hangtb[0].TenHang;
+                        list.Add(infor);
+                    }
+                    int totalRow = list.Count();
+                    int totalPage = (int)Math.Ceiling(totalRow / (double)pageSize);
+                    var data = list.OrderByDescending(a => a.Id).Skip((page - 1) * pageSize).Take(pageSize);
+                    return Ok(new { data, totalPage, totalRow });
+                }
 
-        [HttpGet("GetThongTinThietBiDetail/{id}")]
-        public ActionResult GetThongTinThietBiDetail(Guid id)
-        {         
-            string[] include = { "Domain", "NhaCungCap", "HangThietBi", "LoaiThietBi" };
-            var query = uow.thongTinThietBis.GetAll(t => !t.IsDeleted && t.Id==id, null, include)
-            .Select(x => new
-            {
-                x.TenThietBi,
-                x.Id,
-                x.MaThietBi,
-                x.CauHinh,
-                x.Domain_Id,
-                x.HangThietBi_Id,
-                x.SoSeri,
-                x.ModelThietBi,
-                x.NhaCungCap_Id,
-                x.ThoiGianBaoHanh,
-                x.LoaiThietBi_Id,
+                public class ClassThongTinThietBiDetail
+                {
+                    public Guid Id { get; set; }
+                    public string MaThietBi { get; set; }
+                    public string TenThietBi { get; set; }
+                    public string TenDomain { get; set; }
+                    public string TenHang { get; set; }
+                    public string TenNhaCungCap { get; set; }
+                    public string SoSeri { get; set; }
+                    public string ModelThietBi { get; set; }
+                    public string CauHinh { get; set; }
+                    public DateTime ThoiGianBaoHanh { get; set; }
+                    public string TenLoai { get; set; }
 
-            })
-            .OrderBy(x => x.TenThietBi);
-            List<ClassThongTinThietBiDetail> list = new List<ClassThongTinThietBiDetail>(); ;
-            foreach (var item in query)
-            {
-                var domain = uow.domains.GetAll(x => !x.IsDeleted && x.Id == item.Domain_Id, null, null).Select(x => new { x.TenDomain }).ToList();
-                var hangtb = uow.hangThietBis.GetAll(x => !x.IsDeleted && x.Id == item.HangThietBi_Id, null, null).Select(x => new { x.TenHang }).ToList();
-                var nhaCungCap = uow.NhaCungCaps.GetAll(x => !x.IsDeleted && x.Id == item.NhaCungCap_Id, null, null).Select(x => new { x.TenNhaCungCap }).ToList();
-                var loaithietbi = uow.loaiThietBis.GetAll(x => !x.IsDeleted && x.Id == item.LoaiThietBi_Id, null, null).Select(x => new { x.TenLoaiThietBi }).ToList();
-                var infor = new ClassThongTinThietBiDetail();
-                infor.Id = item.Id;
-                infor.MaThietBi = item.MaThietBi;
-                infor.TenThietBi = item.TenThietBi;
-                infor.SoSeri = item.SoSeri;
-                infor.CauHinh = item.CauHinh;
-                infor.ModelThietBi = item.ModelThietBi;
-                infor.ThoiGianBaoHanh = item.ThoiGianBaoHanh;
-                infor.TenNhaCungCap = nhaCungCap[0].TenNhaCungCap;
-                infor.TenDomain = domain[0].TenDomain;
-                infor.TenHang = hangtb[0].TenHang;
-                infor.TenLoai = loaithietbi[0].TenLoaiThietBi;
-                list.Add(infor);
-            }
-            return Ok(list);
-        }
+                }
 
-        [HttpGet("{id}")]
-        public ActionResult Get(Guid id)
-        {
-            string[] includes = { "ChiTietLoaiThongTinThietBis" };
-            var duLieu = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == id, null, includes);
-            if (duLieu == null)
-            {
-                return NotFound();
-            }
-            return Ok(duLieu);
-        }*/
+                [HttpGet("GetThongTinThietBiDetail/{id}")]
+                public ActionResult GetThongTinThietBiDetail(Guid id)
+                {         
+                    string[] include = { "Domain", "NhaCungCap", "HangThietBi", "LoaiThietBi" };
+                    var query = uow.thongTinThietBis.GetAll(t => !t.IsDeleted && t.Id==id, null, include)
+                    .Select(x => new
+                    {
+                        x.TenThietBi,
+                        x.Id,
+                        x.MaThietBi,
+                        x.CauHinh,
+                        x.Domain_Id,
+                        x.HangThietBi_Id,
+                        x.SoSeri,
+                        x.ModelThietBi,
+                        x.NhaCungCap_Id,
+                        x.ThoiGianBaoHanh,
+                        x.LoaiThietBi_Id,
+
+                    })
+                    .OrderBy(x => x.TenThietBi);
+                    List<ClassThongTinThietBiDetail> list = new List<ClassThongTinThietBiDetail>(); ;
+                    foreach (var item in query)
+                    {
+                        var domain = uow.domains.GetAll(x => !x.IsDeleted && x.Id == item.Domain_Id, null, null).Select(x => new { x.TenDomain }).ToList();
+                        var hangtb = uow.hangThietBis.GetAll(x => !x.IsDeleted && x.Id == item.HangThietBi_Id, null, null).Select(x => new { x.TenHang }).ToList();
+                        var nhaCungCap = uow.NhaCungCaps.GetAll(x => !x.IsDeleted && x.Id == item.NhaCungCap_Id, null, null).Select(x => new { x.TenNhaCungCap }).ToList();
+                        var loaithietbi = uow.loaiThietBis.GetAll(x => !x.IsDeleted && x.Id == item.LoaiThietBi_Id, null, null).Select(x => new { x.TenLoaiThietBi }).ToList();
+                        var infor = new ClassThongTinThietBiDetail();
+                        infor.Id = item.Id;
+                        infor.MaThietBi = item.MaThietBi;
+                        infor.TenThietBi = item.TenThietBi;
+                        infor.SoSeri = item.SoSeri;
+                        infor.CauHinh = item.CauHinh;
+                        infor.ModelThietBi = item.ModelThietBi;
+                        infor.ThoiGianBaoHanh = item.ThoiGianBaoHanh;
+                        infor.TenNhaCungCap = nhaCungCap[0].TenNhaCungCap;
+                        infor.TenDomain = domain[0].TenDomain;
+                        infor.TenHang = hangtb[0].TenHang;
+                        infor.TenLoai = loaithietbi[0].TenLoaiThietBi;
+                        list.Add(infor);
+                    }
+                    return Ok(list);
+                }
+
+                [HttpGet("{id}")]
+                public ActionResult Get(Guid id)
+                {
+                    string[] includes = { "ChiTietLoaiThongTinThietBis" };
+                    var duLieu = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == id, null, includes);
+                    if (duLieu == null)
+                    {
+                        return NotFound();
+                    }
+                    return Ok(duLieu);
+                }*/
 
         [HttpPost]
         public ActionResult Post(ThongTinThietBi data)
@@ -215,7 +260,8 @@ namespace NETCORE3.Controllers
                     thongtintb[0].DeletedDate = null;
                     thongtintb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
                     thongtintb[0].UpdatedDate = DateTime.Now;
-                    thongtintb[0].DanhMucThietBI_Id = data.DanhMucThietBI_Id;
+                    thongtintb[0].qrCodeData = data.qrCodeData;
+                    thongtintb[0].DanhMucThietBi_Id = data.DanhMucThietBi_Id;
                     thongtintb[0].Domain_Id = data.Domain_Id;
                     thongtintb[0].SoSeri = data.SoSeri;
                     thongtintb[0].ModelThietBi = data.ModelThietBi;
@@ -261,7 +307,8 @@ namespace NETCORE3.Controllers
                     thongtintb[0].DeletedDate = null;
                     thongtintb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
                     thongtintb[0].UpdatedDate = DateTime.Now;
-                    thongtintb[0].DanhMucThietBI_Id = data.DanhMucThietBI_Id;
+                    thongtintb[0].qrCodeData = data.qrCodeData;
+                    thongtintb[0].DanhMucThietBi_Id = data.DanhMucThietBi_Id;
                     thongtintb[0].Domain_Id = data.Domain_Id;
                     thongtintb[0].SoSeri = data.SoSeri;
                     thongtintb[0].ModelThietBi = data.ModelThietBi;
@@ -318,15 +365,30 @@ namespace NETCORE3.Controllers
         [HttpGet("GetDeviceData")]
         public IActionResult GetDeviceData()
         {
+            try
+            {
+                // Mở kết nối trước khi thực hiện truy vấn
+                myAdapter.OpenConnection();
 
-            string storedProcedure = "sp_GetThongTinThietBi";
-            DataTable dataTable = myAdapter.ExecuteQuery(storedProcedure);
+                // Thực hiện truy vấn
+                string storedProcedure = "sp_GetThongTinThietBi";
+                DataTable dataTable = myAdapter.ExecuteQuery(storedProcedure);
 
-            // Chuyển đổi DataTable thành danh sách đối tượng hoặc JSON theo ý muốn p/s: đang lú <(")
-            var result = ConvertDataTableToJson(dataTable);
+                // Chuyển đổi DataTable thành danh sách đối tượng hoặc JSON theo ý muốn
 
-            return Ok(dataTable);//Đang chỉnh sửa từ đoạn này ^-^
+                // Đóng kết nối sau khi sử dụng
+                myAdapter.CloseConnection();
+                //var result = ConvertDataTableToJson(dataTable);
+                myAdapter.Dispose();
+                return Ok(dataTable);
+            }
+            catch (Exception ex)
+            {
+                // Xử lý ngoại lệ
+                return BadRequest(ex.Message);
+            }
         }
+/*
         private object ConvertDataTableToJson(DataTable dataTable)
         {
             // Lấy thông tin loại thiết bị từ bảng "LoaiThietBi"
@@ -379,7 +441,7 @@ namespace NETCORE3.Controllers
             }
 
             return loaiThietBi;
-        }
+        }*/
         // Khai báo lớp đối tượng để lưu trữ thông tin từ dữ liệu truy vấn
         public class BaoCaoItem
         {

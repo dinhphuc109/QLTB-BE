@@ -88,7 +88,7 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                if (uow.heThongs.Exists(x => x.MaHeThong == data.MaHeThong && !x.IsDeleted))
+                if (uow.heThongs.Exists(x => x.MaHeThong == data.MaHeThong && x.Id != data.Id && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHeThong + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;

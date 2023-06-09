@@ -26,12 +26,13 @@ namespace NETCORE3.Models
         public virtual ICollection<NguoiNhan_DieuChuyen> nguoiNhanDieuChuyens { get; set; }
         [NotMapped]
         public List<NguoiNhan_DieuChuyen> Lstnndc { get; set; }
-        [ForeignKey("DonVi")]
-        public Guid? DonVi_Id { get; set; }
-        public DonVi DonVi { get; set; }
         [ForeignKey("User")]
         public Guid? User_Id { get; set; }
         public ApplicationUser User { get; set; }
+        public virtual ICollection<DieuChuyenThietBi_Kho> DieuChuyenThietBi_Khos { get; set; }
+        [NotMapped]
+        public List<DieuChuyenThietBi_Kho> Lstkho { get; set; }
         public DateTime NgayDieuChuyen { get; set; }
+
     }
 }

@@ -54,7 +54,29 @@ namespace NETCORE3.Controllers
       return Ok(data);
     }
 
-    [HttpGet("{id}")]
+        [HttpGet("search-don-vi")]
+        public IActionResult SearchDonVi(string keyword)
+        {
+            if (keyword == null) keyword = "";
+            string[] include = {"TapDoan" };
+            var data = uow.DonVis.GetAll(x => !x.IsDeleted
+            && (x.TenDonVi.ToLower().Contains(keyword.ToLower())
+            || x.MaDonVi.ToLower().Contains(keyword.ToLower())), null, include).Select(x => new
+            {
+                x.Id,
+                x.MaDonVi,
+                x.TenDonVi,
+                x.TapDoan.TenTapDoan
+
+            });
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data.OrderBy(x => x.MaDonVi));
+        }
+
+        [HttpGet("{id}")]
     public ActionResult Get(Guid id)
     {
       string[] include = { "TapDoan" };
@@ -98,9 +120,9 @@ namespace NETCORE3.Controllers
         {
           return BadRequest();
         }
-                if (uow.DonVis.Exists(x => x.MaDonVi == data.MaDonVi && !x.IsDeleted))
+                if (uow.DonVis.Exists(x => x.MaDonVi == data.MaDonVi && x.Id != data.Id && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDonVi + " đã tồn tại trong hệ thống");
-                data.UpdatedBy = Guid.Parse(User.Identity.Name);
+        data.UpdatedBy = Guid.Parse(User.Identity.Name);
         data.UpdatedDate = DateTime.Now;
         uow.DonVis.Update(data);
         uow.Complete();
