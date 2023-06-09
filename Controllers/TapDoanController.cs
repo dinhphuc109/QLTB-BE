@@ -45,6 +45,27 @@ namespace NETCORE3.Controllers
             return Ok(data);
         }
 
+        [HttpGet("search-tap-doan")]
+        public IActionResult SearchTapDoan(string keyword)
+        {
+            if (keyword == null) keyword = "";
+            string[] include = {  };
+            var data = uow.tapDoans.GetAll(x => !x.IsDeleted
+            && (x.TenTapDoan.ToLower().Contains(keyword.ToLower())
+            || x.MaTapDoan.ToLower().Contains(keyword.ToLower())), null, include).Select(x => new
+            {
+                x.Id,
+                x.MaTapDoan,
+                x.TenTapDoan
+
+            });
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data.OrderBy(x => x.MaTapDoan));
+        }
+
         [HttpGet("{id}")]
         public ActionResult Get(Guid id)
         {
@@ -88,7 +109,7 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                if (uow.tapDoans.Exists(x => x.MaTapDoan == data.MaTapDoan && !x.IsDeleted))
+                if (uow.tapDoans.Exists(x => x.MaTapDoan == data.MaTapDoan && x.Id != data.Id && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaTapDoan + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;

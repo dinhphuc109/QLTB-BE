@@ -16,6 +16,7 @@ namespace NETCORE3.Models
         [ForeignKey("ThongTinThietBi")]
         public Guid ThongTinThietBi_Id { get; set; }
         public ThongTinThietBi ThongTinThietBi { get; set; }
+        public string qrCodeData { get; set; }
         [Range(0, 250)]
         public int SoLuong { get; set; }
         [StringLength(250)]

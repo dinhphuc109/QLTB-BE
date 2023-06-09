@@ -43,9 +43,10 @@ namespace NETCORE3.Controllers
             if (keyword == null) keyword = "";
             
             string[] include = { "Domain", "NhaCungCap", "DonViTinh", "DanhMucThietBi", "DanhMucThietBi.HangThietBi", "DanhMucThietBi.LoaiThietBi.HeThong" };
-            var data = uow.thongTinThietBis.GetAll(t => !t.IsDeleted, null, include).Select(x => new
+            var data = uow.thongTinThietBis.GetAll(t => !t.IsDeleted && t.qrCodeData!=null, null, include).Select(x => new
             {
                 x.Id,
+                x.qrCodeData,
                 x.DanhMucThietBi_Id,
                 x.DanhMucThietBi.MaThietBi,
                 x.DanhMucThietBi.TenThietBi,
@@ -75,7 +76,7 @@ namespace NETCORE3.Controllers
             string[] include = { "Domain", "NhaCungCap", "DonViTinh", 
                                 "DanhMucThietBi", "DanhMucThietBi.HangThietBi"
                                 , "DanhMucThietBi.LoaiThietBi", "DanhMucThietBi.LoaiThietBi.HeThong" };
-            var data = uow.thongTinThietBis.GetAll(x=> !x.IsDeleted 
+            var data = uow.thongTinThietBis.GetAll(x=> !x.IsDeleted && x.qrCodeData!=null
             &&x.DanhMucThietBi.LoaiThietbi_Id == (LoaiThietBiId==null?x.DanhMucThietBi.LoaiThietbi_Id:LoaiThietBiId)
             && x.DanhMucThietBi.LoaiThietBi.HeThong_Id == (HeThongId==null?x.DanhMucThietBi.LoaiThietBi.HeThong_Id:HeThongId)
             && (x.DanhMucThietBi.TenThietBi.ToLower().Contains(keyword.ToLower())
@@ -86,6 +87,7 @@ namespace NETCORE3.Controllers
             || x.DanhMucThietBi.HangThietBi.TenHang.ToLower().Contains(keyword.ToLower())),null, include).Select(x=> new
             {
                 x.Id,
+                x.qrCodeData,
                 x.DanhMucThietBi_Id,
                 x.DanhMucThietBi.MaThietBi,
                 x.DanhMucThietBi.TenThietBi,
@@ -258,6 +260,7 @@ namespace NETCORE3.Controllers
                     thongtintb[0].DeletedDate = null;
                     thongtintb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
                     thongtintb[0].UpdatedDate = DateTime.Now;
+                    thongtintb[0].qrCodeData = data.qrCodeData;
                     thongtintb[0].DanhMucThietBi_Id = data.DanhMucThietBi_Id;
                     thongtintb[0].Domain_Id = data.Domain_Id;
                     thongtintb[0].SoSeri = data.SoSeri;
@@ -304,6 +307,7 @@ namespace NETCORE3.Controllers
                     thongtintb[0].DeletedDate = null;
                     thongtintb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
                     thongtintb[0].UpdatedDate = DateTime.Now;
+                    thongtintb[0].qrCodeData = data.qrCodeData;
                     thongtintb[0].DanhMucThietBi_Id = data.DanhMucThietBi_Id;
                     thongtintb[0].Domain_Id = data.Domain_Id;
                     thongtintb[0].SoSeri = data.SoSeri;
@@ -374,7 +378,7 @@ namespace NETCORE3.Controllers
 
                 // Đóng kết nối sau khi sử dụng
                 myAdapter.CloseConnection();
-                var result = ConvertDataTableToJson(dataTable);
+                //var result = ConvertDataTableToJson(dataTable);
                 myAdapter.Dispose();
                 return Ok(dataTable);
             }
@@ -384,7 +388,7 @@ namespace NETCORE3.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+/*
         private object ConvertDataTableToJson(DataTable dataTable)
         {
             // Lấy thông tin loại thiết bị từ bảng "LoaiThietBi"
@@ -437,7 +441,7 @@ namespace NETCORE3.Controllers
             }
 
             return loaiThietBi;
-        }
+        }*/
         // Khai báo lớp đối tượng để lưu trữ thông tin từ dữ liệu truy vấn
         public class BaoCaoItem
         {

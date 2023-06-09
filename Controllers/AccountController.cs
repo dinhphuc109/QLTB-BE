@@ -346,6 +346,66 @@ namespace NETCORE3.Controllers
             else
                 return BadRequest(string.Join(",", result.Errors));
         }
+
+
+        [HttpPut("nghi-viec/{id}")]
+        public async Task<IActionResult> PutNghiViec(string id, UserInfoModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (id != model.Id)
+            {
+                return BadRequest();
+            }
+            var UserName = model.Email.Split(new[] { '@' })[0];
+            var exit = await userManager.FindByEmailAsync(model.Email);
+            // Kiểm tra tài khoản, email có tồn tại không
+            if (exit != null && exit.Id.ToString() != id)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, "Thông tin tài khoản, email đã tồn tại");
+            }
+            var appUser = await userManager.FindByIdAsync(model.Id);
+            appUser.UserName = appUser.UserName;
+            appUser.NormalizedUserName = appUser.UserName.ToUpper();
+            appUser.FullName = appUser.FullName;
+            appUser.MaNhanVien = appUser.MaNhanVien;
+            appUser.Email = appUser.Email;
+            appUser.PhoneNumber = appUser.PhoneNumber;
+            appUser.IsActive = appUser.IsActive;
+            appUser.UpdatedDate = DateTime.Now;
+            appUser.DonVi_Id = appUser.DonVi_Id;
+            appUser.BoPhan_Id = appUser.BoPhan_Id;
+            appUser.ChucVu_Id = appUser.ChucVu_Id;
+            appUser.PhongBan_Id = appUser.PhongBan_Id;
+            appUser.DonViTraLuong_Id = appUser.DonViTraLuong_Id;
+            appUser.NghiViec = true;
+            appUser.NgayNghiViec = model.NgayNghiViec;
+            appUser.GhiChu = model.GhiChu;
+            appUser.IsActive = model.IsActive;
+            appUser.UpdatedDate = DateTime.Now;
+
+            var result = await userManager.UpdateAsync(appUser);
+
+            if (result.Succeeded)
+            {
+                var roles = await userManager.GetRolesAsync(appUser);
+                foreach (string item_remove in roles)
+                {
+                    await userManager.RemoveFromRoleAsync(appUser, item_remove);
+                }
+                foreach (string RoleName in model.RoleNames)
+                {
+                    await userManager.AddToRoleAsync(appUser, RoleName);
+                }
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
+            else
+                return BadRequest(string.Join(",", result.Errors));
+        }
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult> Get(string id)
         {
@@ -357,48 +417,96 @@ namespace NETCORE3.Controllers
                 var role = await userManager.GetRolesAsync(appUser);
                 if (role.Count > 0)
                 {
-                    return Ok(new UserInfoModel
+                    if (appUser.NghiViec == false && (appUser.NgayNghiViec == DateTime.Now || appUser.NgayNghiViec <= DateTime.Now))
                     {
-                        Id = id,
-                        Email = appUser.Email,
-                        PhoneNumber=appUser.PhoneNumber,
-                        UserName = appUser.UserName,
-                        MaNhanVien = appUser.MaNhanVien,
-                        FullName = appUser.FullName,
-                        IsActive = appUser.IsActive,
-                        RoleNames = role.ToList(),
-                        BoPhan_Id = appUser.BoPhan_Id,
-                        DonVi_Id = appUser.DonVi_Id,
-                        ChucVu_Id=appUser.ChucVu_Id,
-                        PhongBan_Id=appUser.PhongBan_Id,
-                        DonViTraLuong_Id=appUser.DonViTraLuong_Id
-                        // DonVi_Id = appUser.DonVi_Id
-                    });
+                        return Ok(new UserInfoModel
+                        {
+
+                            Id = id,
+                            Email = appUser.Email,
+                            PhoneNumber = appUser.PhoneNumber,
+                            UserName = appUser.UserName,
+                            MaNhanVien = appUser.MaNhanVien,
+                            FullName = appUser.FullName,
+                            IsActive = appUser.IsActive,
+                            RoleNames = role.ToList(),
+                            BoPhan_Id = appUser.BoPhan_Id,
+                            DonVi_Id = appUser.DonVi_Id,
+                            ChucVu_Id = appUser.ChucVu_Id,
+                            PhongBan_Id = appUser.PhongBan_Id,
+                            DonViTraLuong_Id = appUser.DonViTraLuong_Id
+                            // DonVi_Id = appUser.DonVi_Id
+                        });
+                    }
+
                 }
                 return BadRequest();
             }
         }
         [HttpGet("GetListUser")]
-        public async Task<ActionResult> GetListUser()
+        public async Task<ActionResult> GetListUser(string keyword = null)
         {
-            var query = await userManager.Users.Include(u => u.DonVi)
-            .Include(u => u.BoPhan).Include(u=>u.ChucVu).Include(u=>u.Phongban).Include(u=>u.DonViTraLuong).ToListAsync();
+            var query = userManager.Users.Where(x => (string.IsNullOrEmpty(keyword) || x.Email.ToLower().Contains(keyword.ToLower()) || x.UserName.ToLower().Contains(keyword.ToLower()) || x.FullName.ToLower().Contains(keyword.ToLower())) && !x.IsDeleted)
+            .Include(u => u.DonVi)
+            .Include(u => u.BoPhan)
+            .Include(u => u.ChucVu)
+            .Include(u => u.Phongban)
+            .Include(u => u.DonViTraLuong); 
             List<ListUserModel> list = new List<ListUserModel>();
 
             foreach (var item in query)
             {
+                
                 var infor = new ListUserModel();
-                infor.Id = item.Id.ToString();
-                infor.FullName = item.FullName;
-                infor.TenBoPhan = item.BoPhan.TenBoPhan;
-                infor.TenDonVi = item.DonVi.TenDonVi;
-                infor.TenChucVu = item.ChucVu.TenChucVu;
-                infor.TenPhongBan = item.Phongban.TenPhongBan;
-                infor.TenDonViTraLuong = item.DonViTraLuong.TenDonViTraLuong;
-                list.Add(infor);
+                if (item.NghiViec == false && (item.NgayNghiViec==DateTime.Now || item.NgayNghiViec<=DateTime.Now))
+                {
+                    
+                    infor.Id = item.Id.ToString();
+                    infor.FullName = item.FullName;
+                    infor.TenBoPhan = item.BoPhan.TenBoPhan;
+                    infor.TenDonVi = item.DonVi.TenDonVi;
+                    infor.TenChucVu = item.ChucVu.TenChucVu;
+                    infor.TenPhongBan = item.Phongban.TenPhongBan;
+                    infor.TenDonViTraLuong = item.DonViTraLuong.TenDonViTraLuong;
+                    list.Add(infor);
+                }
+
             }
             return Ok(list);
         }
+
+        [HttpGet("Get-List-User-nghi-viec")]
+        public async Task<ActionResult> GetListUserNghiViec(string keyword = null)
+        {
+            var query = userManager.Users.Where(x => (string.IsNullOrEmpty(keyword) || x.Email.ToLower().Contains(keyword.ToLower()) || x.UserName.ToLower().Contains(keyword.ToLower()) || x.FullName.ToLower().Contains(keyword.ToLower())) && !x.IsDeleted)
+           .Include(u => u.DonVi)
+           .Include(u => u.BoPhan)
+           .Include(u => u.ChucVu)
+           .Include(u => u.Phongban)
+           .Include(u => u.DonViTraLuong);
+            List<ListUserModelNghiViec> list = new List<ListUserModelNghiViec>();
+
+            foreach (var item in query)
+            {
+                var infor = new ListUserModelNghiViec();
+                if(item.NghiViec == true)
+                {
+                    infor.Id = item.Id.ToString();
+                    infor.FullName = item.FullName;
+                    infor.TenBoPhan = item.BoPhan.TenBoPhan;
+                    infor.TenDonVi = item.DonVi.TenDonVi;
+                    infor.TenChucVu = item.ChucVu.TenChucVu;
+                    infor.TenPhongBan = item.Phongban.TenPhongBan;
+                    infor.TenDonViTraLuong = item.DonViTraLuong.TenDonViTraLuong;
+                    infor.NgayNghiViec = item.NgayNghiViec;
+                    infor.GhiChu = item.GhiChu;
+                    list.Add(infor);
+                }
+
+            }
+            return Ok(list);
+        }
+
         [HttpGet]
         public async Task<ActionResult> Get(int page = 1, int pageSize = 20, string keyword = null)
         {
@@ -414,20 +522,24 @@ namespace NETCORE3.Controllers
                 var role = await userManager.GetRolesAsync(item);
                 if (role.Count > 0)
                 {
-                    var info = new UserInfoModel();
-                    info.Id = item.Id.ToString();
-                    info.Email = item.Email;
-                    info.UserName = item.UserName;
-                    info.MaNhanVien = item.MaNhanVien;
-                    info.FullName = item.FullName;
-                    info.IsActive = item.IsActive;
-                    info.RoleNames = role.ToList();
-                    info.TenBoPhan = item.BoPhan.TenBoPhan;
-                    info.TenDonVi = item.DonVi.TenDonVi;
-                    info.TenChucVu = item.ChucVu.TenChucVu;
-                    info.TenPhongBan = item.Phongban.TenPhongBan;
-                    info.TenDonViTraLuong = item.DonViTraLuong.TenDonViTraLuong;
-                    list.Add(info);
+                    if (item.NghiViec == false)
+                    {
+                        var info = new UserInfoModel();
+                        info.Id = item.Id.ToString();
+                        info.Email = item.Email;
+                        info.UserName = item.UserName;
+                        info.MaNhanVien = item.MaNhanVien;
+                        info.FullName = item.FullName;
+                        info.IsActive = item.IsActive;
+                        info.RoleNames = role.ToList();
+                        info.TenBoPhan = item.BoPhan.TenBoPhan;
+                        info.TenDonVi = item.DonVi.TenDonVi;
+                        info.TenChucVu = item.ChucVu.TenChucVu;
+                        info.TenPhongBan = item.Phongban.TenPhongBan;
+                        info.TenDonViTraLuong = item.DonViTraLuong.TenDonViTraLuong;
+                        list.Add(info);
+                    }
+
                 }
             }
             int totalRow = list.Count();

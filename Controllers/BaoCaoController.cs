@@ -76,5 +76,99 @@ namespace NETCORE3.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("get-bao-cao-sl-thiet-bi-data")]
+        public IActionResult GetBaoCaoSLThietBiData(string? MaKho)
+        {
+            try
+            {
+                // Mở kết nối trước khi thực hiện truy vấn
+                myAdapter.OpenConnection();
+                // Thực hiện truy vấn
+                string storedProcedure = "sp_GetBaoCaoSoLuongThietBi_Kho";
+                string query = storedProcedure;
+
+                // Kiểm tra giá trị của LoaiThietBiId
+                /*                if (LoaiThietBiId != null)
+                                {
+                                    query = $"{storedProcedure} WHERE dm.LoaiThietBi_Id = @LoaiThietBiId";
+                                }*/
+
+                var parameters = new Dictionary<string, object>();
+                if (MaKho != null)
+                {
+                    query = $"{storedProcedure} @MaKho";
+                    parameters["@MaKho"] = MaKho;
+                }
+
+                DataTable dataTable = myAdapter.ExecuteQuery(query, parameters);
+
+                // Kiểm tra kết quả trả về từ stored procedure
+                /*                if (dataTable.Rows.Count == 0)
+                                {
+                                    // Không có loại thiết bị này trong lịch sử thiết bị
+                                    return NotFound("Không có loại thiết bị này trong lịch sử thiết bị");
+                                }*/
+
+                // Đóng kết nối sau khi sử dụng
+                myAdapter.CloseConnection();
+                myAdapter.Dispose();
+
+                return Ok(dataTable);
+            }
+            catch (Exception ex)
+            {
+                // Xử lý ngoại lệ
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("get-bao-cao-sl-thiet-bi-theo-tap-doan-data")]
+        public IActionResult GetBaoCaoSLThietBiTheoTapDoanData(string? MaTapDoan, string? MaDonVi, string? MaLoaiThietBi)
+        {
+            try
+            {
+                // Mở kết nối trước khi thực hiện truy vấn
+                myAdapter.OpenConnection();
+                // Thực hiện truy vấn
+                string storedProcedure = "sp_GetBaoCaoSoLuongThietBi_TapDoan";
+                string query = storedProcedure;
+
+                var parameters = new Dictionary<string, object>();
+                if (MaTapDoan != null)
+                {
+                    query = $"{storedProcedure} @MaTapDoan";
+                    parameters["@MaTapDoan"] = MaTapDoan;
+                }
+                if (MaDonVi != null)
+                {
+                    query = $"{storedProcedure} @MaTapDoan, @MaDonVi";
+                    parameters["@MaTapDoan"] = MaTapDoan;
+                    parameters["@MaDonVi"] = MaDonVi;
+                }
+                if (MaLoaiThietBi != null)
+                {
+                    query = $"{storedProcedure} @MaTapDoan, @MaDonVi, @MaLoaiThietBi";
+                    parameters["@MaTapDoan"] = MaTapDoan;
+                    parameters["@MaDonVi"] = MaDonVi;
+                    parameters["@MaLoaiThietBi"] = MaLoaiThietBi;
+                }
+
+                DataTable dataTable = myAdapter.ExecuteQuery(query, parameters);
+
+                // Kiểm tra kết quả trả về từ stored procedure
+
+                // Đóng kết nối sau khi sử dụng
+                myAdapter.CloseConnection();
+                myAdapter.Dispose();
+
+                return Ok(dataTable);
+            }
+            catch (Exception ex)
+            {
+                // Xử lý ngoại lệ
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

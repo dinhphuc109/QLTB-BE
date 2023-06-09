@@ -16,6 +16,8 @@ namespace NETCORE3.Models
         [ForeignKey("DanhMucThietBi")]
         public Guid? DanhMucThietBi_Id { get; set; }
         public DanhMucThietBi DanhMucThietBi { get; set; }
+
+        public string qrCodeData { get; set; }
         [ForeignKey("Domain")]
         public Guid? Domain_Id { get; set; }
         public Domain Domain { get; set; }
@@ -23,7 +25,7 @@ namespace NETCORE3.Models
         public Guid? NhaCungCap_Id { get; set; }
         public NhaCungCap NhaCungCap { get; set; }
 
-        [StringLength(50)]
+        [StringLength(250)]
         public string SoSeri { get; set; }
         [StringLength(250)]
         public string ModelThietBi { get; set; }

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using static NETCORE3.Data.MyDbContext;
 
 namespace NETCORE3.Models
@@ -10,11 +12,13 @@ namespace NETCORE3.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
+        [StringLength(50)]
+        [Required(ErrorMessage = "Mã bắt buộc")]
+        public string MaDieuChuyen { get; set; }
+        //người lập điều chuyển
         [ForeignKey("User")]
         public Guid? User_Id { get; set; }
         public ApplicationUser User { get; set; }
-        public string MaNhanVien { get; set; }
-        public string UserName { get; set; }
         public Guid? DonVi_Id { get; set; }
         public Guid? BoPhan_Id { get; set; }
         public Guid? ChucVu_Id { get; set; }
@@ -36,7 +40,14 @@ namespace NETCORE3.Models
         public Phongban PhongbanNew { get; set; }
         public DonViTraLuong DonViTraLuongNew { get; set; }
 
+        [JsonIgnore]
+        public virtual ICollection<CBNV_DieuChuyen> cBNVDieuChuyens { get; set; }
+        [NotMapped]
+        public List<CBNV_DieuChuyen> Lstcbnvdc { get; set; }
+
         public DateTime NgayDieuChuyen { get; set; }
+        public string TrangThai { get; set; }
+        public bool XacNhan { get; set; }
 
     }
 }

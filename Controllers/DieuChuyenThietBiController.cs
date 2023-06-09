@@ -34,7 +34,7 @@ namespace NETCORE3.Controllers
         {
             if (keyword == null) keyword = "";
 
-            string[] include = { "User", "Kho", "DonVi", "nguoiNhanDieuChuyens", "nguoiNhanDieuChuyens.User" };
+            string[] include = { "User", "Kho", "DonVi", "nguoiNhanDieuChuyens", "nguoiNhanDieuChuyens.User", "DieuChuyenThietBi_Khos", "DieuChuyenThietBi_Khos.ThongTinThietBi" };
             var data = uow.dieuChuyenThietBis.GetAll(t => !t.IsDeleted, null, include).Select(x => new
             {
                 x.Id,
@@ -42,13 +42,48 @@ namespace NETCORE3.Controllers
                 x.MaDieuChuyen,
                 x.User,
                 x.NgayDieuChuyen,
-                x.DonVi_Id,
+
                 Lstnndc = x.nguoiNhanDieuChuyens.Select(y => new
                 {
                     y.User.MaNhanVien,
                     y.User.FullName,
+                }),
+                Lstkho = x.DieuChuyenThietBi_Khos.Select(y => new
+                {
+                    y.ThongTinThietBi_Id,
                 })
 
+            }); 
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data.OrderBy(x => x.MaDieuChuyen));
+        }
+
+        [HttpGet("search-dieu-chuyen-thiet-bi")]
+        public IActionResult SearchDieuChuyenThietBi(string keyword, DateTime? TuNgay, DateTime? DenNgay)
+        {
+            if (keyword == null) keyword = "";
+            string[] include = { "User", "Kho", "DonVi", "nguoiNhanDieuChuyens", "nguoiNhanDieuChuyens.User", "DieuChuyenThietBi_Khos", "DieuChuyenThietBi_Khos.ThongTinThietBi" };
+            var data = uow.dieuChuyenThietBis.GetAll(x => !x.IsDeleted
+            && x.NgayDieuChuyen >= TuNgay && x.NgayDieuChuyen <= DenNgay, null, include).Select(x => new
+            {
+                x.Id,
+                x.Kho?.DanhMucKho_Id,
+                x.MaDieuChuyen,
+                x.User,
+                x.NgayDieuChuyen,
+
+                Lstnndc = x.nguoiNhanDieuChuyens.Select(y => new
+                {
+                    y.User.MaNhanVien,
+                    y.User.FullName,
+                }),
+                Lstkho = x.DieuChuyenThietBi_Khos.Select(y => new
+                {
+                    y.ThongTinThietBi_Id,
+                })
             });
             if (data == null)
             {
@@ -92,7 +127,7 @@ namespace NETCORE3.Controllers
                 x.Kho_Id,
                 x.Kho.DanhMucKho_Id,
                 x.NgayDieuChuyen,
-                x.DonVi.TenDonVi,
+
                 Lstnndc = x.nguoiNhanDieuChuyens.Select(y => new
                 {
                     y.User.FullName,
@@ -112,7 +147,7 @@ namespace NETCORE3.Controllers
                 infor.Id = item.Id;
                 infor.MaDieuChuyen = item.MaDieuChuyen;
                 infor.Tenkho = khotttb[0].TenKho;
-                infor.DonVi = item.TenDonVi;
+                
                 var tbtt = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Kho_Id, null, null).Select(x => new { x.ThongTinThietBi_Id, x.SoLuong, x.DonViTinh.TenDonViTinh, x.TinhTrangThietBi }).ToList();
                 var kho = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Kho_Id, null, null).Select(x => new { x.TinhTrangThietBi }).ToList();
                 foreach (var l in tbtt)
@@ -174,30 +209,40 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                if (uow.dieuChuyenThietBis.Exists(x => x.Id == data.Id && !x.IsDeleted))
+                if (uow.dieuChuyenThietBis.Exists(x => x.MaDieuChuyen == data.MaDieuChuyen && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDieuChuyen + " đã tồn tại trong hệ thống");
-                else if (uow.khos.Exists(x => x.Id == data.Id && x.IsDeleted))
+                else if (uow.dieuChuyenThietBis.Exists(x => x.MaDieuChuyen == data.MaDieuChuyen && x.IsDeleted))
                 {
-                    var banGiaotb = uow.dieuChuyenThietBis.GetAll(x => x.Id == data.Id).ToArray();
-                    banGiaotb[0].IsDeleted = false;
-                    banGiaotb[0].DeletedBy = null;
-                    banGiaotb[0].DeletedDate = null;
-                    banGiaotb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
-                    banGiaotb[0].UpdatedDate = DateTime.Now;
-                    banGiaotb[0].MaDieuChuyen = data.MaDieuChuyen;
-                    banGiaotb[0].Kho_Id = data.Kho_Id;
-                    banGiaotb[0].NgayDieuChuyen = data.NgayDieuChuyen;
-                    banGiaotb[0].DonVi_Id = data.DonVi_Id;
-                    banGiaotb[0].User_Id = data.User_Id;
+                    var dieuchuyentb = uow.dieuChuyenThietBis.GetAll(x => x.MaDieuChuyen == data.MaDieuChuyen).ToArray();
+                    dieuchuyentb[0].IsDeleted = false;
+                    dieuchuyentb[0].DeletedBy = null;
+                    dieuchuyentb[0].DeletedDate = null;
+                    dieuchuyentb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
+                    dieuchuyentb[0].UpdatedDate = DateTime.Now;
+                    dieuchuyentb[0].MaDieuChuyen = data.MaDieuChuyen;
+                    dieuchuyentb[0].Kho_Id = data.Kho_Id;
+                    dieuchuyentb[0].NgayDieuChuyen = data.NgayDieuChuyen;
+                    dieuchuyentb[0].User_Id = data.User_Id;
 
 
-                    uow.dieuChuyenThietBis.Update(banGiaotb[0]);
+                    uow.dieuChuyenThietBis.Update(dieuchuyentb[0]);
                     foreach (var item in data.Lstnndc)
                     {
                         item.CreatedBy = Guid.Parse(User.Identity.Name);
                         item.CreatedDate = DateTime.Now;
-                        item.DieuChuyenThietBi_Id = banGiaotb[0].Id;
+                        item.DieuChuyenThietBi_Id = dieuchuyentb[0].Id;
                         uow.nguoiNhanDieuChuyens.Add(item);
+                    }
+                    foreach( var item in data.Lstkho)
+                    {
+                        var tttb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted && t.qrCodeData != null && t.Id == item.ThongTinThietBi_Id).ToArray();
+                        item.CreatedBy = Guid.Parse(User.Identity.Name);
+                        item.CreatedDate = DateTime.Now;
+                        item.DieuChuyenThietBi_Id = dieuchuyentb[0].Id;
+                        item.qrCodeData = tttb[0].qrCodeData;
+                        uow.dieuChuyenThietBiKhos.Add(item);
+                        tttb[0].qrCodeData = null;
+                        uow.khoThongTinThietBis.Update(tttb[0]);
                     }
                 }
                 else
@@ -215,9 +260,83 @@ namespace NETCORE3.Controllers
                         item.DieuChuyenThietBi_Id = id;
                         uow.nguoiNhanDieuChuyens.Add(item);
                     }
+                    var kho = uow.khos.GetAll(x => x.Id == data.Kho_Id).ToArray();
+                    
+                    foreach (var item in data.Lstkho)
+                    {
+                        if (uow.dieuChuyenThietBiKhos.Exists(x => x.DieuChuyenThietBi_Id == item.DieuChuyenThietBi_Id && x.ThongTinThietBi_Id == item.ThongTinThietBi_Id))
+                        {
+                            var tttb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted && t.qrCodeData != null && t.Id == item.ThongTinThietBi_Id).ToArray();
+                            item.CreatedBy = Guid.Parse(User.Identity.Name);
+                            item.CreatedDate = DateTime.Now;
+                            item.DieuChuyenThietBi_Id = id;
+                            item.qrCodeData = tttb[0].qrCodeData;
+                            uow.dieuChuyenThietBiKhos.Add(item);
+                            tttb[0].qrCodeData = null;
+                            uow.khoThongTinThietBis.Update(tttb[0]);
+                        }
+                        LichSuThietBi lichsuthietbi = new LichSuThietBi();
+                        if (data.Kho_Id != null)
+                        {
+
+                            var lichsutb = uow.lichSuThietBis.GetAll(x => x.ThongTinThietBi_Id == item.ThongTinThietBi_Id && x.NgayKetThuc == null).ToArray();
+                            if (!uow.lichSuThietBis.Exists(x => x.ThongTinThietBi_Id == item.ThongTinThietBi_Id))
+                                {
+                                    Guid lstbid = Guid.NewGuid();
+                                /*UserInfoModel model;
+                                model.Id = item2.User_Id.ToString();*/
+                                lichsutb[0].NgayKetThuc = DateTime.Now;
+                                uow.lichSuThietBis.Update(lichsutb[0]);
+                                var appUser = userManager.FindByIdAsync(data.User_Id.ToString()).Result;
+                                    lichsuthietbi.CreatedBy = Guid.Parse(User.Identity.Name);
+                                    lichsuthietbi.CreatedDate = DateTime.Now;
+                                    lichsuthietbi.Id = lstbid;
+                                    lichsuthietbi.User_Id = data.User_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.DonVi_Id = appUser.DonVi_Id;
+                                    lichsuthietbi.PhongBan_Id = appUser.PhongBan_Id;
+                                    lichsuthietbi.BoPhan_Id = appUser.BoPhan_Id;
+                                    lichsuthietbi.ChucVu_Id = appUser.ChucVu_Id;
+                                    lichsuthietbi.DonViTraLuong_Id = appUser.DonViTraLuong_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.TinhTrangThietBi = item.TinhTrangThietBi;
+                                    lichsuthietbi.NgayBatDau = DateTime.Now;
+                                    lichsuthietbi.NgayKetThuc = null;
+                                    uow.lichSuThietBis.Add(lichsuthietbi);
+                                }
+                                else if (uow.lichSuThietBis.Exists(x => x.ThongTinThietBi_Id == item.ThongTinThietBi_Id))
+                                {
+                                    Guid lstbid = Guid.NewGuid();
+                                    var existingLichSu = uow.lichSuThietBis.GetAll(x => x.ThongTinThietBi_Id == item.ThongTinThietBi_Id && x.NgayKetThuc == null).ToArray();
+                                /*existingLichSu[0].NgayKetThuc = DateTime.Now;
+                                uow.lichSuThietBis.Update(existingLichSu[0]);*/
+                                lichsutb[0].NgayKetThuc = DateTime.Now;
+                                uow.lichSuThietBis.Update(lichsutb[0]);
+                                var appUser = userManager.FindByIdAsync(data.User_Id.ToString()).Result;
+                                    lichsuthietbi.CreatedBy = Guid.Parse(User.Identity.Name);
+                                    lichsuthietbi.CreatedDate = DateTime.Now;
+                                    lichsuthietbi.Id = lstbid;
+                                    lichsuthietbi.User_Id = data.User_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.DonVi_Id = appUser.DonVi_Id;
+                                    lichsuthietbi.PhongBan_Id = appUser.PhongBan_Id;
+                                    lichsuthietbi.BoPhan_Id = appUser.BoPhan_Id;
+                                    lichsuthietbi.ChucVu_Id = appUser.ChucVu_Id;
+                                    lichsuthietbi.DonViTraLuong_Id = appUser.DonViTraLuong_Id;
+                                    lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                                    lichsuthietbi.TinhTrangThietBi = item.TinhTrangThietBi;
+                                    lichsuthietbi.NgayBatDau = DateTime.Now;
+                                    lichsuthietbi.NgayKetThuc = null;
+                                    uow.lichSuThietBis.Add(lichsuthietbi);
+                                }
+                            }
+
+                        
+                    }
                 }
                 uow.Complete();
                 return Ok();
+                
             }
         }
 
@@ -234,24 +353,37 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                if (uow.dieuChuyenThietBis.Exists(x => x.Id == data.Id && !x.IsDeleted))
+                if (uow.dieuChuyenThietBis.Exists(x => x.MaDieuChuyen == data.MaDieuChuyen && x.Id != data.Id && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDieuChuyen + " đã tồn tại trong hệ thống");
-                else if (uow.khos.Exists(x => x.Id == data.Id && x.IsDeleted))
+                else if (uow.dieuChuyenThietBis.Exists(x => x.MaDieuChuyen == data.MaDieuChuyen && x.Id != data.Id && x.IsDeleted))
                 {
-                    var banGiaotb = uow.dieuChuyenThietBis.GetAll(x => x.Id == data.Id).ToArray();
-                    banGiaotb[0].IsDeleted = false;
-                    banGiaotb[0].DeletedBy = null;
-                    banGiaotb[0].DeletedDate = null;
-                    banGiaotb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
-                    banGiaotb[0].UpdatedDate = DateTime.Now;
-                    banGiaotb[0].MaDieuChuyen = data.MaDieuChuyen;
-                    banGiaotb[0].Kho_Id = data.Kho_Id;
-                    banGiaotb[0].NgayDieuChuyen = data.NgayDieuChuyen;
-                    banGiaotb[0].DonVi_Id = data.DonVi_Id;
-                    banGiaotb[0].User_Id = data.User_Id;
+                    var dieuchuyentb = uow.dieuChuyenThietBis.GetAll(x => x.MaDieuChuyen == data.MaDieuChuyen).ToArray();
+                    dieuchuyentb[0].IsDeleted = false;
+                    dieuchuyentb[0].DeletedBy = null;
+                    dieuchuyentb[0].DeletedDate = null;
+                    dieuchuyentb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
+                    dieuchuyentb[0].UpdatedDate = DateTime.Now;
+                    dieuchuyentb[0].MaDieuChuyen = data.MaDieuChuyen;
+                    dieuchuyentb[0].Kho_Id = data.Kho_Id;
+                    dieuchuyentb[0].NgayDieuChuyen = data.NgayDieuChuyen;
+                    dieuchuyentb[0].User_Id = data.User_Id;
 
 
-                    uow.dieuChuyenThietBis.Update(banGiaotb[0]);
+                    uow.dieuChuyenThietBis.Update(dieuchuyentb[0]);
+                    foreach (var item in data.Lstnndc)
+                    {
+                        item.CreatedBy = Guid.Parse(User.Identity.Name);
+                        item.CreatedDate = DateTime.Now;
+                        item.DieuChuyenThietBi_Id = dieuchuyentb[0].Id;
+                        uow.nguoiNhanDieuChuyens.Add(item);
+                    }
+                    foreach( var item in data.Lstkho)
+                    {
+                        item.CreatedBy = Guid.Parse(User.Identity.Name);
+                        item.CreatedDate = DateTime.Now;
+                        item.DieuChuyenThietBi_Id = dieuchuyentb[0].Id;
+                        uow.dieuChuyenThietBiKhos.Add(item);
+                    }
                 }
                 else
                 {
@@ -295,7 +427,30 @@ namespace NETCORE3.Controllers
                         uow.nguoiNhanDieuChuyens.Add(item);
                     }
                 }
-                
+
+                var Lstkho = data.Lstkho;
+                var dataCheckkho = uow.dieuChuyenThietBiKhos.GetAll(x => !x.IsDeleted && x.DieuChuyenThietBi_Id == id).ToList();
+                if (dataCheckkho.Count() > 0)
+                {
+                    foreach (var item in dataCheckkho)
+                    {
+                        if (!Lstkho.Exists(x => x.ThongTinThietBi_Id == item.ThongTinThietBi_Id))
+                        {
+                            uow.dieuChuyenThietBiKhos.Delete(item.Id);
+                        }
+                    }
+                    foreach (var item in Lstkho)
+                    {
+                        if (!dataCheckkho.Exists(x => x.DieuChuyenThietBi_Id == item.DieuChuyenThietBi_Id))
+                        {
+                            item.DieuChuyenThietBi_Id = id;
+                            item.CreatedDate = DateTime.Now;
+                            item.CreatedBy = Guid.Parse(User.Identity.Name);
+                            uow.dieuChuyenThietBiKhos.Add(item);
+                        }
+                    }
+                }
+
                 uow.Complete();
                 return StatusCode(StatusCodes.Status204NoContent);
             }

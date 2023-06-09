@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NETCORE3.Infrastructure;
@@ -35,11 +36,11 @@ namespace NETCORE3.Controllers
         {
             if (keyword == null) keyword = "";
 
-            string[] include = { "User", "DonVi", "BoPhan", "Phongban", "ChucVu" };
+            string[] include = { "User", "DonVi", "BoPhan", "Phongban", "ChucVu", "cBNVDieuChuyens", "cBNVDieuChuyens.User" };
             var data = uow.dieuChuyenNhanViens.GetAll(t => !t.IsDeleted, null, include).Select(x => new
             {
                 x.Id,
-                x.MaNhanVien,
+                x.MaDieuChuyen,
                 x.User.FullName,
                 x.DonVi_Id,
                 x.PhongBan_Id,
@@ -52,13 +53,22 @@ namespace NETCORE3.Controllers
                 x.ChucVuNew_Id,
                 x.DonViTraLuongNew_Id,
                 x.NgayDieuChuyen,
+                x?.TrangThai,
+                x?.XacNhan,
+                Lstcbnvdc = x.cBNVDieuChuyens.Select(y => new
+                {
+                    y.User.MaNhanVien,
+                    y.User.FullName,
+                    y.GhiChu
+
+                })
 
             });
             if (data == null)
             {
                 return NotFound();
             }
-            return Ok(data.OrderBy(x => x.MaNhanVien));
+            return Ok(data.OrderBy(x => x.MaDieuChuyen));
         }
 
         public class DropdownItem
@@ -75,7 +85,7 @@ namespace NETCORE3.Controllers
             var dropdownData = new List<DropdownItem>();
 
             // Lấy danh sách đơn vị và thêm vào dropdownData với Level = 0
-            var donvis = uow.DonVis.GetAll(x=>!x.IsDeleted);
+            var donvis = uow.DonVis.GetAll(x => !x.IsDeleted);
             foreach (var donvi in donvis)
             {
                 dropdownData.Add(new DropdownItem
@@ -110,8 +120,8 @@ namespace NETCORE3.Controllers
                 });
             }
 
-            var chucvus=uow.chucVus.GetAll(x => !x.IsDeleted);
-            foreach(var chucvu in chucvus)
+            var chucvus = uow.chucVus.GetAll(x => !x.IsDeleted);
+            foreach (var chucvu in chucvus)
             {
                 dropdownData.Add(new DropdownItem
                 {
@@ -129,7 +139,7 @@ namespace NETCORE3.Controllers
 
 
         [HttpPost]
-        public ActionResult Post(List<DieuChuyenNhanVien> data)
+        public ActionResult Post(DieuChuyenNhanVien data)
         {
             lock (Commons.LockObjectState)
             {
@@ -137,332 +147,393 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                if (uow.dieuChuyenNhanViens.Exists(x => x.MaNhanVien == data[0].MaNhanVien && !x.IsDeleted))
+                if (uow.dieuChuyenNhanViens.Exists(x => x.MaDieuChuyen == data.MaDieuChuyen && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDieuChuyen + " đã tồn tại trong hệ thống");
+                if (uow.dieuChuyenNhanViens.Exists(x => x.MaDieuChuyen == data.MaDieuChuyen && x.IsDeleted))
                 {
-                    foreach (var item in data)
-                    {
-                        var existingDieuChuyen = uow.dieuChuyenNhanViens.GetAll(x => x.User_Id == data[0].User_Id).ToArray();
-                        var donvi = uow.DonVis.GetAll(x => x.Id == data[0].DonVi_Id).ToArray();
-                        if (donvi == null)
-                        {
-                            // Trả về lỗi nếu đơn vị không tồn tại
-                            return BadRequest("đơn vị không tồn tạo.");
-                        }
-                        var phongban = uow.phongbans.GetAll(x => x.Id == data[0].PhongBan_Id && x.DonVi_Id == data[0].DonVi_Id).ToArray();
-                        if (phongban == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var bophan = uow.BoPhans.GetAll(x => x.Id == data[0].BoPhan_Id && x.PhongBan_Id == data[0].PhongBan_Id).ToArray();
-                        if (bophan == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var chucvu = uow.chucVus.GetAll(x => x.Id == data[0].ChucVu_Id && x.BoPhan_Id == data[0].BoPhan_Id).ToArray();
-                        if (chucvu == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var donvitraluong = uow.donViTraLuongs.GetAll(x => x.Id == data[0].DonViTraLuong_Id).ToArray();
-                        if (donvitraluong == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var donvimoi = uow.DonVis.GetAll(x => x.Id == data[0].DonVi_Id).ToArray();
-                        if (donvimoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var phongbanmoi = uow.phongbans.GetAll(x => x.Id == data[0].PhongBan_Id && x.DonVi_Id == data[0].DonVi_Id).ToArray();
-                        if (phongbanmoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var bophanmoi = uow.BoPhans.GetAll(x => x.Id == data[0].BoPhan_Id && x.PhongBan_Id == data[0].PhongBan_Id).ToArray();
-                        if (bophanmoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var chucvumoi = uow.chucVus.GetAll(x => x.Id == data[0].ChucVu_Id && x.BoPhan_Id == data[0].BoPhan_Id).ToArray();
-                        if (chucvumoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var donvitraluongmoi = uow.donViTraLuongs.GetAll(x => x.Id == data[0].DonViTraLuong_Id).ToArray();
-                        if (donvitraluongmoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        Guid dcnvId = Guid.NewGuid();
-                        data[0].Id = dcnvId;
-                        data[0].CreatedDate = DateTime.Now;
-                        data[0].CreatedBy = Guid.Parse(User.Identity.Name);
-                        data[0].DonVi_Id = donvi[0].Id;
-                        data[0].PhongBan_Id = phongban[0].Id;
-                        data[0].BoPhan_Id = bophan[0].Id;
-                        data[0].ChucVu_Id = chucvu[0].Id;
-                        data[0].DonViTraLuong_Id = donvitraluong[0].Id;
-                        data[0].DonViNew_Id = donvimoi[0].Id;
-                        data[0].ChucVuNew_Id = chucvumoi[0].Id;
-                        data[0].PhongBanNew_Id = phongbanmoi[0].Id;
-                        data[0].BoPhanNew_Id = bophanmoi[0].Id;
-                        data[0].DonViTraLuongNew_Id = donvitraluongmoi[0].Id;
-                        data[0].NgayDieuChuyen = DateTime.Now;
-                        uow.dieuChuyenNhanViens.Add(data[0]);
-                        var appUser = userManager.FindByIdAsync(data[0].User_Id.ToString()).Result;
-                        appUser.DonVi_Id = donvimoi[0].Id;
-                        appUser.PhongBan_Id = phongbanmoi[0].Id;
-                        appUser.BoPhan_Id = bophanmoi[0].Id;
-                        appUser.ChucVu_Id = chucvumoi[0].Id;
-                        appUser.DonViTraLuong_Id = donvitraluongmoi[0].Id;
-                        userManager.UpdateAsync(appUser);
-                        LichSuThietBi lichSuThietBi = new LichSuThietBi();
-                        //thêm vòng lặp chứ không sai!! chưa thêm
-                        if (uow.lichSuThietBis.Exists(x => x.User_Id == data[0].User_Id))
-                        {
-                            var lichsutb = uow.lichSuThietBis.GetAll(x => x.User_Id == data[0].User_Id && x.NgayKetThuc == null).ToArray();
-                            foreach(var item2 in lichsutb)
-                            {
-                                lichsutb[0].NgayKetThuc = DateTime.Now;
-                                uow.lichSuThietBis.Update(lichsutb[0]);
-                                Guid lstbId = Guid.NewGuid();
-                                lichSuThietBi.Id = lstbId;
-                                lichSuThietBi.CreatedDate = DateTime.Now;
-                                lichSuThietBi.CreatedBy = Guid.Parse(User.Identity.Name);
-                                lichSuThietBi.User_Id = data[0].User_Id;
-                                lichSuThietBi.ThongTinThietBi_Id = item2.ThongTinThietBi_Id;
-                                lichSuThietBi.TinhTrangThietBi = item2.TinhTrangThietBi;
-                                lichSuThietBi.DonVi_Id = data[0].DonViNew_Id;
-                                lichSuThietBi.PhongBan_Id = data[0].PhongBanNew_Id;
-                                lichSuThietBi.BoPhan_Id = data[0].BoPhanNew_Id;
-                                lichSuThietBi.ChucVu_Id = data[0].ChucVuNew_Id;
-                                lichSuThietBi.DonViTraLuong_Id = data[0].DonViTraLuongNew_Id;
-                                lichSuThietBi.NgayBatDau = DateTime.Now;
-                                lichSuThietBi.NgayKetThuc = null;
-                                uow.lichSuThietBis.Add(lichSuThietBi);
-                            }
+                    var DieuChuyen = uow.dieuChuyenNhanViens.GetAll(x => x.Id == data.Id).ToArray();
+                    string kyTuDau = data.DonVi.MaDonVi;
 
+                    // Lấy danh sách các mã đã tồn tại để kiểm tra trùng lặp
+                    var existingMaDieuChuyen = uow.dieuChuyenNhanViens.GetAll(x => x.NgayDieuChuyen.Date == data.NgayDieuChuyen.Date).Select(x => x.MaDieuChuyen).ToList();
+
+                    int count = 1;
+                    string MaDieuChuyen = $"{kyTuDau}/{DateTime.Now.ToString("yyMMdd")}{count}";
+
+                    // Kiểm tra và tăng giá trị của biến đếm cho đến khi không có trùng lặp
+                    while (existingMaDieuChuyen.Contains(MaDieuChuyen))
+                    {
+                        count++;
+                        MaDieuChuyen = $"{kyTuDau}/{DateTime.Now.ToString("yyMMdd")}{count}";
+                    }
+                    DieuChuyen[0].MaDieuChuyen = MaDieuChuyen;
+                    DieuChuyen[0].IsDeleted = false;
+                    DieuChuyen[0].DeletedBy = null;
+                    DieuChuyen[0].DeletedDate = null;
+                    DieuChuyen[0].UpdatedBy = Guid.Parse(User.Identity.Name);
+                    DieuChuyen[0].UpdatedDate = DateTime.Now;
+                    DieuChuyen[0].DonVi_Id = data.DonVi_Id;
+                    DieuChuyen[0].PhongBan_Id = data.PhongBan_Id;
+                    DieuChuyen[0].BoPhan_Id = data.BoPhan_Id;
+                    DieuChuyen[0].ChucVu_Id = data.ChucVu_Id;
+                    DieuChuyen[0].DonViTraLuong_Id = data.DonViTraLuong_Id;
+                    DieuChuyen[0].DonViNew_Id = data.DonViNew_Id;
+                    DieuChuyen[0].ChucVuNew_Id = data.ChucVuNew_Id;
+                    DieuChuyen[0].PhongBanNew_Id = data.PhongBanNew_Id;
+                    DieuChuyen[0].BoPhanNew_Id = data.BoPhanNew_Id;
+                    DieuChuyen[0].DonViTraLuongNew_Id = data.DonViTraLuongNew_Id;
+                    DieuChuyen[0].NgayDieuChuyen = DateTime.Now;
+                    DieuChuyen[0].TrangThai = "Chưa Xác Nhận";
+                    DieuChuyen[0].XacNhan = false;
+                    uow.dieuChuyenNhanViens.Update(data);
+
+                    foreach (var item in data.Lstcbnvdc)
+                    {
+                        item.DieuChuyenNhanVien_Id = data.Id;
+                        uow.cBNV_DieuChuyens.Add(item);
+
+                        if (data.XacNhan == true)
+                        {
+                            var user = userManager.FindByIdAsync(item.User_Id.ToString()).Result;
+                            var appUser = userManager.FindByIdAsync(item.User_Id.ToString()).Result;
+                            appUser.DonVi_Id = data.DonViNew_Id;
+                            appUser.PhongBan_Id = data.PhongBanNew_Id;
+                            appUser.BoPhan_Id = data.BoPhanNew_Id;
+                            appUser.ChucVu_Id = data.ChucVuNew_Id;
+                            appUser.DonViTraLuong_Id = data.DonViTraLuongNew_Id;
+                            userManager.UpdateAsync(appUser);
+                            if (appUser.NghiViec == false)
+                            {
+
+                                LichSuThietBi lichSuThietBi = new LichSuThietBi();
+                                //thêm vòng lặp chứ không sai!! chưa thêm
+                                if (uow.lichSuThietBis.Exists(x => x.User_Id == item.User_Id))
+                                {
+                                    var lichsutb = uow.lichSuThietBis.GetAll(x => x.User_Id == item.User_Id && x.NgayKetThuc == null).ToArray();
+                                    foreach (var item2 in lichsutb)
+                                    {
+                                        lichsutb[0].NgayKetThuc = DateTime.Now;
+                                        uow.lichSuThietBis.Update(lichsutb[0]);
+                                        Guid lstbId = Guid.NewGuid();
+                                        lichSuThietBi.Id = lstbId;
+                                        lichSuThietBi.CreatedDate = DateTime.Now;
+                                        lichSuThietBi.CreatedBy = Guid.Parse(User.Identity.Name);
+                                        lichSuThietBi.User_Id = item.User_Id;
+                                        lichSuThietBi.ThongTinThietBi_Id = item2.ThongTinThietBi_Id;
+                                        lichSuThietBi.TinhTrangThietBi = item2.TinhTrangThietBi;
+                                        lichSuThietBi.DonVi_Id = data.DonViNew_Id;
+                                        lichSuThietBi.PhongBan_Id = data.PhongBanNew_Id;
+                                        lichSuThietBi.BoPhan_Id = data.BoPhanNew_Id;
+                                        lichSuThietBi.ChucVu_Id = data.ChucVuNew_Id;
+                                        lichSuThietBi.DonViTraLuong_Id = data.DonViTraLuongNew_Id;
+                                        lichSuThietBi.NgayBatDau = DateTime.Now;
+                                        lichSuThietBi.NgayKetThuc = null;
+                                        uow.lichSuThietBis.Add(lichSuThietBi);
+                                    }
+
+                                }
+                            }
                         }
+
                     }
 
+
                 }
-                else if (uow.dieuChuyenNhanViens.Exists(x => x.MaNhanVien == data[0].MaNhanVien && x.IsDeleted))
+                else
                 {
-                    foreach (var item in data)
+                    var DieuChuyen = uow.dieuChuyenNhanViens.GetAll(x => x.Id == data.Id).ToArray();
+                    string kyTuDau = data.DonVi.MaDonVi;
+
+                    // Lấy danh sách các mã đã tồn tại để kiểm tra trùng lặp
+                    var existingMaDieuChuyen = uow.dieuChuyenNhanViens.GetAll(x => x.NgayDieuChuyen.Date == data.NgayDieuChuyen.Date).Select(x => x.MaDieuChuyen).ToList();
+
+                    int count = 1;
+                    string MaDieuChuyen = $"{kyTuDau}/{DateTime.Now.ToString("yyMMdd")}{count}";
+
+                    // Kiểm tra và tăng giá trị của biến đếm cho đến khi không có trùng lặp
+                    while (existingMaDieuChuyen.Contains(MaDieuChuyen))
                     {
-                        var DieuChuyen = uow.dieuChuyenNhanViens.GetAll(x => x.Id == data[0].Id).ToArray();
-                        var donvi = uow.DonVis.GetAll(x => x.Id == data[0].DonVi_Id).ToArray();
-                        if (donvi == null)
+                        count++;
+                        MaDieuChuyen = $"{kyTuDau}/{DateTime.Now.ToString("yyMMdd")}{count}";
+                    }
+                    Guid dcnvId = Guid.NewGuid();
+                    data.Id = dcnvId;
+                    data.MaDieuChuyen = MaDieuChuyen;
+                    data.CreatedDate = DateTime.Now;
+                    data.CreatedBy = Guid.Parse(User.Identity.Name);
+                    data.TrangThai = "Chưa Xác Nhận";
+                    data.XacNhan = false;
+                    uow.dieuChuyenNhanViens.Add(data);
+                    foreach (var item in data.Lstcbnvdc)
+                    {
+                        item.DieuChuyenNhanVien_Id = data.Id;
+                        uow.cBNV_DieuChuyens.Add(item);
+                        if (data.XacNhan == true)
                         {
-                            // Trả về lỗi nếu đơn vị không tồn tại
-                            return BadRequest("đơn vị không tồn tạo.");
+                            var user = userManager.FindByIdAsync(item.User_Id.ToString()).Result;
+                            var appUser = userManager.FindByIdAsync(item.User_Id.ToString()).Result;
+                            appUser.DonVi_Id = data.DonViNew_Id;
+                            appUser.PhongBan_Id = data.PhongBanNew_Id;
+                            appUser.BoPhan_Id = data.BoPhanNew_Id;
+                            appUser.ChucVu_Id = data.ChucVuNew_Id;
+                            appUser.DonViTraLuong_Id = data.DonViTraLuongNew_Id;
+                            userManager.UpdateAsync(appUser);
+                            if (appUser.NghiViec == false)
+                            {
+
+                                LichSuThietBi lichSuThietBi = new LichSuThietBi();
+                                //thêm vòng lặp chứ không sai!! chưa thêm
+                                if (uow.lichSuThietBis.Exists(x => x.User_Id == item.User_Id))
+                                {
+                                    var lichsutb = uow.lichSuThietBis.GetAll(x => x.User_Id == item.User_Id && x.NgayKetThuc == null).ToArray();
+                                    foreach (var item2 in lichsutb)
+                                    {
+                                        lichsutb[0].NgayKetThuc = DateTime.Now;
+                                        uow.lichSuThietBis.Update(lichsutb[0]);
+                                        Guid lstbId = Guid.NewGuid();
+                                        lichSuThietBi.Id = lstbId;
+                                        lichSuThietBi.CreatedDate = DateTime.Now;
+                                        lichSuThietBi.CreatedBy = Guid.Parse(User.Identity.Name);
+                                        lichSuThietBi.User_Id = item.User_Id;
+                                        lichSuThietBi.ThongTinThietBi_Id = item2.ThongTinThietBi_Id;
+                                        lichSuThietBi.TinhTrangThietBi = item2.TinhTrangThietBi;
+                                        lichSuThietBi.DonVi_Id = data.DonViNew_Id;
+                                        lichSuThietBi.PhongBan_Id = data.PhongBanNew_Id;
+                                        lichSuThietBi.BoPhan_Id = data.BoPhanNew_Id;
+                                        lichSuThietBi.ChucVu_Id = data.ChucVuNew_Id;
+                                        lichSuThietBi.DonViTraLuong_Id = data.DonViTraLuongNew_Id;
+                                        lichSuThietBi.NgayBatDau = DateTime.Now;
+                                        lichSuThietBi.NgayKetThuc = null;
+                                        uow.lichSuThietBis.Add(lichSuThietBi);
+                                    }
+
+                                }
+                            }
                         }
-                        var phongban = uow.phongbans.GetAll(x => x.Id == data[0].PhongBan_Id && x.DonVi_Id == data[0].DonVi_Id).ToArray();
-                        if (phongban == null)
+
+
+                    }
+
+
+                }
+            }
+
+
+            uow.Complete();
+            return Ok();
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult Put(Guid id, DieuChuyenNhanVien data)
+        {
+            lock (Commons.LockObjectState)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                if (id != data.Id)
+                {
+                    return BadRequest();
+                }
+                if (uow.dieuChuyenNhanViens.Exists(x => x.MaDieuChuyen == data.MaDieuChuyen && x.Id != data.Id && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDieuChuyen + " đã tồn tại trong hệ thống");
+                else if (uow.dieuChuyenNhanViens.Exists(x => x.MaDieuChuyen == data.MaDieuChuyen && x.IsDeleted))
+                {
+                    var dieuchuyen = uow.dieuChuyenNhanViens.GetAll(x => x.Id == data.Id).ToArray();
+                    dieuchuyen[0].IsDeleted = false;
+                    dieuchuyen[0].DeletedBy = null;
+                    dieuchuyen[0].DeletedDate = null;
+                    dieuchuyen[0].UpdatedBy = Guid.Parse(User.Identity.Name);
+                    dieuchuyen[0].UpdatedDate = DateTime.Now;
+                    dieuchuyen[0].MaDieuChuyen = data.MaDieuChuyen;
+                    dieuchuyen[0].User_Id = data.User_Id;
+                    uow.dieuChuyenNhanViens.Update(dieuchuyen[0]);
+                }
+                else
+                {
+                    data.UpdatedBy = Guid.Parse(User.Identity.Name);
+                    data.UpdatedDate = DateTime.Now;
+                    if (data.XacNhan == true)
+                    {
+                        data.TrangThai = "Đã Xác Nhận";
+                    }
+                    uow.dieuChuyenNhanViens.Update(data);
+                }
+
+                var Lstcbnvdc = data.Lstcbnvdc;
+                var dataCheck = uow.cBNV_DieuChuyens.GetAll(x => x.DieuChuyenNhanVien_Id == id).ToList();
+                if (dataCheck.Count() > 0)
+                {
+                    foreach (var item in dataCheck)
+                    {
+                        if (!Lstcbnvdc.Exists(x => x.User_Id == item.User_Id))
                         {
-                            return BadRequest("not found.");
+                            uow.cBNV_DieuChuyens.Delete(item.Id);
                         }
-                        var bophan = uow.BoPhans.GetAll(x => x.Id == data[0].BoPhan_Id && x.PhongBan_Id == data[0].PhongBan_Id).ToArray();
-                        if (bophan == null)
+                    }
+                    foreach (var item in Lstcbnvdc)
+                    {
+                        if (!dataCheck.Exists(x => x.User_Id == item.User_Id))
                         {
-                            return BadRequest("not found.");
+                            item.DieuChuyenNhanVien_Id = id;
+                            uow.cBNV_DieuChuyens.Add(item);
+                            if (data.XacNhan == true)
+                            {
+                                var user = userManager.FindByIdAsync(item.User_Id.ToString()).Result;
+                                var appUser = userManager.FindByIdAsync(item.User_Id.ToString()).Result;
+                                appUser.DonVi_Id = data.DonViNew_Id;
+                                appUser.PhongBan_Id = data.PhongBanNew_Id;
+                                appUser.BoPhan_Id = data.BoPhanNew_Id;
+                                appUser.ChucVu_Id = data.ChucVuNew_Id;
+                                appUser.DonViTraLuong_Id = data.DonViTraLuongNew_Id;
+                                userManager.UpdateAsync(appUser);
+                                if (appUser.NghiViec == false)
+                                {
+
+                                    LichSuThietBi lichSuThietBi = new LichSuThietBi();
+                                    //thêm vòng lặp chứ không sai!! chưa thêm
+                                    if (uow.lichSuThietBis.Exists(x => x.User_Id == item.User_Id))
+                                    {
+                                        var lichsutb = uow.lichSuThietBis.GetAll(x => x.User_Id == item.User_Id && x.NgayKetThuc == null).ToArray();
+                                        foreach (var item2 in lichsutb)
+                                        {
+                                            lichsutb[0].NgayKetThuc = DateTime.Now;
+                                            uow.lichSuThietBis.Update(lichsutb[0]);
+                                            Guid lstbId = Guid.NewGuid();
+                                            lichSuThietBi.Id = lstbId;
+                                            lichSuThietBi.CreatedDate = DateTime.Now;
+                                            lichSuThietBi.CreatedBy = Guid.Parse(User.Identity.Name);
+                                            lichSuThietBi.User_Id = item.User_Id;
+                                            lichSuThietBi.ThongTinThietBi_Id = item2.ThongTinThietBi_Id;
+                                            lichSuThietBi.TinhTrangThietBi = item2.TinhTrangThietBi;
+                                            lichSuThietBi.DonVi_Id = data.DonViNew_Id;
+                                            lichSuThietBi.PhongBan_Id = data.PhongBanNew_Id;
+                                            lichSuThietBi.BoPhan_Id = data.BoPhanNew_Id;
+                                            lichSuThietBi.ChucVu_Id = data.ChucVuNew_Id;
+                                            lichSuThietBi.DonViTraLuong_Id = data.DonViTraLuongNew_Id;
+                                            lichSuThietBi.NgayBatDau = DateTime.Now;
+                                            lichSuThietBi.NgayKetThuc = null;
+                                            uow.lichSuThietBis.Add(lichSuThietBi);
+                                        }
+
+                                    }
+                                }
+                            }
                         }
-                        var chucvu = uow.chucVus.GetAll(x => x.Id == data[0].ChucVu_Id && x.BoPhan_Id == data[0].BoPhan_Id).ToArray();
-                        if (chucvu == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var donvitraluong = uow.donViTraLuongs.GetAll(x => x.Id == data[0].DonViTraLuong_Id).ToArray();
-                        if (donvitraluong == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var donvimoi = uow.DonVis.GetAll(x => x.Id == data[0].DonVi_Id).ToArray();
-                        if (donvimoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var phongbanmoi = uow.phongbans.GetAll(x => x.Id == data[0].PhongBan_Id && x.DonVi_Id == data[0].DonVi_Id).ToArray();
-                        if (phongbanmoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var bophanmoi = uow.BoPhans.GetAll(x => x.Id == data[0].BoPhan_Id && x.PhongBan_Id == data[0].PhongBan_Id).ToArray();
-                        if (bophanmoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var chucvumoi = uow.chucVus.GetAll(x => x.Id == data[0].ChucVu_Id && x.BoPhan_Id == data[0].BoPhan_Id).ToArray();
-                        if (chucvumoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var donvitraluongmoi = uow.donViTraLuongs.GetAll(x => x.Id == data[0].DonViTraLuong_Id).ToArray();
-                        if (donvitraluongmoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        DieuChuyen[0].IsDeleted = false;
-                        DieuChuyen[0].DeletedBy = null;
-                        DieuChuyen[0].DeletedDate = null;
-                        DieuChuyen[0].UpdatedBy = Guid.Parse(User.Identity.Name);
-                        DieuChuyen[0].UpdatedDate = DateTime.Now;
-                        DieuChuyen[0].CreatedDate = DateTime.Now;
-                        DieuChuyen[0].CreatedBy = Guid.Parse(User.Identity.Name);
-                        DieuChuyen[0].DonVi_Id = donvi[0].Id;
-                        DieuChuyen[0].PhongBan_Id = phongban[0].Id;
-                        DieuChuyen[0].BoPhan_Id = bophan[0].Id;
-                        DieuChuyen[0].ChucVu_Id = chucvu[0].Id;
-                        DieuChuyen[0].DonViTraLuong_Id = donvitraluong[0].Id;
-                        DieuChuyen[0].DonViNew_Id = donvimoi[0].Id;
-                        DieuChuyen[0].ChucVuNew_Id = chucvumoi[0].Id;
-                        DieuChuyen[0].PhongBanNew_Id = phongbanmoi[0].Id;
-                        DieuChuyen[0].BoPhanNew_Id = bophanmoi[0].Id;
-                        DieuChuyen[0].DonViTraLuongNew_Id = donvitraluongmoi[0].Id;
-                        DieuChuyen[0].NgayDieuChuyen = DateTime.Now;
-                        uow.dieuChuyenNhanViens.Add(data[0]);
                     }
                 }
                 else
                 {
-                    foreach (var item in data)
+                    foreach (var item in Lstcbnvdc)
                     {
-                        var existingDieuChuyen = uow.dieuChuyenNhanViens.GetAll(x => x.User_Id == data[0].User_Id).ToArray();
-                        var appUser = userManager.FindByIdAsync(existingDieuChuyen[0].User_Id.ToString()).Result;
-                        var donvi = uow.DonVis.GetAll(x => x.Id == data[0].DonVi_Id).ToArray();
-                        if (donvi == null)
+                        item.DieuChuyenNhanVien_Id = id;
+                        uow.cBNV_DieuChuyens.Add(item);
+                        if (data.XacNhan == true)
                         {
-                            // Trả về lỗi nếu đơn vị không tồn tại
-                            return BadRequest("đơn vị không tồn tạo.");
-                        }
-                        var phongban = uow.phongbans.GetAll(x => x.Id == data[0].PhongBan_Id && x.DonVi_Id == data[0].DonVi_Id).ToArray();
-                        if (phongban == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var bophan = uow.BoPhans.GetAll(x => x.Id == data[0].BoPhan_Id && x.PhongBan_Id == data[0].PhongBan_Id).ToArray();
-                        if (bophan == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var chucvu = uow.chucVus.GetAll(x => x.Id == data[0].ChucVu_Id && x.BoPhan_Id == data[0].BoPhan_Id).ToArray();
-                        if (chucvu == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var donvitraluong = uow.donViTraLuongs.GetAll(x => x.Id == data[0].DonViTraLuong_Id).ToArray();
-                        if (donvitraluong == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var donvimoi = uow.DonVis.GetAll(x => x.Id == data[0].DonVi_Id).ToArray();
-                        if (donvimoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var phongbanmoi = uow.phongbans.GetAll(x => x.Id == data[0].PhongBan_Id && x.DonVi_Id == data[0].DonVi_Id).ToArray();
-                        if (phongbanmoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var bophanmoi = uow.BoPhans.GetAll(x => x.Id == data[0].BoPhan_Id && x.PhongBan_Id == data[0].PhongBan_Id).ToArray();
-                        if (bophanmoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var chucvumoi = uow.chucVus.GetAll(x => x.Id == data[0].ChucVu_Id && x.BoPhan_Id == data[0].BoPhan_Id).ToArray();
-                        if (chucvumoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        var donvitraluongmoi = uow.donViTraLuongs.GetAll(x => x.Id == data[0].DonViTraLuong_Id).ToArray();
-                        if (donvitraluongmoi == null)
-                        {
-                            return BadRequest("not found.");
-                        }
-                        Guid dcnvId = Guid.NewGuid();
-                        data[0].Id = dcnvId;
-                        data[0].CreatedDate = DateTime.Now;
-                        data[0].CreatedBy = Guid.Parse(User.Identity.Name);
-                        data[0].DonVi_Id = donvi[0].Id;
-                        data[0].PhongBan_Id = phongban[0].Id;
-                        data[0].BoPhan_Id = bophan[0].Id;
-                        data[0].ChucVu_Id = chucvu[0].Id;
-                        data[0].DonViTraLuong_Id = donvitraluong[0].Id;
-                        data[0].DonViNew_Id = donvimoi[0].Id;
-                        data[0].ChucVuNew_Id = chucvumoi[0].Id;
-                        data[0].PhongBanNew_Id = phongbanmoi[0].Id;
-                        data[0].BoPhanNew_Id = bophanmoi[0].Id;
-                        data[0].DonViTraLuongNew_Id = donvitraluongmoi[0].Id;
-                        data[0].NgayDieuChuyen = DateTime.Now;
-                        uow.dieuChuyenNhanViens.Add(data[0]);
-                        appUser.DonVi_Id = donvimoi[0].Id;
-                        appUser.PhongBan_Id = phongbanmoi[0].Id;
-                        appUser.BoPhan_Id = bophanmoi[0].Id;
-                        appUser.ChucVu_Id = chucvumoi[0].Id;
-                        appUser.DonViTraLuong_Id = donvitraluongmoi[0].Id;
-                        userManager.UpdateAsync(appUser);
-                        LichSuThietBi lichSuThietBi = new LichSuThietBi();
-                        //thêm vòng lặp chứ không sai!! chưa thêm
-                        if (uow.lichSuThietBis.Exists(x => x.User_Id == data[0].User_Id))
-                        {
-                            var lichsutb = uow.lichSuThietBis.GetAll(x => x.User_Id == data[0].User_Id && x.NgayKetThuc == null).ToArray();
-                            foreach (var item2 in lichsutb)
+                            var user = userManager.FindByIdAsync(item.User_Id.ToString()).Result;
+                            var appUser = userManager.FindByIdAsync(item.User_Id.ToString()).Result;
+                            appUser.DonVi_Id = data.DonViNew_Id;
+                            appUser.PhongBan_Id = data.PhongBanNew_Id;
+                            appUser.BoPhan_Id = data.BoPhanNew_Id;
+                            appUser.ChucVu_Id = data.ChucVuNew_Id;
+                            appUser.DonViTraLuong_Id = data.DonViTraLuongNew_Id;
+                            userManager.UpdateAsync(appUser);
+                            if (appUser.NghiViec == false)
                             {
-                                lichsutb[0].NgayKetThuc = DateTime.Now;
-                                uow.lichSuThietBis.Update(lichsutb[0]);
-                                Guid lstbId = Guid.NewGuid();
-                                lichSuThietBi.Id = lstbId;
-                                lichSuThietBi.CreatedDate = DateTime.Now;
-                                lichSuThietBi.CreatedBy = Guid.Parse(User.Identity.Name);
-                                lichSuThietBi.User_Id = data[0].User_Id;
-                                lichSuThietBi.ThongTinThietBi_Id = item2.ThongTinThietBi_Id;
-                                lichSuThietBi.TinhTrangThietBi = item2.TinhTrangThietBi;
-                                lichSuThietBi.DonVi_Id = data[0].DonViNew_Id;
-                                lichSuThietBi.PhongBan_Id = data[0].PhongBanNew_Id;
-                                lichSuThietBi.BoPhan_Id = data[0].BoPhanNew_Id;
-                                lichSuThietBi.ChucVu_Id = data[0].ChucVuNew_Id;
-                                lichSuThietBi.DonViTraLuong_Id = data[0].DonViTraLuongNew_Id;
-                                lichSuThietBi.NgayBatDau = DateTime.Now;
-                                lichSuThietBi.NgayKetThuc = null;
-                                uow.lichSuThietBis.Add(lichSuThietBi);
-                            }
 
+                                LichSuThietBi lichSuThietBi = new LichSuThietBi();
+                                //thêm vòng lặp chứ không sai!! chưa thêm
+                                if (uow.lichSuThietBis.Exists(x => x.User_Id == item.User_Id))
+                                {
+                                    var lichsutb = uow.lichSuThietBis.GetAll(x => x.User_Id == item.User_Id && x.NgayKetThuc == null).ToArray();
+                                    foreach (var item2 in lichsutb)
+                                    {
+                                        lichsutb[0].NgayKetThuc = DateTime.Now;
+                                        uow.lichSuThietBis.Update(lichsutb[0]);
+                                        Guid lstbId = Guid.NewGuid();
+                                        lichSuThietBi.Id = lstbId;
+                                        lichSuThietBi.CreatedDate = DateTime.Now;
+                                        lichSuThietBi.CreatedBy = Guid.Parse(User.Identity.Name);
+                                        lichSuThietBi.User_Id = item.User_Id;
+                                        lichSuThietBi.ThongTinThietBi_Id = item2.ThongTinThietBi_Id;
+                                        lichSuThietBi.TinhTrangThietBi = item2.TinhTrangThietBi;
+                                        lichSuThietBi.DonVi_Id = data.DonViNew_Id;
+                                        lichSuThietBi.PhongBan_Id = data.PhongBanNew_Id;
+                                        lichSuThietBi.BoPhan_Id = data.BoPhanNew_Id;
+                                        lichSuThietBi.ChucVu_Id = data.ChucVuNew_Id;
+                                        lichSuThietBi.DonViTraLuong_Id = data.DonViTraLuongNew_Id;
+                                        lichSuThietBi.NgayBatDau = DateTime.Now;
+                                        lichSuThietBi.NgayKetThuc = null;
+                                        uow.lichSuThietBis.Add(lichSuThietBi);
+                                    }
+
+                                }
+                            }
                         }
                     }
                 }
+
                     uow.Complete();
-                return Ok();
+                    return StatusCode(StatusCodes.Status204NoContent);
+                }
+                }
+
+        [HttpDelete("{id}")]
+        public ActionResult Delete(Guid id)
+        {
+            lock (Commons.LockObjectState)
+            {
+                DieuChuyenNhanVien duLieu = uow.dieuChuyenNhanViens.GetById(id);
+                if (duLieu.CreatedBy == Guid.Parse(User.Identity.Name) || Guid.Parse(User.Identity.Name) == Guid.Parse("c662783d-03c0-4404-9473-1034f1ac1caa"))
+                {
+                    if (duLieu == null)
+                    {
+                        return NotFound();
+                    }
+                    var dataCheck = uow.cBNV_DieuChuyens.GetAll(x=>x.DieuChuyenNhanVien_Id == id).ToList();
+                    foreach (var item in dataCheck)
+                    {
+                        uow.cBNV_DieuChuyens.Delete(item.Id);
+                    }
+
+                    duLieu.DeletedDate = DateTime.Now;
+                    duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
+                    duLieu.IsDeleted = true;
+                    uow.dieuChuyenNhanViens.Update(duLieu);
+                    uow.Complete();
+                    return Ok(duLieu);
+                }
+                return StatusCode(StatusCodes.Status409Conflict, "Bạn chỉ có thể chỉnh sửa thông tin thiết bị này");
             }
         }
-
 
         //truy vấn thủ tục điều chuyển nhân viên
         [HttpGet("get-dieu-chuyen-nhan-vien-data")]
-        public IActionResult GetDieuChuyenNhanVienData()
-        {
-            try
-            {
-                // Mở kết nối trước khi thực hiện truy vấn
-                myAdapter.OpenConnection();
+                public IActionResult GetDieuChuyenNhanVienData()
+                {
+                    try
+                    {
+                        // Mở kết nối trước khi thực hiện truy vấn
+                        myAdapter.OpenConnection();
 
-                // Thực hiện truy vấn
-                string storedProcedure = "sp_GetDieuChuyenNhanVien";
-                DataTable dataTable = myAdapter.ExecuteQuery(storedProcedure);
+                        // Thực hiện truy vấn
+                        string storedProcedure = "sp_GetDieuChuyenNhanVien";
+                        DataTable dataTable = myAdapter.ExecuteQuery(storedProcedure);
 
-                // Chuyển đổi DataTable thành danh sách đối tượng hoặc JSON theo ý muốn
+                        // Chuyển đổi DataTable thành danh sách đối tượng hoặc JSON theo ý muốn
 
-                // Đóng kết nối sau khi sử dụng
-                myAdapter.CloseConnection();
-                //var result = ConvertDataTableToJson(dataTable);
-                myAdapter.Dispose();
-                return Ok(dataTable);
-            }
-            catch (Exception ex)
-            {
-                // Xử lý ngoại lệ
-                return BadRequest(ex.Message);
+                        // Đóng kết nối sau khi sử dụng
+                        myAdapter.CloseConnection();
+                        //var result = ConvertDataTableToJson(dataTable);
+                        myAdapter.Dispose();
+                        return Ok(dataTable);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Xử lý ngoại lệ
+                        return BadRequest(ex.Message);
+                    }
+                }
             }
         }
-    }
-}

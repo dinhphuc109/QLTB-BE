@@ -47,6 +47,29 @@ namespace NETCORE3.Controllers
             return Ok(data);
         }
 
+        [HttpGet("search-phong-ban")]
+        public IActionResult SearchPhongBan(string keyword)
+        {
+            if (keyword == null) keyword = "";
+            string[] include = { "DonVi" };
+            var data = uow.phongbans.GetAll(x => !x.IsDeleted
+            && (x.TenPhongBan.ToLower().Contains(keyword.ToLower())
+            || x.MaPhongBan.ToLower().Contains(keyword.ToLower())), null, include).Select(x => new
+            {
+                x.Id,
+                x.MaPhongBan,
+                x.TenPhongBan,
+                x.DonVi.TenDonVi
+
+            });
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data.OrderBy(x => x.MaPhongBan));
+        }
+
+
         [HttpGet("{id}")]
         public ActionResult Get(Guid id)
         {
@@ -91,7 +114,7 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                if (uow.phongbans.Exists(x => x.MaPhongBan == data.MaPhongBan && !x.IsDeleted))
+                if (uow.phongbans.Exists(x => x.MaPhongBan == data.MaPhongBan && x.Id != data.Id && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaPhongBan + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;

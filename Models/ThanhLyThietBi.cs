@@ -20,9 +20,11 @@ namespace NETCORE3.Models
         public virtual ICollection<ThanhLy_Kho> thanhLyKhos { get; set; }
         [NotMapped]
         public List<ThanhLy_Kho> Lsttlk { get; set; }
-        public int SoLuong { get; set; }
+        [ForeignKey("Kho")]
+        public Guid? Kho_Id { get; set; }
+        public Kho Kho { get; set; }
 
         public DateTime ThoiGianThanhLy { get; set; }
-        public string GhiChu { get; set; }
+
     }
 }
