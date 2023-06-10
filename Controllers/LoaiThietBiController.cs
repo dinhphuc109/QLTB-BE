@@ -32,11 +32,13 @@ namespace NETCORE3.Controllers
         public ActionResult Get(string keyword)
         {
             if (keyword == null) keyword = "";
-            var data = uow.loaiThietBis.GetAll(t => !t.IsDeleted && (t.MaLoaiThietBi.ToLower().Contains(keyword.ToLower()) || t.TenLoaiThietBi.ToLower().Contains(keyword.ToLower()))).Select(x => new
+            string[] include = { "HeThong" };
+            var data = uow.loaiThietBis.GetAll(t => !t.IsDeleted && (t.MaLoaiThietBi.ToLower().Contains(keyword.ToLower()) || t.TenLoaiThietBi.ToLower().Contains(keyword.ToLower())),null,include).Select(x => new
             {
                 x.Id,
                 x.MaLoaiThietBi,
                 x.TenLoaiThietBi,
+                x.HeThong.TenHeThong,
                 x.LoaiThietBi_Id,
             });
             if (data == null)

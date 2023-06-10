@@ -32,7 +32,7 @@ namespace NETCORE3.Controllers
         public ActionResult Get(string keyword)
         {
             if (keyword == null) keyword = "";
-            string[] include = { "HeThong", "loaiHangThietBis", "loaiHangThietBis.LoaiThietBi" };
+            string[] include = { "loaiHangThietBis", "loaiHangThietBis.LoaiThietBi"};
             var data = uow.hangThietBis.GetAll(t => !t.IsDeleted && (t.MaHang.ToLower().Contains(keyword.ToLower()) || t.TenHang.ToLower().Contains(keyword.ToLower())),null,include).Select(x => new
             {
                 x.Id,
@@ -42,7 +42,7 @@ namespace NETCORE3.Controllers
                 LstLoai = x.loaiHangThietBis.Select(y => new
                 {
                     y.LoaiThietBi.TenLoaiThietBi,
-                    y.LoaiThietBi.HeThong.TenHeThong,
+                    y.LoaiThietBi.HeThong_Id,
                 })
 
             });

@@ -8,6 +8,7 @@ using NETCORE3.Infrastructure;
 using NETCORE3.Models;
 using System;
 using System.Linq;
+using ThacoLibs;
 using static NETCORE3.Data.MyDbContext;
 
 namespace NETCORE3.Controllers
