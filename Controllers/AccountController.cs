@@ -417,7 +417,7 @@ namespace NETCORE3.Controllers
                 var role = await userManager.GetRolesAsync(appUser);
                 if (role.Count > 0)
                 {
-                    if (appUser.NghiViec == false && (appUser.NgayNghiViec == DateTime.Now || appUser.NgayNghiViec <= DateTime.Now))
+                    if (appUser.NghiViec == false )
                     {
                         return Ok(new UserInfoModel
                         {
@@ -427,6 +427,7 @@ namespace NETCORE3.Controllers
                             PhoneNumber = appUser.PhoneNumber,
                             UserName = appUser.UserName,
                             MaNhanVien = appUser.MaNhanVien,
+                            ChucDanh=appUser.ChucDanh,
                             FullName = appUser.FullName,
                             IsActive = appUser.IsActive,
                             RoleNames = role.ToList(),
@@ -450,24 +451,24 @@ namespace NETCORE3.Controllers
             .Include(u => u.DonVi)
             .Include(u => u.BoPhan)
             .Include(u => u.ChucVu)
-            .Include(u => u.Phongban)
-            .Include(u => u.DonViTraLuong); 
+            .Include(u => u.Phongban); 
             List<ListUserModel> list = new List<ListUserModel>();
 
             foreach (var item in query)
             {
                 
                 var infor = new ListUserModel();
-                if (item.NghiViec == false && (item.NgayNghiViec==DateTime.Now || item.NgayNghiViec<=DateTime.Now))
+                if (item.NghiViec == false)
                 {
-                    
+                    var donvi = uow.DonVis.GetAll(x => x.Id == item.DonViTraLuong_Id).ToList();
                     infor.Id = item.Id.ToString();
                     infor.FullName = item.FullName;
+                    infor.ChucDanh = item.ChucDanh;
                     infor.TenBoPhan = item.BoPhan.TenBoPhan;
                     infor.TenDonVi = item.DonVi.TenDonVi;
                     infor.TenChucVu = item.ChucVu.TenChucVu;
                     infor.TenPhongBan = item.Phongban.TenPhongBan;
-                    infor.TenDonViTraLuong = item.DonViTraLuong.TenDonViTraLuong;
+                    infor.DonViTraLuong_Id = item.DonViTraLuong_Id;
                     list.Add(infor);
                 }
 
@@ -482,8 +483,7 @@ namespace NETCORE3.Controllers
            .Include(u => u.DonVi)
            .Include(u => u.BoPhan)
            .Include(u => u.ChucVu)
-           .Include(u => u.Phongban)
-           .Include(u => u.DonViTraLuong);
+           .Include(u => u.Phongban);
             List<ListUserModelNghiViec> list = new List<ListUserModelNghiViec>();
 
             foreach (var item in query)
@@ -491,13 +491,15 @@ namespace NETCORE3.Controllers
                 var infor = new ListUserModelNghiViec();
                 if(item.NghiViec == true)
                 {
+                    var donvi = uow.DonVis.GetAll(x => x.Id == item.DonViTraLuong_Id).ToList();
                     infor.Id = item.Id.ToString();
                     infor.FullName = item.FullName;
+                    infor.ChucDanh = item.ChucDanh;
                     infor.TenBoPhan = item.BoPhan.TenBoPhan;
                     infor.TenDonVi = item.DonVi.TenDonVi;
                     infor.TenChucVu = item.ChucVu.TenChucVu;
                     infor.TenPhongBan = item.Phongban.TenPhongBan;
-                    infor.TenDonViTraLuong = item.DonViTraLuong.TenDonViTraLuong;
+                    infor.DonViTraLuong_Id = item.DonViTraLuong_Id;
                     infor.NgayNghiViec = item.NgayNghiViec;
                     infor.GhiChu = item.GhiChu;
                     list.Add(infor);
@@ -514,8 +516,7 @@ namespace NETCORE3.Controllers
             .Include(u => u.DonVi)
             .Include(u => u.BoPhan)
             .Include(u=>u.ChucVu)
-            .Include(u=>u.Phongban)
-            .Include(u=>u.DonViTraLuong);
+            .Include(u=>u.Phongban);
             List<UserInfoModel> list = new List<UserInfoModel>();
             foreach (var item in query)
             {
@@ -524,19 +525,22 @@ namespace NETCORE3.Controllers
                 {
                     if (item.NghiViec == false)
                     {
+                        
                         var info = new UserInfoModel();
                         info.Id = item.Id.ToString();
                         info.Email = item.Email;
                         info.UserName = item.UserName;
                         info.MaNhanVien = item.MaNhanVien;
+                        info.PhoneNumber = item.PhoneNumber;
                         info.FullName = item.FullName;
+                        info.ChucDanh = item.ChucDanh;
                         info.IsActive = item.IsActive;
                         info.RoleNames = role.ToList();
                         info.TenBoPhan = item.BoPhan.TenBoPhan;
                         info.TenDonVi = item.DonVi.TenDonVi;
                         info.TenChucVu = item.ChucVu.TenChucVu;
                         info.TenPhongBan = item.Phongban.TenPhongBan;
-                        info.TenDonViTraLuong = item.DonViTraLuong.TenDonViTraLuong;
+                        info.DonViTraLuong_Id = item.DonViTraLuong_Id;
                         list.Add(info);
                     }
 

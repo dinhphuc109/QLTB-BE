@@ -137,7 +137,18 @@ namespace NETCORE3.Controllers
             return Ok(dropdownData);
         }
 
-
+        //thêm điều chuyển nhân viên theo id
+        [HttpGet("{id}")]
+        public ActionResult Get(Guid id)
+        {
+            string[] includes = { "User", "DonVi", "BoPhan", "Phongban", "ChucVu", "cBNVDieuChuyens", "cBNVDieuChuyens.User" };
+            var duLieu = uow.dieuChuyenNhanViens.GetAll(x => !x.IsDeleted && x.Id == id, null, includes);
+            if (duLieu == null)
+            {
+                return NotFound();
+            }
+            return Ok(duLieu);
+        }
         [HttpPost]
         public ActionResult Post(DieuChuyenNhanVien data)
         {
@@ -158,13 +169,13 @@ namespace NETCORE3.Controllers
                     var existingMaDieuChuyen = uow.dieuChuyenNhanViens.GetAll(x => x.NgayDieuChuyen.Date == data.NgayDieuChuyen.Date).Select(x => x.MaDieuChuyen).ToList();
 
                     int count = 1;
-                    string MaDieuChuyen = $"{kyTuDau}/{DateTime.Now.ToString("yyMMdd")}{count}";
+                    string MaDieuChuyen = $"{kyTuDau}/{DateTime.Now.ToString("yyMMdd")}/{count}";
 
                     // Kiểm tra và tăng giá trị của biến đếm cho đến khi không có trùng lặp
                     while (existingMaDieuChuyen.Contains(MaDieuChuyen))
                     {
                         count++;
-                        MaDieuChuyen = $"{kyTuDau}/{DateTime.Now.ToString("yyMMdd")}{count}";
+                        MaDieuChuyen = $"{kyTuDau}/{DateTime.Now.ToString("yyMMdd")}/{count}";
                     }
                     DieuChuyen[0].MaDieuChuyen = MaDieuChuyen;
                     DieuChuyen[0].IsDeleted = false;

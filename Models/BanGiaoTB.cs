@@ -17,12 +17,10 @@ namespace NETCORE3.Models
         [Required(ErrorMessage = "Mã bắt buộc")]
         public string MaBanGIao { get; set; }
         [ForeignKey("User")]
-        public Guid? User_Id { get; set; }
+        public Guid? UserGiao_Id { get; set; }
+        public Guid? UserNhan_Id { get; set; }
+
         public ApplicationUser User { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<BanGiao_NguoiNhan> banGiaoNguoiNhans { get; set; }
-        [NotMapped]
-        public List<BanGiao_NguoiNhan> Lstbgnn { get; set; }
         [JsonIgnore]
         public virtual ICollection<BanGiao_ThongTinThietBi> banGiaoThongTinThietBis { get; set; }
         [NotMapped]

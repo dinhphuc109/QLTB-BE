@@ -41,26 +41,24 @@ namespace NETCORE3.Controllers
         public ActionResult Get(string keyword)
         {
             if (keyword == null) keyword = "";
-            
-            string[] include = { "Domain", "NhaCungCap", "DonViTinh", "DanhMucThietBi", "DanhMucThietBi.HangThietBi", "DanhMucThietBi.LoaiThietBi.HeThong" };
-            var data = uow.thongTinThietBis.GetAll(t => !t.IsDeleted && t.qrCodeData!=null, null, include).Select(x => new
+            var exist = uow.banGiaoThongTinThietBis.GetAll(x => !x.IsDeleted).ToList();
+            string[] include = { "TinhTrangThietBi","Domain", "NhaCungCap", "DonViTinh", "DanhMucThietBi", "DanhMucThietBi.HangThietBi", "DanhMucThietBi.LoaiThietBi" };
+            var data = uow.thongTinThietBis.GetAll(t => !t.IsDeleted && t.Id != exist[0].ThongTinThietBi_Id, null, include).Select(x => new
             {
                 x.Id,
-                x.qrCodeData,
                 x.DanhMucThietBi_Id,
                 x.DanhMucThietBi.MaThietBi,
                 x.DanhMucThietBi.TenThietBi,
-                x.DanhMucThietBi.CauHinh,
+                x.CauHinh,
                 x.DanhMucThietBi.HangThietBi.TenHang,
-                x.DanhMucThietBi.LoaiThietbi_Id,
-                x.DanhMucThietBi.LoaiThietBi.HeThong_Id,
+                x.DanhMucThietBi.LoaiThietBi.TenLoaiThietBi,
                 x.Domain.TenDomain,
                 x.SoSeri,
                 x.ModelThietBi,
                 x.NhaCungCap.TenNhaCungCap,
                 x.DonViTinh.TenDonViTinh,
-                x.TinhTrangThietBi,
-                x.ThoiGianBaoHanh,
+                x?.TinhTrangThietBi_Id,
+                ThoiGianBaoHanh = x.ThoiGianBaoHanh.ToString("MM/dd/yyyy"),
             });
             if (data == null)
             {
@@ -73,10 +71,10 @@ namespace NETCORE3.Controllers
         public IActionResult SearchThongTinThietBi(string keyword, Guid? HeThongId, Guid? LoaiThietBiId)
         {
             if (keyword == null) keyword = "";
-            string[] include = { "Domain", "NhaCungCap", "DonViTinh", 
+            string[] include = { "TinhTrangThietBi","Domain", "NhaCungCap", "DonViTinh", 
                                 "DanhMucThietBi", "DanhMucThietBi.HangThietBi"
                                 , "DanhMucThietBi.LoaiThietBi", "DanhMucThietBi.LoaiThietBi.HeThong" };
-            var data = uow.thongTinThietBis.GetAll(x=> !x.IsDeleted && x.qrCodeData!=null
+            var data = uow.thongTinThietBis.GetAll(x=> !x.IsDeleted
             &&x.DanhMucThietBi.LoaiThietbi_Id == (LoaiThietBiId==null?x.DanhMucThietBi.LoaiThietbi_Id:LoaiThietBiId)
             && x.DanhMucThietBi.LoaiThietBi.HeThong_Id == (HeThongId==null?x.DanhMucThietBi.LoaiThietBi.HeThong_Id:HeThongId)
             && (x.DanhMucThietBi.TenThietBi.ToLower().Contains(keyword.ToLower())
@@ -84,14 +82,15 @@ namespace NETCORE3.Controllers
             || x.SoSeri.ToLower().Contains(keyword.ToLower())
             || x.ModelThietBi.ToLower().Contains(keyword.ToLower())
             || x.Domain.TenDomain.ToLower().Contains(keyword.ToLower())
+            || x.TinhTrangThietBi.TenTinhTrangThietBi.ToLower().Contains(keyword.ToLower())
             || x.DanhMucThietBi.HangThietBi.TenHang.ToLower().Contains(keyword.ToLower())),null, include).Select(x=> new
             {
                 x.Id,
-                x.qrCodeData,
+
                 x.DanhMucThietBi_Id,
                 x.DanhMucThietBi.MaThietBi,
                 x.DanhMucThietBi.TenThietBi,
-                x.DanhMucThietBi.CauHinh,
+                x.CauHinh,
                 x.DanhMucThietBi.HangThietBi.TenHang,
                 x.DanhMucThietBi.LoaiThietbi_Id,
                 x.Domain.TenDomain,
@@ -99,7 +98,7 @@ namespace NETCORE3.Controllers
                 x.ModelThietBi,
                 x.NhaCungCap.TenNhaCungCap,
                 x.DonViTinh.TenDonViTinh,
-                x.TinhTrangThietBi,
+                x.TinhTrangThietBi.TenTinhTrangThietBi,
                 x.ThoiGianBaoHanh,
             });
             if (data == null)
@@ -260,13 +259,14 @@ namespace NETCORE3.Controllers
                     thongtintb[0].DeletedDate = null;
                     thongtintb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
                     thongtintb[0].UpdatedDate = DateTime.Now;
-                    thongtintb[0].qrCodeData = data.qrCodeData;
+        
+                    thongtintb[0].CauHinh = data.CauHinh;
                     thongtintb[0].DanhMucThietBi_Id = data.DanhMucThietBi_Id;
                     thongtintb[0].Domain_Id = data.Domain_Id;
                     thongtintb[0].SoSeri = data.SoSeri;
                     thongtintb[0].ModelThietBi = data.ModelThietBi;
                     thongtintb[0].ThoiGianBaoHanh = data.ThoiGianBaoHanh;
-                    thongtintb[0].TinhTrangThietBi = data.TinhTrangThietBi;
+                    thongtintb[0].TinhTrangThietBi_Id = data.TinhTrangThietBi_Id;
                     thongtintb[0].NhaCungCap_Id = data.NhaCungCap_Id;
                     uow.thongTinThietBis.Update(thongtintb[0]);
 
@@ -307,13 +307,14 @@ namespace NETCORE3.Controllers
                     thongtintb[0].DeletedDate = null;
                     thongtintb[0].UpdatedBy = Guid.Parse(User.Identity.Name);
                     thongtintb[0].UpdatedDate = DateTime.Now;
-                    thongtintb[0].qrCodeData = data.qrCodeData;
+                   
+                    thongtintb[0].CauHinh = data.CauHinh;
                     thongtintb[0].DanhMucThietBi_Id = data.DanhMucThietBi_Id;
                     thongtintb[0].Domain_Id = data.Domain_Id;
                     thongtintb[0].SoSeri = data.SoSeri;
                     thongtintb[0].ModelThietBi = data.ModelThietBi;
                     thongtintb[0].ThoiGianBaoHanh = data.ThoiGianBaoHanh;
-                    thongtintb[0].TinhTrangThietBi = data.TinhTrangThietBi;
+                    thongtintb[0].TinhTrangThietBi_Id = data.TinhTrangThietBi_Id;
                     thongtintb[0].NhaCungCap_Id = data.NhaCungCap_Id;
                     uow.thongTinThietBis.Update(thongtintb[0]);
                 }
@@ -361,6 +362,7 @@ namespace NETCORE3.Controllers
                 return Ok();
             }
         }
+
         //truy vấn thủ tục báo cáo sl thiết bị
         [HttpGet("GetDeviceData")]
         public IActionResult GetDeviceData()

@@ -23,12 +23,12 @@ namespace NETCORE3.Infrastructure
         IBoPhanRepository BoPhans { get; }
         ITapDoanRepository tapDoans { get; }
         IChucVuRepository chucVus { get; }
-        IDonViTraLuongRepository donViTraLuongs { get; }
+      
         IDomainRepository domains { get; }
         ILoaiThietBiRepository loaiThietBis { get; }
         IHeThongRepository heThongs { get; }
         IHangThietBiRepository hangThietBis { get; }
-        ILoaiHangThietBiRepository loaiHangThietBis { get; }
+
         IDanhMucThietBiRepository danhMucThietBis { get; }
 
         IThongTinThietBiRepository thongTinThietBis { get; }
@@ -40,7 +40,7 @@ namespace NETCORE3.Infrastructure
         IKhoThongTinThietBiRepository khoThongTinThietBis { get; }
         IBanGiaoThongTinThietBiRepository banGiaoThongTinThietBis { get; }
         IBanGiaoTBRepository banGiaoTBs { get; }
-        IBanGiaoNguoiNhanRepository banGiaoNguoiNhans { get; }
+     
         IDieuChuyenThietBiRepository dieuChuyenThietBis { get; }
         IDieuChuyenThietBiKhoRepository dieuChuyenThietBiKhos { get; }
         INguoiNhanDieuChuyenRepository nguoiNhanDieuChuyens { get; }
@@ -49,6 +49,10 @@ namespace NETCORE3.Infrastructure
         IDieuChuyenNhanVienRepository dieuChuyenNhanViens { get; }
         ILichSuThietBiRepository lichSuThietBis { get; }
         ICBNV_DieuChuyenRepository cBNV_DieuChuyens { get; }
+        ITieuChuanBaoTriRepository tieuChuanBaoTris { get; }
+        IHinhThucCapPhatRepository hinhThucCapPhats { get; }
+        IDanhMucLoiRepository danhMucLois { get; }
+        ITinhTrangThietBiRepository tinhTrangThietBis { get; }
         int Complete();
   }
 }

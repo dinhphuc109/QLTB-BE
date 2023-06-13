@@ -16,12 +16,12 @@ namespace NETCORE3.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class LoaiThietBiController : ControllerBase
+    public class TinhTrangThietBiController : ControllerBase
     {
         private readonly IUnitofWork uow;
         private readonly UserManager<ApplicationUser> userManager;
         public static IWebHostEnvironment environment;
-        public LoaiThietBiController(IUnitofWork _uow, UserManager<ApplicationUser> _userManager, IWebHostEnvironment _environment)
+        public TinhTrangThietBiController(IUnitofWork _uow, UserManager<ApplicationUser> _userManager, IWebHostEnvironment _environment)
         {
             uow = _uow;
             userManager = _userManager;
@@ -32,14 +32,11 @@ namespace NETCORE3.Controllers
         public ActionResult Get(string keyword)
         {
             if (keyword == null) keyword = "";
-            string[] include = { "HeThong" };
-            var data = uow.loaiThietBis.GetAll(t => !t.IsDeleted && (t.MaLoaiThietBi.ToLower().Contains(keyword.ToLower()) || t.TenLoaiThietBi.ToLower().Contains(keyword.ToLower())),null,include).Select(x => new
+            var data = uow.tinhTrangThietBis.GetAll(t => !t.IsDeleted && (t.MaTinhTrangThietBi.ToLower().Contains(keyword.ToLower()) || t.TenTinhTrangThietBi.ToLower().Contains(keyword.ToLower()))).Select(x => new
             {
                 x.Id,
-                x.MaLoaiThietBi,
-                x.TenLoaiThietBi,
-                x.HeThong.TenHeThong,
-                x.LoaiThietBi_Id,
+                x.MaTinhTrangThietBi,
+                x.TenTinhTrangThietBi,
             });
             if (data == null)
             {
@@ -48,10 +45,12 @@ namespace NETCORE3.Controllers
             return Ok(data);
         }
 
+
+
         [HttpGet("{id}")]
         public ActionResult Get(Guid id)
         {
-            LoaiThietBi duLieu = uow.loaiThietBis.GetById(id);
+            TinhTrangThietBi duLieu = uow.tinhTrangThietBis.GetById(id);
             if (duLieu == null)
             {
                 return NotFound();
@@ -60,7 +59,7 @@ namespace NETCORE3.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post(LoaiThietBi data)
+        public ActionResult Post(TinhTrangThietBi data)
         {
             lock (Commons.LockObjectState)
             {
@@ -68,42 +67,18 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-
-                if (uow.loaiThietBis.Exists(x => x.MaLoaiThietBi == data.MaLoaiThietBi && !x.IsDeleted))
-                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaLoaiThietBi + " đã tồn tại trong hệ thống");
-                if (!IsValidCayPhanCap(data))
-                {
-                    return BadRequest("Loại thiết bị không phù hợp với cây phân cấp");
-                }
+                if (uow.tinhTrangThietBis.Exists(x => x.MaTinhTrangThietBi == data.MaTinhTrangThietBi && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaTinhTrangThietBi + " đã tồn tại trong hệ thống");
                 data.CreatedDate = DateTime.Now;
                 data.CreatedBy = Guid.Parse(User.Identity.Name);
-                uow.loaiThietBis.Add(data);
+                uow.tinhTrangThietBis.Add(data);
                 uow.Complete();
                 return Ok();
             }
         }
 
-        private bool IsValidCayPhanCap(LoaiThietBi loaiThietBi)
-        {
-            if (loaiThietBi.LoaiThietBi_Id == null)
-            {
-                return true; // Nếu không có loại cha, cây phân cấp đúng
-            }
-
-            // Lấy loại cha từ cơ sở dữ liệu
-            var parentLoaiThietBi = uow.loaiThietBis.GetById(loaiThietBi.LoaiThietBi_Id);
-
-            if (parentLoaiThietBi == null)
-            {
-                return false; // Nếu không tìm thấy loại cha, cây phân cấp không đúng
-            }
-
-            // Kiểm tra đệ quy cho loại cha
-            return IsValidCayPhanCap(parentLoaiThietBi);
-        }
-
         [HttpPut("{id}")]
-        public ActionResult Put(Guid id, LoaiThietBi data)
+        public ActionResult Put(Guid id, TinhTrangThietBi data)
         {
             lock (Commons.LockObjectState)
             {
@@ -115,15 +90,11 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                if (uow.loaiThietBis.Exists(x => x.MaLoaiThietBi == data.MaLoaiThietBi && x.Id!=data.Id && !x.IsDeleted))
-                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaLoaiThietBi + " đã tồn tại trong hệ thống");
-                if (!IsValidCayPhanCap(data))
-                {
-                    return BadRequest("Loại thiết bị không phù hợp với cây phân cấp");
-                }
+                if (uow.tinhTrangThietBis.Exists(x => x.MaTinhTrangThietBi == data.MaTinhTrangThietBi && x.Id != data.Id && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaTinhTrangThietBi + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;
-                uow.loaiThietBis.Update(data);
+                uow.tinhTrangThietBis.Update(data);
                 uow.Complete();
                 return StatusCode(StatusCodes.Status204NoContent);
             }
@@ -134,8 +105,8 @@ namespace NETCORE3.Controllers
         {
             lock (Commons.LockObjectState)
             {
-                LoaiThietBi duLieu = uow.loaiThietBis.GetById(id);
-                if (!uow.danhMucThietBis.Exists(x => x.LoaiThietbi_Id == id))
+                TinhTrangThietBi duLieu = uow.tinhTrangThietBis.GetById(id);
+                if (!uow.thongTinThietBis.Exists(x => x.TinhTrangThietBi_Id == id))
                 {
                     if (duLieu == null)
                     {
@@ -144,12 +115,11 @@ namespace NETCORE3.Controllers
                     duLieu.DeletedDate = DateTime.Now;
                     duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
                     duLieu.IsDeleted = true;
-                    uow.loaiThietBis.Update(duLieu);
+                    uow.tinhTrangThietBis.Update(duLieu);
                     uow.Complete();
                     return Ok(duLieu);
                 }
-                return StatusCode(StatusCodes.Status409Conflict, "Loại thiết bị này đã có ở thiết bị không được xóa");
-
+                return StatusCode(StatusCodes.Status409Conflict, "Tình trạng này đã có ở thiết bị không được xóa");
             }
 
         }
@@ -158,7 +128,7 @@ namespace NETCORE3.Controllers
         {
             lock (Commons.LockObjectState)
             {
-                uow.loaiThietBis.Delete(id);
+                uow.tinhTrangThietBis.Delete(id);
                 uow.Complete();
                 return Ok();
             }

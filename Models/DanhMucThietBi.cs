@@ -16,8 +16,7 @@ namespace NETCORE3.Models
         [StringLength(250)]
         [Required(ErrorMessage = "Tên bắt buộc")]
         public string TenThietBi { get; set; }
-        [StringLength(50)]
-        public string CauHinh { get; set; }
+
 
         [ForeignKey("HangThietBi")]
         public Guid? HangThietBi_Id { get; set; }

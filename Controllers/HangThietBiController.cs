@@ -32,19 +32,12 @@ namespace NETCORE3.Controllers
         public ActionResult Get(string keyword)
         {
             if (keyword == null) keyword = "";
-            string[] include = { "HeThong", "loaiHangThietBis", "loaiHangThietBis.LoaiThietBi" };
+            string[] include = {};
             var data = uow.hangThietBis.GetAll(t => !t.IsDeleted && (t.MaHang.ToLower().Contains(keyword.ToLower()) || t.TenHang.ToLower().Contains(keyword.ToLower())),null,include).Select(x => new
             {
                 x.Id,
                 x.MaHang,
-                x.TenHang,
-                
-                LstLoai = x.loaiHangThietBis.Select(y => new
-                {
-                    y.LoaiThietBi.TenLoaiThietBi,
-                    y.LoaiThietBi.HeThong.TenHeThong,
-                })
-
+                x.TenHang,            
             });
             if (data == null)
             {
@@ -56,18 +49,13 @@ namespace NETCORE3.Controllers
         [HttpGet("{id}")]
         public ActionResult Get(Guid id)
         {
-            string[] include = { "loaiHangThietBis", "loaiHangThietBis.LoaiThietBi" };
+            string[] include = {};
             var duLieu = uow.hangThietBis.GetAll(x => !x.IsDeleted && x.Id == id, null, include).Select(x => new
             {
                 x.Id,
                 x.MaHang,
                 x.TenHang,
 
-                LstLoai = x.loaiHangThietBis.Select(y => new
-                {
-                    y.LoaiThietBi.TenLoaiThietBi,
-                    y.LoaiThietBi.HeThong.TenHeThong,
-                })
 
             }); ;
             if (duLieu == null)
@@ -75,28 +63,6 @@ namespace NETCORE3.Controllers
                 return NotFound();
             }
             return Ok(duLieu);
-        }
-
-        public class ChiTietHangThietBi
-        {
-            public Guid LoaiThietBi_Id { get; set; }
-            
-            public string TenLoaiThietBi { get; set; }
-        }
-
-        [HttpGet("GetChiTietHang")]
-        public ActionResult GetChiTietHang(Guid idLoaiThietBi)
-        {
-            string[] include = { "Hang" };
-            var data = uow.loaiHangThietBis.GetAll(x => x.HangThietBi_Id == idLoaiThietBi).GroupBy(x => x.HangThietBi_Id).Select(x => new { x.Key });
-            var dataHang = uow.hangThietBis.GetAll(x => !x.IsDeleted).Select(x => new { x.Id, x.TenHang });
-            List<ChiTietHangThietBi> list = new List<ChiTietHangThietBi>();
-            foreach (var x in data)
-            {
-                var item = dataHang.FirstOrDefault(y => y.Id == x.Key);
-                list.Add(new ChiTietHangThietBi { LoaiThietBi_Id = item.Id, TenLoaiThietBi = item.TenHang });
-            }
-            return Ok(list.OrderBy(x => x.TenLoaiThietBi));
         }
 
         [HttpPost]
@@ -121,11 +87,6 @@ namespace NETCORE3.Controllers
                     hangtb[0].MaHang = data.MaHang;
                     hangtb[0].TenHang = data.TenHang;
                     uow.hangThietBis.Update(hangtb[0]);
-                    foreach (var item in data.LstLoai)
-                    {
-                        item.HangThietBi_Id = hangtb[0].Id;
-                        uow.loaiHangThietBis.Add(item);
-                    }
                 }
                 else
                 {
@@ -134,11 +95,6 @@ namespace NETCORE3.Controllers
                     data.CreatedDate = DateTime.Now;
                     data.CreatedBy = Guid.Parse(User.Identity.Name);
                     uow.hangThietBis.Add(data);
-                    foreach (var item in data.LstLoai)
-                    {
-                        item.HangThietBi_Id = id;
-                        uow.loaiHangThietBis.Add(item);
-                    }
                 }
                 uow.Complete();
                 return Ok();
@@ -180,35 +136,6 @@ namespace NETCORE3.Controllers
                     uow.hangThietBis.Update(data);
 
                 }
-
-                var lstLoai = data.LstLoai;
-                var dataCheck = uow.loaiHangThietBis.GetAll(x=>x.HangThietBi_Id == id).ToList();
-                if (dataCheck.Count() > 0)
-                {
-                    foreach (var item in dataCheck)
-                    {
-                        if (!lstLoai.Exists(x => x.LoaiThietBi_Id == item.LoaiThietBi_Id))
-                        {
-                            uow.loaiHangThietBis.Delete(item.Id);
-                        }
-                    }
-                    foreach (var item in lstLoai)
-                    {
-                        if (!dataCheck.Exists(x => x.LoaiThietBi_Id == item.LoaiThietBi_Id))
-                        {
-                            item.HangThietBi_Id = id;
-                            uow.loaiHangThietBis.Add(item);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var item in lstLoai)
-                    {
-                        item.HangThietBi_Id = id;
-                        uow.loaiHangThietBis.Add(item);
-                    }
-                }
                 uow.Complete();
                 return StatusCode(StatusCodes.Status204NoContent);
             }
@@ -220,16 +147,11 @@ namespace NETCORE3.Controllers
             lock (Commons.LockObjectState)
             {
                 HangThietBi duLieu = uow.hangThietBis.GetById(id);
-                if (duLieu.CreatedBy == Guid.Parse(User.Identity.Name) || Guid.Parse(User.Identity.Name) == Guid.Parse("c662783d-03c0-4404-9473-1034f1ac1caa"))
+                if (!uow.danhMucThietBis.Exists(x=>x.HangThietBi_Id==id))
                 {
                     if (duLieu == null)
                     {
                         return NotFound();
-                    }
-                    var dataCheck = uow.loaiHangThietBis.GetAll(x => x.HangThietBi_Id == id).ToList();
-                    foreach (var item in dataCheck)
-                    {
-                        uow.loaiHangThietBis.Delete(item.Id);
                     }
                     duLieu.DeletedDate = DateTime.Now;
                     duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
@@ -238,7 +160,7 @@ namespace NETCORE3.Controllers
                     uow.Complete();
                     return Ok(duLieu);
                 }
-                return StatusCode(StatusCodes.Status409Conflict, "Bạn chỉ có thể chỉnh sửa thông tin thiết bị này");
+                return StatusCode(StatusCodes.Status409Conflict, "Hãng này đã có ở thiết bị không được xóa");
             }
         }
         [HttpDelete("Remove/{id}")]

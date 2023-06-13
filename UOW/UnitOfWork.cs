@@ -24,12 +24,12 @@ namespace NETCORE3.UOW
         public ITapDoanRepository tapDoans { get; private set; }
         public IPhongbanRepository phongbans { get; private set; }
         public IChucVuRepository chucVus { get; private set; }
-        public IDonViTraLuongRepository donViTraLuongs { get; private set; }
+       
         public IDomainRepository domains { get; private set; }
         public ILoaiThietBiRepository loaiThietBis { get; private set; }
         public IHeThongRepository heThongs { get; private set; }
         public IHangThietBiRepository hangThietBis { get; private set; }
-        public ILoaiHangThietBiRepository loaiHangThietBis { get; private set; }
+   
 
         public IDanhMucThietBiRepository danhMucThietBis { get; private set; }
         public IThongTinThietBiRepository thongTinThietBis { get; private set; }
@@ -40,7 +40,7 @@ namespace NETCORE3.UOW
         public IKhoLoaiThietBiRepository khoLoaiThietBis { get; private set; }
         public IBanGiaoTBRepository banGiaoTBs { get; private set; }
         public IBanGiaoThongTinThietBiRepository banGiaoThongTinThietBis { get; private set; }
-        public IBanGiaoNguoiNhanRepository banGiaoNguoiNhans { get; private set; }
+    
         public IDieuChuyenThietBiRepository dieuChuyenThietBis { get; private set; }
         public IDieuChuyenThietBiKhoRepository dieuChuyenThietBiKhos { get; private set; }
         public INguoiNhanDieuChuyenRepository nguoiNhanDieuChuyens { get; private set; }
@@ -49,6 +49,10 @@ namespace NETCORE3.UOW
         public IDieuChuyenNhanVienRepository dieuChuyenNhanViens { get; private set; }
         public ILichSuThietBiRepository lichSuThietBis { get; private set; }
         public ICBNV_DieuChuyenRepository cBNV_DieuChuyens { get; private set; }
+        public ITieuChuanBaoTriRepository tieuChuanBaoTris { get; private set; }
+        public IHinhThucCapPhatRepository hinhThucCapPhats { get; private set; }
+        public IDanhMucLoiRepository danhMucLois { get; private set; }
+        public ITinhTrangThietBiRepository tinhTrangThietBis { get; private set; }
 
         private MyDbContext db;
     public UnitofWork(MyDbContext _db)
@@ -71,12 +75,11 @@ namespace NETCORE3.UOW
             tapDoans = new TapDoanRepository(db);
             phongbans = new PhongbanRepository(db);
             chucVus = new ChucVuRepository(db);
-            donViTraLuongs = new DonViTraLuongRepository(db);
+            
             domains = new DomainRepository(db);
             loaiThietBis = new LoaiThietBiRepository(db);
             heThongs = new HeThongRepository(db);
             hangThietBis = new HangThietBiRepository(db);
-            loaiHangThietBis = new LoaiHangThietBiRepository(db);
             danhMucThietBis = new DanhMucThietBiRepository(db);
             thongTinThietBis = new ThongTinThietBiRepository(db);
 
@@ -87,7 +90,7 @@ namespace NETCORE3.UOW
             khoLoaiThietBis = new KhoLoaiThietBiRepository(db);
             banGiaoTBs = new BanGiaoTBRepository(db);
             banGiaoThongTinThietBis = new BanGiaoThongTinThietBiRepository(db);
-            banGiaoNguoiNhans = new BanGiaoNguoiNhanRepository(db);
+    
             dieuChuyenThietBis = new DieuChuyenThietBiRepository(db);
             nguoiNhanDieuChuyens = new NguoiNhanDieuChuyenRepository(db);
             thanhLyThietBis = new ThanhLyThietBiRepository(db);
@@ -96,6 +99,10 @@ namespace NETCORE3.UOW
             lichSuThietBis = new LichSuThietBiRepository(db);
             dieuChuyenThietBiKhos = new DieuChuyenThietBiKhoRepository(db);
             cBNV_DieuChuyens = new CBNV_DieuChuyenRepository(db);
+            tieuChuanBaoTris = new TieuChuanBaoTriRepository(db);
+            hinhThucCapPhats = new HinhThucCapPhatRepository(db);
+            danhMucLois = new DanhMucLoiRepository(db);
+            tinhTrangThietBis = new TinhTrangThietBiRepository(db);
         }
     public void Dispose()
     {

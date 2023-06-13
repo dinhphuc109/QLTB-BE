@@ -44,9 +44,7 @@ namespace NETCORE3.Data
             [ForeignKey("Phongban")]
             public Guid? PhongBan_Id { get; set; }
             public Phongban Phongban { get; set; }
-            [ForeignKey("DonViTraLuong")]
             public Guid? DonViTraLuong_Id { get; set; }
-            public DonViTraLuong DonViTraLuong { get; set; }
             public bool NghiViec { get; set; }
             public DateTime? NgayNghiViec { get; set; }
             [StringLength(50)]
@@ -123,21 +121,16 @@ namespace NETCORE3.Data
         public DbSet<Log> Logs { get; set; }
         public DbSet<BoPhan> BoPhans { get; set; }
         public DbSet<TapDoan> TapDoans { get; set; }
-        public DbSet<DonViTraLuong> DonViTraLuongs { get; set; }
+      
         public DbSet<Domain> Domains { get; set; }
         public DbSet<HangThietBi> HangThietBis { get; set; }
         public DbSet<LoaiThietBi> LoaiThietBis{ get; set; }
-        public DbSet<Loai_HangThietBi> Loai_HangThietBis { get; set; }
         public DbSet<DanhMucThietBi> DanhMucThietBis { get; set; }
         public DbSet<HeThong> HeThongs { get; set; }
         public DbSet<ThongTinThietBi> ThongTinThietBis { get; set; }
-
-        /*public DbSet<ThongTinHangThietBi> ThongTinHangThietBis { get; set; }*/
         public DbSet<DieuChuyenThietBi_Kho> DieuChuyenThietBi_Khos { get; set; }
         public DbSet<DanhMucKho> DanhMucKhos { get; set; }
         public DbSet<Kho> Khos { get; set; }
-        /*public DbSet<KhoLoaiThietBi> khoLoaiThietBis { get; set; }*/
-        public DbSet<BanGiao_NguoiNhan> BanGiao_NguoiNhans { get; set; }
         public DbSet<Kho_ThongTinThietBi> Kho_ThongTinThietBis { get; set; }
         public DbSet<BanGiaoTB> BanGiaoTBs { get; set; }
         public DbSet<BanGiao_ThongTinThietBi> BanGiao_ThongTinThietBis { get; set; }
@@ -148,6 +141,10 @@ namespace NETCORE3.Data
         public DbSet<ThanhLy_Kho> ThanhLy_Khos { get; set; }
         public DbSet<DieuChuyenNhanVien> DieuChuyenNhanViens { get; set; }
         public DbSet<LichSuThietBi> LichSuThietBis { get; set; }
+        public DbSet<TieuChuanBaoTri> TieuChuanBaoTris { get; set; }
+        public DbSet<HinhThucCapPhat> HinhThucCapPhats { get; set; }
+        public DbSet<DanhMucLoi> DanhMucLois { get; set; }
+        public DbSet<TinhTrangThietBi> TinhTrangThietBis { get; set; }
 
     }
 }

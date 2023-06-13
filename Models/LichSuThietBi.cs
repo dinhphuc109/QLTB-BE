@@ -13,8 +13,9 @@ namespace NETCORE3.Models
         [ForeignKey("ThongTinThietBi")]
         public Guid ThongTinThietBi_Id { get; set; }
         public ThongTinThietBi ThongTinThietBi { get; set; }
-        [StringLength(250)]
-        public string TinhTrangThietBi { get; set; }
+        [ForeignKey("TinhTrangThietBi")]
+        public Guid? TinhTrangThietBi_Id { get; set; }
+        public TinhTrangThietBi TinhTrangThietBi { get; set; }
         [ForeignKey("User")]
         public Guid? User_Id { get; set; }
         public ApplicationUser User { get; set; }

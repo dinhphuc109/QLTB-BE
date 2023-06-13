@@ -42,4 +42,9 @@
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="ThacoLibs">
+      <HintPath>..\..\Thaco_Dev\ThacoLibs.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
