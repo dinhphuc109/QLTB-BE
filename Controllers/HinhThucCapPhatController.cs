@@ -16,12 +16,12 @@ namespace NETCORE3.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class DonViTraLuongController : ControllerBase
+    public class HinhThucCapPhatController : ControllerBase
     {
         private readonly IUnitofWork uow;
         private readonly UserManager<ApplicationUser> userManager;
         public static IWebHostEnvironment environment;
-        public DonViTraLuongController(IUnitofWork _uow, UserManager<ApplicationUser> _userManager, IWebHostEnvironment _environment)
+        public HinhThucCapPhatController(IUnitofWork _uow, UserManager<ApplicationUser> _userManager, IWebHostEnvironment _environment)
         {
             uow = _uow;
             userManager = _userManager;
@@ -32,11 +32,11 @@ namespace NETCORE3.Controllers
         public ActionResult Get(string keyword)
         {
             if (keyword == null) keyword = "";
-            var data = uow.donViTraLuongs.GetAll(t => !t.IsDeleted && (t.MaDonViTraLuong.ToLower().Contains(keyword.ToLower()) || t.TenDonViTraLuong.ToLower().Contains(keyword.ToLower()))).Select(x => new
+            var data = uow.hinhThucCapPhats.GetAll(t => !t.IsDeleted && (t.MaHinhThucCapPhat.ToLower().Contains(keyword.ToLower()) || t.TenHinhThucCapPhat.ToLower().Contains(keyword.ToLower()))).Select(x => new
             {
                 x.Id,
-                x.MaDonViTraLuong,
-                x.TenDonViTraLuong,
+                x.MaHinhThucCapPhat,
+                x.TenHinhThucCapPhat,
             });
             if (data == null)
             {
@@ -45,10 +45,12 @@ namespace NETCORE3.Controllers
             return Ok(data);
         }
 
+
+
         [HttpGet("{id}")]
         public ActionResult Get(Guid id)
         {
-            DonViTraLuong duLieu = uow.donViTraLuongs.GetById(id);
+            HinhThucCapPhat duLieu = uow.hinhThucCapPhats.GetById(id);
             if (duLieu == null)
             {
                 return NotFound();
@@ -57,7 +59,7 @@ namespace NETCORE3.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post(DonViTraLuong data)
+        public ActionResult Post(HinhThucCapPhat data)
         {
             lock (Commons.LockObjectState)
             {
@@ -65,18 +67,18 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                if (uow.donViTraLuongs.Exists(x => x.MaDonViTraLuong == data.MaDonViTraLuong && !x.IsDeleted))
-                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDonViTraLuong + " đã tồn tại trong hệ thống");
+                if (uow.hinhThucCapPhats.Exists(x => x.MaHinhThucCapPhat == data.MaHinhThucCapPhat && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHinhThucCapPhat + " đã tồn tại trong hệ thống");
                 data.CreatedDate = DateTime.Now;
                 data.CreatedBy = Guid.Parse(User.Identity.Name);
-                uow.donViTraLuongs.Add(data);
+                uow.hinhThucCapPhats.Add(data);
                 uow.Complete();
                 return Ok();
             }
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(Guid id, DonViTraLuong data)
+        public ActionResult Put(Guid id, HinhThucCapPhat data)
         {
             lock (Commons.LockObjectState)
             {
@@ -88,11 +90,11 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                if (uow.donViTraLuongs.Exists(x => x.MaDonViTraLuong == data.MaDonViTraLuong && x.Id != data.Id && !x.IsDeleted))
-                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDonViTraLuong + " đã tồn tại trong hệ thống");
+                if (uow.hinhThucCapPhats.Exists(x => x.MaHinhThucCapPhat == data.MaHinhThucCapPhat && x.Id != data.Id && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHinhThucCapPhat + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;
-                uow.donViTraLuongs.Update(data);
+                uow.hinhThucCapPhats.Update(data);
                 uow.Complete();
                 return StatusCode(StatusCodes.Status204NoContent);
             }
@@ -103,7 +105,7 @@ namespace NETCORE3.Controllers
         {
             lock (Commons.LockObjectState)
             {
-                DonViTraLuong duLieu = uow.donViTraLuongs.GetById(id);
+                HinhThucCapPhat duLieu = uow.hinhThucCapPhats.GetById(id);
                 if (duLieu == null)
                 {
                     return NotFound();
@@ -111,7 +113,7 @@ namespace NETCORE3.Controllers
                 duLieu.DeletedDate = DateTime.Now;
                 duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
                 duLieu.IsDeleted = true;
-                uow.donViTraLuongs.Update(duLieu);
+                uow.hinhThucCapPhats.Update(duLieu);
                 uow.Complete();
                 return Ok(duLieu);
             }
@@ -122,7 +124,7 @@ namespace NETCORE3.Controllers
         {
             lock (Commons.LockObjectState)
             {
-                uow.donViTraLuongs.Delete(id);
+                uow.hinhThucCapPhats.Delete(id);
                 uow.Complete();
                 return Ok();
             }

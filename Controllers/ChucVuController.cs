@@ -32,14 +32,14 @@ namespace NETCORE3.Controllers
         public ActionResult Get(string keyword)
         {
             if (keyword == null) keyword = "";
-            string[] include = { "BoPhan" };
+            string[] include = {  };
             var data = uow.chucVus.GetAll(t => !t.IsDeleted && (t.MaChucVu.ToLower().Contains(keyword.ToLower()) || t.TenChucVu.ToLower().Contains(keyword.ToLower())), null, include
                 ).Select(x => new
                 {
                     x.Id,
                     x.MaChucVu,
                     x.TenChucVu,
-                    x.BoPhan.TenBoPhan
+                
                 });
             if (data == null)
             {
@@ -60,7 +60,7 @@ namespace NETCORE3.Controllers
                 x.Id,
                 x.MaChucVu,
                 x.TenChucVu,
-                x.BoPhan.TenBoPhan
+             
 
             });
             if (data == null)

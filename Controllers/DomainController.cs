@@ -104,16 +104,20 @@ namespace NETCORE3.Controllers
             lock (Commons.LockObjectState)
             {
                 Domain duLieu = uow.domains.GetById(id);
-                if (duLieu == null)
+                if (!uow.thongTinThietBis.Exists(x => x.Domain_Id == id))
                 {
-                    return NotFound();
+                    if (duLieu == null)
+                    {
+                        return NotFound();
+                    }
+                    duLieu.DeletedDate = DateTime.Now;
+                    duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
+                    duLieu.IsDeleted = true;
+                    uow.domains.Update(duLieu);
+                    uow.Complete();
+                    return Ok(duLieu);
                 }
-                duLieu.DeletedDate = DateTime.Now;
-                duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
-                duLieu.IsDeleted = true;
-                uow.domains.Update(duLieu);
-                uow.Complete();
-                return Ok(duLieu);
+                return StatusCode(StatusCodes.Status409Conflict, "Domain này đã có ở thiết bị không được xóa");
             }
 
         }

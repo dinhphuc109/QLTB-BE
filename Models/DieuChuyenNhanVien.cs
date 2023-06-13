@@ -33,12 +33,12 @@ namespace NETCORE3.Models
         public BoPhan BoPhan { get; set; }
         public ChucVu ChucVu { get; set; }
         public Phongban Phongban { get; set; }
-        public DonViTraLuong DonViTraLuong { get; set; }
+        public DonVi DonViTraLuong { get; set; }
         public DonVi DonViNew { get; set; }
         public BoPhan BoPhanNew { get; set; }
         public ChucVu ChucVuNew { get; set; }
         public Phongban PhongbanNew { get; set; }
-        public DonViTraLuong DonViTraLuongNew { get; set; }
+        public DonVi DonViTraLuongNew { get; set; }
 
         [JsonIgnore]
         public virtual ICollection<CBNV_DieuChuyen> cBNVDieuChuyens { get; set; }
@@ -46,6 +46,7 @@ namespace NETCORE3.Models
         public List<CBNV_DieuChuyen> Lstcbnvdc { get; set; }
 
         public DateTime NgayDieuChuyen { get; set; }
+        [StringLength(50)]
         public string TrangThai { get; set; }
         public bool XacNhan { get; set; }
 

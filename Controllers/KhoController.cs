@@ -51,13 +51,13 @@ namespace NETCORE3.Controllers
                 LstKhotttb = x.khoThongTinThietBis?.Select(y => new
                 {
                     y.ThongTinThietBi.DanhMucThietBi.TenThietBi,
-                    y.ThongTinThietBi.DanhMucThietBi.CauHinh,
+                    y.ThongTinThietBi.CauHinh,
                     y.ThongTinThietBi.ThoiGianBaoHanh,
                     y.ThongTinThietBi.SoSeri,
                     y.ThongTinThietBi.ModelThietBi,
                     y.DonViTinh.TenDonViTinh,
                     y.SoLuong,
-                    y.TinhTrangThietBi
+                    y.TinhTrangThietBi_Id
 
                 })
 
@@ -94,7 +94,7 @@ namespace NETCORE3.Controllers
                 LstKhotttb = x.khoThongTinThietBis?.Select(y => new
                 {
                     y.ThongTinThietBi.DanhMucThietBi.TenThietBi,
-                    y.ThongTinThietBi.DanhMucThietBi.CauHinh,
+                    y.ThongTinThietBi.CauHinh,
                     y.ThongTinThietBi.ThoiGianBaoHanh,
                     y.ThongTinThietBi.SoSeri,
                     y.ThongTinThietBi.ModelThietBi,
@@ -124,10 +124,10 @@ namespace NETCORE3.Controllers
                 {
                     infor.TenThietBi = ttbt[0].ThongTinThietBi.DanhMucThietBi.TenThietBi;
                     infor.MaThietBi = ttbt[0].ThongTinThietBi.DanhMucThietBi.MaThietBi;
-                    infor.Cauhinh = ttbt[0].ThongTinThietBi.DanhMucThietBi.CauHinh;
+                    infor.Cauhinh = ttbt[0].ThongTinThietBi.CauHinh;
                     infor.SoSeri = ttbt[0].ThongTinThietBi.SoSeri;
                     infor.ModelThietBi = ttbt[0].ThongTinThietBi.ModelThietBi;
-                    infor.TinhTrangThietBi = ttbt2[0].TinhTrangThietBi;
+                    infor.TinhTrangThietBi = ttbt2[0].TinhTrangThietBi.TenTinhTrangThietBi;
                     infor.SoLuong = ttbt2[0].SoLuong;
                     infor.DonViTinh = ttbtdvt[0].DonViTinh.TenDonViTinh;
                 }
@@ -179,7 +179,7 @@ namespace NETCORE3.Controllers
                 LstKhotttb = x.khoThongTinThietBis.Select(y => new
                 {
                     y.ThongTinThietBi.DanhMucThietBi.TenThietBi,
-                    y.ThongTinThietBi.DanhMucThietBi.CauHinh,
+                    y.ThongTinThietBi.CauHinh,
                     y.ThongTinThietBi.ThoiGianBaoHanh,
                     y.ThongTinThietBi.SoSeri,
                     y.ThongTinThietBi.ModelThietBi,

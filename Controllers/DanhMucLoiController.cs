@@ -16,12 +16,12 @@ namespace NETCORE3.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class HeThongController : ControllerBase
+    public class DanhMucLoiController : ControllerBase
     {
         private readonly IUnitofWork uow;
         private readonly UserManager<ApplicationUser> userManager;
         public static IWebHostEnvironment environment;
-        public HeThongController(IUnitofWork _uow, UserManager<ApplicationUser> _userManager, IWebHostEnvironment _environment)
+        public DanhMucLoiController(IUnitofWork _uow, UserManager<ApplicationUser> _userManager, IWebHostEnvironment _environment)
         {
             uow = _uow;
             userManager = _userManager;
@@ -32,11 +32,11 @@ namespace NETCORE3.Controllers
         public ActionResult Get(string keyword)
         {
             if (keyword == null) keyword = "";
-            var data = uow.heThongs.GetAll(t => !t.IsDeleted && (t.MaHeThong.ToLower().Contains(keyword.ToLower()) || t.TenHeThong.ToLower().Contains(keyword.ToLower()))).Select(x => new
+            var data = uow.danhMucLois.GetAll(t => !t.IsDeleted && (t.MaLoi.ToLower().Contains(keyword.ToLower()) || t.TenLoi.ToLower().Contains(keyword.ToLower()))).Select(x => new
             {
                 x.Id,
-                x.MaHeThong,
-                x.TenHeThong,
+                x.MaLoi,
+                x.TenLoi,
             });
             if (data == null)
             {
@@ -45,10 +45,12 @@ namespace NETCORE3.Controllers
             return Ok(data);
         }
 
+
+
         [HttpGet("{id}")]
         public ActionResult Get(Guid id)
         {
-            HeThong duLieu = uow.heThongs.GetById(id);
+            DanhMucLoi duLieu = uow.danhMucLois.GetById(id);
             if (duLieu == null)
             {
                 return NotFound();
@@ -57,7 +59,7 @@ namespace NETCORE3.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post(HeThong data)
+        public ActionResult Post(DanhMucLoi data)
         {
             lock (Commons.LockObjectState)
             {
@@ -65,18 +67,18 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                if (uow.heThongs.Exists(x => x.MaHeThong == data.MaHeThong && !x.IsDeleted))
-                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHeThong + " đã tồn tại trong hệ thống");
+                if (uow.danhMucLois.Exists(x => x.MaLoi == data.MaLoi && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaLoi + " đã tồn tại trong hệ thống");
                 data.CreatedDate = DateTime.Now;
                 data.CreatedBy = Guid.Parse(User.Identity.Name);
-                uow.heThongs.Add(data);
+                uow.danhMucLois.Add(data);
                 uow.Complete();
                 return Ok();
             }
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(Guid id, HeThong data)
+        public ActionResult Put(Guid id, DanhMucLoi data)
         {
             lock (Commons.LockObjectState)
             {
@@ -88,11 +90,11 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
-                if (uow.heThongs.Exists(x => x.MaHeThong == data.MaHeThong && x.Id != data.Id && !x.IsDeleted))
-                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaHeThong + " đã tồn tại trong hệ thống");
+                if (uow.danhMucLois.Exists(x => x.MaLoi == data.MaLoi && x.Id != data.Id && !x.IsDeleted))
+                    return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaLoi + " đã tồn tại trong hệ thống");
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;
-                uow.heThongs.Update(data);
+                uow.danhMucLois.Update(data);
                 uow.Complete();
                 return StatusCode(StatusCodes.Status204NoContent);
             }
@@ -103,22 +105,17 @@ namespace NETCORE3.Controllers
         {
             lock (Commons.LockObjectState)
             {
-                HeThong duLieu = uow.heThongs.GetById(id);
-                if (!uow.loaiThietBis.Exists(x => x.HeThong_Id == id))
+                DanhMucLoi duLieu = uow.danhMucLois.GetById(id);
+                if (duLieu == null)
                 {
-                    if (duLieu == null)
-                    {
-                        return NotFound();
-                    }
-                    duLieu.DeletedDate = DateTime.Now;
-                    duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
-                    duLieu.IsDeleted = true;
-                    uow.heThongs.Update(duLieu);
-                    uow.Complete();
-                    return Ok(duLieu);
+                    return NotFound();
                 }
-
-                return StatusCode(StatusCodes.Status409Conflict, "Hệ thống này đã có ở thiết bị không được xóa");
+                duLieu.DeletedDate = DateTime.Now;
+                duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
+                duLieu.IsDeleted = true;
+                uow.danhMucLois.Update(duLieu);
+                uow.Complete();
+                return Ok(duLieu);
             }
 
         }
@@ -127,7 +124,7 @@ namespace NETCORE3.Controllers
         {
             lock (Commons.LockObjectState)
             {
-                uow.heThongs.Delete(id);
+                uow.danhMucLois.Delete(id);
                 uow.Complete();
                 return Ok();
             }

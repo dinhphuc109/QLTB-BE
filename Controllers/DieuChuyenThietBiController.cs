@@ -154,7 +154,7 @@ namespace NETCORE3.Controllers
                 {
                     var tenthietbi = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.DanhMucThietBi.TenThietBi }).ToList();
                     var mathietbi = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.DanhMucThietBi.MaThietBi }).ToList();
-                    var cauhinh = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.DanhMucThietBi.CauHinh }).ToList();
+                    var cauhinh = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.CauHinh }).ToList();
                     infor.MaThietBi = mathietbi[0].MaThietBi;
                     infor.TenThietBi = tenthietbi[0].TenThietBi;
                     infor.CauHinh = cauhinh[0].CauHinh;
@@ -162,7 +162,7 @@ namespace NETCORE3.Controllers
                 }
                 infor.SoLuong = tbtt[0].SoLuong;
                 infor.DonViTinh = tbtt[0].TenDonViTinh;
-                infor.TinhTrangMay = tbtt[0].TinhTrangThietBi;
+                infor.TinhTrangMay = tbtt[0].TinhTrangThietBi.TenTinhTrangThietBi;
                 infor.NgayDieuChuyen = item.NgayDieuChuyen;
                 var nvnn = uow.nguoiNhanDieuChuyens.GetAll(x => !x.IsDeleted && x.DieuChuyenThietBi_Id == item.Id, null, null).Select(x => new { x.User }).ToList();
                 foreach (var nn in nvnn)
@@ -235,14 +235,13 @@ namespace NETCORE3.Controllers
                     }
                     foreach( var item in data.Lstkho)
                     {
-                        var tttb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted && t.qrCodeData != null && t.Id == item.ThongTinThietBi_Id).ToArray();
+                        var tttb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted  && t.Id == item.ThongTinThietBi_Id).ToArray();
                         item.CreatedBy = Guid.Parse(User.Identity.Name);
                         item.CreatedDate = DateTime.Now;
                         item.DieuChuyenThietBi_Id = dieuchuyentb[0].Id;
-                        item.qrCodeData = tttb[0].qrCodeData;
+                     
                         uow.dieuChuyenThietBiKhos.Add(item);
-                        tttb[0].qrCodeData = null;
-                        uow.khoThongTinThietBis.Update(tttb[0]);
+ 
                     }
                 }
                 else
@@ -266,14 +265,13 @@ namespace NETCORE3.Controllers
                     {
                         if (uow.dieuChuyenThietBiKhos.Exists(x => x.DieuChuyenThietBi_Id == item.DieuChuyenThietBi_Id && x.ThongTinThietBi_Id == item.ThongTinThietBi_Id))
                         {
-                            var tttb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted && t.qrCodeData != null && t.Id == item.ThongTinThietBi_Id).ToArray();
+                            var tttb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted  && t.Id == item.ThongTinThietBi_Id).ToArray();
                             item.CreatedBy = Guid.Parse(User.Identity.Name);
                             item.CreatedDate = DateTime.Now;
                             item.DieuChuyenThietBi_Id = id;
-                            item.qrCodeData = tttb[0].qrCodeData;
+                    
                             uow.dieuChuyenThietBiKhos.Add(item);
-                            tttb[0].qrCodeData = null;
-                            uow.khoThongTinThietBis.Update(tttb[0]);
+                
                         }
                         LichSuThietBi lichsuthietbi = new LichSuThietBi();
                         if (data.Kho_Id != null)

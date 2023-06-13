@@ -135,14 +135,13 @@ namespace NETCORE3.Controllers
                     {
                         if (uow.khoThongTinThietBis.Exists(x => x.Kho_Id == kho[0].Id && x.ThongTinThietBi_Id == item.ThongTinThietBi_Id))
                         {
-                            var tttb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted && t.qrCodeData != null && t.Id == item.ThongTinThietBi_Id).ToArray();
+                            var tttb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted  && t.Id == item.ThongTinThietBi_Id).ToArray();
                             item.CreatedBy = Guid.Parse(User.Identity.Name);
                             item.CreatedDate = DateTime.Now;
                             item.ThanhLyThietBi_Id = id;
-                            item.qrCodeData = tttb[0].qrCodeData;
+                    
                             uow.thanhLyKhos.Add(item);
-                            tttb[0].qrCodeData = null;
-                            uow.khoThongTinThietBis.Update(tttb[0]);
+                     
                         }
                         LichSuThietBi lichsuthietbi = new LichSuThietBi();
                         if (data.Kho_Id != null)

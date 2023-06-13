@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -35,9 +36,11 @@ namespace NETCORE3.Controllers
     }
 
     [HttpGet]
-    public ActionResult Get()
+    public ActionResult Get(string keyword)
     {
-      var data = uow.NhaCungCaps.GetAll(t => !t.IsDeleted).Select(x => new
+            if (keyword == null) keyword = "";
+            string[] include = { };
+            var data = uow.NhaCungCaps.GetAll(t => !t.IsDeleted && (t.MaNhaCungCap.ToLower().Contains(keyword.ToLower()) || t.TenNhaCungCap.ToLower().Contains(keyword.ToLower())),null,include).Select(x => new
       {
         x.Id,
         x.MaNhaCungCap,
@@ -65,7 +68,22 @@ namespace NETCORE3.Controllers
       return Ok(duLieu);
     }
 
-    [HttpPost]
+        private string CheckPhoneNumber(string phoneNumber)
+        {
+            string mobilePattern = @"^(09[6-8]|03[2-9]|07[0-9]|05[6-9]|08[6-9])\d{7}$";
+            string landlinePattern = @"^(02[4-9]|08[3-5])\d{7}$";
+
+            if (Regex.IsMatch(phoneNumber, mobilePattern) || Regex.IsMatch(phoneNumber, landlinePattern))
+            {
+                return "Số điện thoại hợp lệ";
+            }
+            else
+            {
+                return "Số điện thoại không hợp lệ";
+            }
+        }
+
+        [HttpPost]
     public ActionResult Post(NhaCungCap data)
     {
       lock (Commons.LockObjectState)
@@ -74,9 +92,15 @@ namespace NETCORE3.Controllers
         {
           return BadRequest(ModelState);
         }
+
         if (uow.NhaCungCaps.Exists(x => x.MaNhaCungCap == data.MaNhaCungCap && !x.IsDeleted))
           return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaNhaCungCap + " đã tồn tại trong hệ thống");
-        data.CreatedDate = DateTime.Now;
+                var phoneCheckResult = CheckPhoneNumber(data.SoDienThoai);
+                if (phoneCheckResult != "Số điện thoại hợp lệ")
+                {
+                    return BadRequest(phoneCheckResult);
+                }
+                data.CreatedDate = DateTime.Now;
         data.CreatedBy = Guid.Parse(User.Identity.Name);
         uow.NhaCungCaps.Add(data);
         uow.Complete();
@@ -113,17 +137,21 @@ namespace NETCORE3.Controllers
       lock (Commons.LockObjectState)
       {
         NhaCungCap duLieu = uow.NhaCungCaps.GetById(id);
-        if (duLieu == null)
-        {
-          return NotFound();
-        }
-        duLieu.DeletedDate = DateTime.Now;
-        duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
-        duLieu.IsDeleted = true;
-        uow.NhaCungCaps.Update(duLieu);
-        uow.Complete();
-        return Ok(duLieu);
-      }
+                if (!uow.thongTinThietBis.Exists(x => x.NhaCungCap_Id == id))
+                {
+                    if (duLieu == null)
+                    {
+                        return NotFound();
+                    }
+                    duLieu.DeletedDate = DateTime.Now;
+                    duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
+                    duLieu.IsDeleted = true;
+                    uow.NhaCungCaps.Update(duLieu);
+                    uow.Complete();
+                    return Ok(duLieu);
+                }
+                return StatusCode(StatusCodes.Status409Conflict, "Nhà cung cấp này đã có ở thiết bị không được xóa");
+            }
 
     }
     [HttpDelete("Remove/{id}")]

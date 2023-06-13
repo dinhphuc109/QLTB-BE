@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NETCORE3.Data;
 
@@ -11,9 +12,11 @@ using NETCORE3.Data;
 namespace NETCORE3.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230612063809_chinhsuacacbangnguoidung_removedvtl")]
+    partial class chinhsuacacbangnguoidung_removedvtl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -350,6 +353,53 @@ namespace NETCORE3.Migrations
                     b.HasIndex("User_CreatedId");
 
                     b.ToTable("BanGiaoTBs");
+                });
+
+            modelBuilder.Entity("NETCORE3.Models.BanGiao_NguoiNhan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BanGiaoTB_Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("User_CreatedId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("User_Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BanGiaoTB_Id");
+
+                    b.HasIndex("User_CreatedId");
+
+                    b.HasIndex("User_Id");
+
+                    b.ToTable("BanGiao_NguoiNhans");
                 });
 
             modelBuilder.Entity("NETCORE3.Models.BanGiao_ThongTinThietBi", b =>
@@ -794,8 +844,7 @@ namespace NETCORE3.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("TrangThai")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -2113,8 +2162,8 @@ namespace NETCORE3.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CauHinh")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -2381,6 +2430,30 @@ namespace NETCORE3.Migrations
                         .WithMany()
                         .HasForeignKey("User_CreatedId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
+
+                    b.Navigation("User_Created");
+                });
+
+            modelBuilder.Entity("NETCORE3.Models.BanGiao_NguoiNhan", b =>
+                {
+                    b.HasOne("NETCORE3.Models.BanGiaoTB", "BanGiaoTB")
+                        .WithMany()
+                        .HasForeignKey("BanGiaoTB_Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NETCORE3.Data.MyDbContext+ApplicationUser", "User_Created")
+                        .WithMany()
+                        .HasForeignKey("User_CreatedId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NETCORE3.Data.MyDbContext+ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("User_Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("BanGiaoTB");
 
                     b.Navigation("User");
 

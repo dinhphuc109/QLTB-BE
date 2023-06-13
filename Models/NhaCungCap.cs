@@ -19,7 +19,8 @@ namespace NETCORE3.Models
         public string TenNhaCungCap { get; set; }
         [StringLength(250)]
         public string NguoiLienHe { get; set; }
-        [StringLength(50)]
+        [Required(ErrorMessage = "Số điện thoại là bắt buộc")]
+        [RegularExpression(@"^[0-9]*$", ErrorMessage = "Số điện thoại chỉ được nhập số")]
         public string SoDienThoai { get; set; }
         [StringLength(250)]
         public string DiaChi { get; set; }

@@ -75,7 +75,7 @@ namespace NETCORE3.Controllers
             return Ok(data.OrderBy(x => x.MaBoPhan));
         }
 
-        [HttpGet("{id}")]
+    [HttpGet("{id}")]
     public ActionResult Get(Guid id)
     {
       string[] include = { "Phongban" };

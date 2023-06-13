@@ -38,6 +38,7 @@ namespace NETCORE3.Models
         [Display(Name = "Số điện thoại")]
         public string PhoneNumber { get; set; }
         public string MaNhanVien { get; set; }
+        public string? ChucDanh { get; set; }
 
         public string FullName { get; set; }
         public List<string> RoleNames { get; set; }
@@ -73,11 +74,12 @@ namespace NETCORE3.Models
         public string Id { get; set; }
 
         public string FullName { get; set; }
+        public string? ChucDanh { get; set; }
         public string? TenDonVi { get; set; }
         public string? TenBoPhan { get; set; }
         public string? TenChucVu { get; set; }
         public string? TenPhongBan { get; set; }
-        public string? TenDonViTraLuong { get; set; }
+        public Guid? DonViTraLuong_Id { get; set; }
 
     }
 
@@ -86,11 +88,12 @@ namespace NETCORE3.Models
         public string Id { get; set; }
 
         public string FullName { get; set; }
+        public string? ChucDanh { get; set; }
         public string? TenDonVi { get; set; }
         public string? TenBoPhan { get; set; }
         public string? TenChucVu { get; set; }
         public string? TenPhongBan { get; set; }
-        public string? TenDonViTraLuong { get; set; }
+        public Guid? DonViTraLuong_Id { get; set; }
         public DateTime? NgayNghiViec { get; set; }
         public string GhiChu { get; set; }
 
@@ -107,6 +110,7 @@ namespace NETCORE3.Models
         public string FullName { get; set; }
         public bool IsActive { get; set; }
         public List<string> RoleNames { get; set; }
+        public string? ChucDanh { get; set; }
         public Guid? DonVi_Id { get; set; }
         public Guid? BoPhan_Id { get; set; }
         public string? TenDonVi { get; set; }

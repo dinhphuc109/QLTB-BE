@@ -110,17 +110,21 @@ namespace NETCORE3.Controllers
       lock (Commons.LockObjectState)
       {
         DonViTinh duLieu = uow.DonViTinhs.GetById(id);
-        if (duLieu == null)
-        {
-          return NotFound();
-        }
-        duLieu.DeletedDate = DateTime.Now;
-        duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
-        duLieu.IsDeleted = true;
-        uow.DonViTinhs.Update(duLieu);
-        uow.Complete();
-        return Ok(duLieu);
-      }
+                if (!uow.thongTinThietBis.Exists(x => x.DonViTinh_Id == id))
+                {
+                    if (duLieu == null)
+                    {
+                        return NotFound();
+                    }
+                    duLieu.DeletedDate = DateTime.Now;
+                    duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
+                    duLieu.IsDeleted = true;
+                    uow.DonViTinhs.Update(duLieu);
+                    uow.Complete();
+                    return Ok(duLieu);
+                }
+                return StatusCode(StatusCodes.Status409Conflict, "Đơn vị tính này đã có ở thiết bị không được xóa");
+            }
 
     }
     [HttpDelete("Remove/{id}")]
