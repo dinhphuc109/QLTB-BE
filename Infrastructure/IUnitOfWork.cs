@@ -43,7 +43,6 @@ namespace NETCORE3.Infrastructure
      
         IDieuChuyenThietBiRepository dieuChuyenThietBis { get; }
         IDieuChuyenThietBiKhoRepository dieuChuyenThietBiKhos { get; }
-        INguoiNhanDieuChuyenRepository nguoiNhanDieuChuyens { get; }
         IThanhLyThietBiRepository thanhLyThietBis { get; }
         IThanhLyKhoRepository thanhLyKhos { get; }
         IDieuChuyenNhanVienRepository dieuChuyenNhanViens { get; }

@@ -22,11 +22,6 @@ namespace NETCORE3.Models
         [ForeignKey("TinhTrangThietBi")]
         public Guid? TinhTrangThietBi_Id { get; set; }
         public TinhTrangThietBi TinhTrangThietBi { get; set; }
-        [ForeignKey("DonViTinh")]
-        public Guid? DonViTinh_Id { get; set; }
-        public DonViTinh DonViTinh { get; set; }
-        //[Range(typeof(DateTime), "1/1/1900", "12/31/2099")]
-        public DateTime NgayNhan { get; set; }
         [StringLength(250)]
         public string GhiChu { get; set; }
     }

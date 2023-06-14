@@ -15,19 +15,12 @@ namespace NETCORE3.Models
         [StringLength(50)]
         [Required(ErrorMessage = "Mã bắt buộc")]
         public string MaDieuChuyen { get; set; }
-        /*        [JsonIgnore]
-                public virtual ICollection<DieuChuyenBanGiao> dieuChuyenBanGiao { get; set; }
-                [NotMapped]
-                public List<DieuChuyenBanGiao> Lstdcbg { get; set; }*/
         [ForeignKey("Kho")]
         public Guid? Kho_Id { get; set; }
         public Kho Kho { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<NguoiNhan_DieuChuyen> nguoiNhanDieuChuyens { get; set; }
-        [NotMapped]
-        public List<NguoiNhan_DieuChuyen> Lstnndc { get; set; }
         [ForeignKey("User")]
-        public Guid? User_Id { get; set; }
+        public Guid? UserLap_Id { get; set; }
+        public Guid? UserNhan_Id { get; set; }
         public ApplicationUser User { get; set; }
         public virtual ICollection<DieuChuyenThietBi_Kho> DieuChuyenThietBi_Khos { get; set; }
         [NotMapped]

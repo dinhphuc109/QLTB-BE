@@ -43,7 +43,6 @@ namespace NETCORE3.UOW
     
         public IDieuChuyenThietBiRepository dieuChuyenThietBis { get; private set; }
         public IDieuChuyenThietBiKhoRepository dieuChuyenThietBiKhos { get; private set; }
-        public INguoiNhanDieuChuyenRepository nguoiNhanDieuChuyens { get; private set; }
         public IThanhLyThietBiRepository thanhLyThietBis { get; private set; }
         public IThanhLyKhoRepository thanhLyKhos { get; private set; }
         public IDieuChuyenNhanVienRepository dieuChuyenNhanViens { get; private set; }
@@ -92,7 +91,6 @@ namespace NETCORE3.UOW
             banGiaoThongTinThietBis = new BanGiaoThongTinThietBiRepository(db);
     
             dieuChuyenThietBis = new DieuChuyenThietBiRepository(db);
-            nguoiNhanDieuChuyens = new NguoiNhanDieuChuyenRepository(db);
             thanhLyThietBis = new ThanhLyThietBiRepository(db);
             thanhLyKhos = new ThanhLyKhoRepository(db);
             dieuChuyenNhanViens = new DieuChuyenNhanVienRepository(db);

@@ -34,7 +34,7 @@ namespace NETCORE3.Controllers
             if (keyword == null) keyword = "";
 
             string[] include = { "banGiaoThongTinThietBis.TinhTrangThietBi", "User", "banGiaoThongTinThietBis.DonViTinh", "banGiaoThongTinThietBis", "banGiaoThongTinThietBis.Kho", "banGiaoThongTinThietBis.Kho.DanhMucKho", "banGiaoThongTinThietBis.ThongTinThietBi", "banGiaoThongTinThietBis.ThongTinThietBi.DanhMucThietBi" };
-            var data = uow.banGiaoTBs.GetAll(t => !t.IsDeleted, null, include).Select(x => new
+            var data = uow.banGiaoTBs.GetAll(t => !t.IsDeleted && (t.MaBanGIao.ToLower().Contains(keyword.ToLower()) || t.User.FullName.ToLower().Contains(keyword.ToLower())), null, include).Select(x => new
             {
                 x.Id,
                 x.MaBanGIao,

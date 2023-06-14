@@ -336,7 +336,7 @@ namespace NETCORE3.Controllers
             lock (Commons.LockObjectState)
             {
                 ThongTinThietBi duLieu = uow.thongTinThietBis.GetById(id);
-                if (duLieu.CreatedBy == Guid.Parse(User.Identity.Name) || Guid.Parse(User.Identity.Name) == Guid.Parse("c662783d-03c0-4404-9473-1034f1ac1caa"))
+                if (!uow.banGiaoThongTinThietBis.Exists(x => x.ThongTinThietBi_Id == id))
                 {
                     if (duLieu == null)
                     {
