@@ -34,23 +34,21 @@ namespace NETCORE3.Controllers
         {
             if (keyword == null) keyword = "";
 
-            string[] include = { "User", "Kho", "DonVi", "nguoiNhanDieuChuyens", "nguoiNhanDieuChuyens.User", "DieuChuyenThietBi_Khos", "DieuChuyenThietBi_Khos.ThongTinThietBi" };
+            string[] include = { "User", "Kho", "DonVi", "DieuChuyenThietBi_Khos", "DieuChuyenThietBi_Khos.TinhTrangThietBi", "DieuChuyenThietBi_Khos.ThongTinThietBi" };
             var data = uow.dieuChuyenThietBis.GetAll(t => !t.IsDeleted, null, include).Select(x => new
             {
                 x.Id,
                 x.Kho?.DanhMucKho_Id,
                 x.MaDieuChuyen,
-                x.User,
+                x.UserLap_Id,
+                x.UserNhan_Id,
                 x.NgayDieuChuyen,
-
-                Lstnndc = x.nguoiNhanDieuChuyens.Select(y => new
-                {
-                    y.User.MaNhanVien,
-                    y.User.FullName,
-                }),
                 Lstkho = x.DieuChuyenThietBi_Khos.Select(y => new
                 {
                     y.ThongTinThietBi_Id,
+                    y.SoLuong,
+                    y.GhiChu,
+                    y.TinhTrangThietBi_Id,
                 })
 
             }); 
@@ -65,21 +63,17 @@ namespace NETCORE3.Controllers
         public IActionResult SearchDieuChuyenThietBi(string keyword, DateTime? TuNgay, DateTime? DenNgay)
         {
             if (keyword == null) keyword = "";
-            string[] include = { "User", "Kho", "DonVi", "nguoiNhanDieuChuyens", "nguoiNhanDieuChuyens.User", "DieuChuyenThietBi_Khos", "DieuChuyenThietBi_Khos.ThongTinThietBi" };
+            string[] include = { "User", "Kho", "DonVi", "DieuChuyenThietBi_Khos", "DieuChuyenThietBi_Khos.TinhTrangThietBi", "DieuChuyenThietBi_Khos.ThongTinThietBi" };
             var data = uow.dieuChuyenThietBis.GetAll(x => !x.IsDeleted
             && x.NgayDieuChuyen >= TuNgay && x.NgayDieuChuyen <= DenNgay, null, include).Select(x => new
             {
                 x.Id,
                 x.Kho?.DanhMucKho_Id,
+                x.UserLap_Id,
+                x.UserNhan_Id,
                 x.MaDieuChuyen,
                 x.User,
                 x.NgayDieuChuyen,
-
-                Lstnndc = x.nguoiNhanDieuChuyens.Select(y => new
-                {
-                    y.User.MaNhanVien,
-                    y.User.FullName,
-                }),
                 Lstkho = x.DieuChuyenThietBi_Khos.Select(y => new
                 {
                     y.ThongTinThietBi_Id,
@@ -113,85 +107,11 @@ namespace NETCORE3.Controllers
 
         }
 
-        [HttpGet("GetDataPagnigation")]
-        public ActionResult GetDataPagnigation(int page = 1, int pageSize = 20, string keyword = null)
-        {
-            if (keyword == null) keyword = "";
-            string[] include = { "User", "Kho", "DonVi", "nguoiNhanDieuChuyens", "nguoiNhanDieuChuyens.User" };
-            var query = uow.dieuChuyenThietBis.GetAll(t => !t.IsDeleted && (t.MaDieuChuyen.ToLower().Contains(keyword.ToLower()) || t.MaDieuChuyen.ToLower().Contains(keyword.ToLower())), null, include)
-            .Select(x => new
-            {
-                x.MaDieuChuyen,
-                x.Id,
-                x.User?.FullName,
-                x.Kho_Id,
-                x.Kho.DanhMucKho_Id,
-                x.NgayDieuChuyen,
-
-                Lstnndc = x.nguoiNhanDieuChuyens.Select(y => new
-                {
-                    y.User.FullName,
-                    y.User.Phongban,
-                    y.User.DonVi
-                }),
-
-            })
-            .OrderBy(x => x.MaDieuChuyen);
-            List<ClassListDieuChuyenTB> list = new List<ClassListDieuChuyenTB>();
-
-            foreach (var item in query)
-            {
-                 
-                var khotttb = uow.danhMucKhos.GetAll(x => !x.IsDeleted && x.Id == item.DanhMucKho_Id, null, null).Select(x => new { x.TenKho }).ToList();             
-                var infor = new ClassListDieuChuyenTB();
-                infor.Id = item.Id;
-                infor.MaDieuChuyen = item.MaDieuChuyen;
-                infor.Tenkho = khotttb[0].TenKho;
-                
-                var tbtt = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Kho_Id, null, null).Select(x => new { x.ThongTinThietBi_Id, x.SoLuong, x.DonViTinh.TenDonViTinh, x.TinhTrangThietBi }).ToList();
-                var kho = uow.khoThongTinThietBis.GetAll(x => !x.IsDeleted && x.Kho_Id == item.Kho_Id, null, null).Select(x => new { x.TinhTrangThietBi }).ToList();
-                foreach (var l in tbtt)
-                {
-                    var tenthietbi = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.DanhMucThietBi.TenThietBi }).ToList();
-                    var mathietbi = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.DanhMucThietBi.MaThietBi }).ToList();
-                    var cauhinh = uow.thongTinThietBis.GetAll(x => !x.IsDeleted && x.Id == l.ThongTinThietBi_Id, null, null).Select(x => new { x.CauHinh }).ToList();
-                    infor.MaThietBi = mathietbi[0].MaThietBi;
-                    infor.TenThietBi = tenthietbi[0].TenThietBi;
-                    infor.CauHinh = cauhinh[0].CauHinh;
-
-                }
-                infor.SoLuong = tbtt[0].SoLuong;
-                infor.DonViTinh = tbtt[0].TenDonViTinh;
-                infor.TinhTrangMay = tbtt[0].TinhTrangThietBi.TenTinhTrangThietBi;
-                infor.NgayDieuChuyen = item.NgayDieuChuyen;
-                var nvnn = uow.nguoiNhanDieuChuyens.GetAll(x => !x.IsDeleted && x.DieuChuyenThietBi_Id == item.Id, null, null).Select(x => new { x.User }).ToList();
-                foreach (var nn in nvnn)
-                {
-                    var donvinhan = uow.DonVis.GetAll(x => !x.IsDeleted && x.Id == nn.User.DonVi_Id, null, null).Select(x => new { x.TenDonVi }).ToList();
-                    var bophannhan = uow.BoPhans.GetAll(x => !x.IsDeleted && x.Id == nn.User.BoPhan_Id, null, null).Select(x => new { x.TenBoPhan }).ToList();
-                    var phongbannhan = uow.phongbans.GetAll(x => !x.IsDeleted && x.Id == nn.User.PhongBan_Id, null, null).Select(x => new { x.TenPhongBan }).ToList();
-                    var chucvunhan = uow.chucVus.GetAll(x => !x.IsDeleted && x.Id == nn.User.ChucVu_Id, null, null).Select(x => new { x.TenChucVu }).ToList();
-                    foreach (var x in nvnn)
-                    {
-                        infor.NguoiNhanDieuChuyen = nvnn[0].User.FullName;
-                        infor.TenDonViNguoiNhan = donvinhan[0].TenDonVi;
-                        infor.TenPhongBanNguoiNhan = phongbannhan[0].TenPhongBan;
-                    }
-                }
-                infor.NguoiLapDieuChuyen = item.FullName;
-                list.Add(infor);
-            }
-            int totalRow = list.Count();
-            int totalPage = (int)Math.Ceiling(totalRow / (double)pageSize);
-            var data = list.OrderByDescending(a => a.Id).Skip((page - 1) * pageSize).Take(pageSize);
-            return Ok(new { data, totalPage, totalRow });
-        }
-
 
         [HttpGet("{id}")]
         public ActionResult Get(Guid id)
         {
-            string[] includes = { "User", "Kho", "DonVi", "nguoiNhanDieuChuyens", "nguoiNhanDieuChuyens.User" };
+            string[] includes = { "User", "Kho", "DonVi", "DieuChuyenThietBi_Khos", "DieuChuyenThietBi_Khos.TinhTrangThietBi", "DieuChuyenThietBi_Khos.ThongTinThietBi" };
             var duLieu = uow.dieuChuyenThietBis.GetAll(x => !x.IsDeleted && x.Id == id, null, includes);
             if (duLieu == null)
             {
@@ -222,17 +142,11 @@ namespace NETCORE3.Controllers
                     dieuchuyentb[0].MaDieuChuyen = data.MaDieuChuyen;
                     dieuchuyentb[0].Kho_Id = data.Kho_Id;
                     dieuchuyentb[0].NgayDieuChuyen = data.NgayDieuChuyen;
-                    dieuchuyentb[0].User_Id = data.User_Id;
+                    dieuchuyentb[0].UserLap_Id = data.UserLap_Id;
+                    dieuchuyentb[0].UserNhan_Id = data.UserNhan_Id;
 
 
                     uow.dieuChuyenThietBis.Update(dieuchuyentb[0]);
-                    foreach (var item in data.Lstnndc)
-                    {
-                        item.CreatedBy = Guid.Parse(User.Identity.Name);
-                        item.CreatedDate = DateTime.Now;
-                        item.DieuChuyenThietBi_Id = dieuchuyentb[0].Id;
-                        uow.nguoiNhanDieuChuyens.Add(item);
-                    }
                     foreach( var item in data.Lstkho)
                     {
                         var tttb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted  && t.Id == item.ThongTinThietBi_Id).ToArray();
@@ -252,27 +166,18 @@ namespace NETCORE3.Controllers
                     data.CreatedBy = Guid.Parse(User.Identity.Name);
 
                     uow.dieuChuyenThietBis.Add(data);
-                    foreach (var item in data.Lstnndc)
-                    {
-                        item.CreatedBy = Guid.Parse(User.Identity.Name);
-                        item.CreatedDate = DateTime.Now;
-                        item.DieuChuyenThietBi_Id = id;
-                        uow.nguoiNhanDieuChuyens.Add(item);
-                    }
                     var kho = uow.khos.GetAll(x => x.Id == data.Kho_Id).ToArray();
                     
                     foreach (var item in data.Lstkho)
                     {
-                        if (uow.dieuChuyenThietBiKhos.Exists(x => x.DieuChuyenThietBi_Id == item.DieuChuyenThietBi_Id && x.ThongTinThietBi_Id == item.ThongTinThietBi_Id))
-                        {
-                            var tttb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted  && t.Id == item.ThongTinThietBi_Id).ToArray();
+                            var ktb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted  && t.ThongTinThietBi_Id == item.ThongTinThietBi_Id).ToArray();
                             item.CreatedBy = Guid.Parse(User.Identity.Name);
                             item.CreatedDate = DateTime.Now;
-                            item.DieuChuyenThietBi_Id = id;
-                    
+                            item.DieuChuyenThietBi_Id = id;                  
                             uow.dieuChuyenThietBiKhos.Add(item);
+                            uow.khoThongTinThietBis.Delete(ktb[0].Id);
                 
-                        }
+                        
                         LichSuThietBi lichsuthietbi = new LichSuThietBi();
                         if (data.Kho_Id != null)
                         {
@@ -285,11 +190,11 @@ namespace NETCORE3.Controllers
                                 model.Id = item2.User_Id.ToString();*/
                                 lichsutb[0].NgayKetThuc = DateTime.Now;
                                 uow.lichSuThietBis.Update(lichsutb[0]);
-                                var appUser = userManager.FindByIdAsync(data.User_Id.ToString()).Result;
+                                var appUser = userManager.FindByIdAsync(data.UserNhan_Id.ToString()).Result;
                                     lichsuthietbi.CreatedBy = Guid.Parse(User.Identity.Name);
                                     lichsuthietbi.CreatedDate = DateTime.Now;
                                     lichsuthietbi.Id = lstbid;
-                                    lichsuthietbi.User_Id = data.User_Id;
+                                    lichsuthietbi.User_Id = data.UserNhan_Id;
                                     lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
                                     lichsuthietbi.DonVi_Id = appUser.DonVi_Id;
                                     lichsuthietbi.PhongBan_Id = appUser.PhongBan_Id;
@@ -310,11 +215,11 @@ namespace NETCORE3.Controllers
                                 uow.lichSuThietBis.Update(existingLichSu[0]);*/
                                 lichsutb[0].NgayKetThuc = DateTime.Now;
                                 uow.lichSuThietBis.Update(lichsutb[0]);
-                                var appUser = userManager.FindByIdAsync(data.User_Id.ToString()).Result;
+                                var appUser = userManager.FindByIdAsync(data.UserNhan_Id.ToString()).Result;
                                     lichsuthietbi.CreatedBy = Guid.Parse(User.Identity.Name);
                                     lichsuthietbi.CreatedDate = DateTime.Now;
                                     lichsuthietbi.Id = lstbid;
-                                    lichsuthietbi.User_Id = data.User_Id;
+                                    lichsuthietbi.User_Id = data.UserNhan_Id;
                                     lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
                                     lichsuthietbi.DonVi_Id = appUser.DonVi_Id;
                                     lichsuthietbi.PhongBan_Id = appUser.PhongBan_Id;
@@ -351,6 +256,7 @@ namespace NETCORE3.Controllers
                 {
                     return BadRequest();
                 }
+                LichSuThietBi lichsuthietbi = new LichSuThietBi();
                 if (uow.dieuChuyenThietBis.Exists(x => x.MaDieuChuyen == data.MaDieuChuyen && x.Id != data.Id && !x.IsDeleted))
                     return StatusCode(StatusCodes.Status409Conflict, "Mã " + data.MaDieuChuyen + " đã tồn tại trong hệ thống");
                 else if (uow.dieuChuyenThietBis.Exists(x => x.MaDieuChuyen == data.MaDieuChuyen && x.Id != data.Id && x.IsDeleted))
@@ -364,17 +270,9 @@ namespace NETCORE3.Controllers
                     dieuchuyentb[0].MaDieuChuyen = data.MaDieuChuyen;
                     dieuchuyentb[0].Kho_Id = data.Kho_Id;
                     dieuchuyentb[0].NgayDieuChuyen = data.NgayDieuChuyen;
-                    dieuchuyentb[0].User_Id = data.User_Id;
-
-
+                    dieuchuyentb[0].UserLap_Id = data.UserLap_Id;
+                    dieuchuyentb[0].UserNhan_Id = data.UserNhan_Id;
                     uow.dieuChuyenThietBis.Update(dieuchuyentb[0]);
-                    foreach (var item in data.Lstnndc)
-                    {
-                        item.CreatedBy = Guid.Parse(User.Identity.Name);
-                        item.CreatedDate = DateTime.Now;
-                        item.DieuChuyenThietBi_Id = dieuchuyentb[0].Id;
-                        uow.nguoiNhanDieuChuyens.Add(item);
-                    }
                     foreach( var item in data.Lstkho)
                     {
                         item.CreatedBy = Guid.Parse(User.Identity.Name);
@@ -392,40 +290,7 @@ namespace NETCORE3.Controllers
                 }
                 data.UpdatedBy = Guid.Parse(User.Identity.Name);
                 data.UpdatedDate = DateTime.Now;
-                uow.dieuChuyenThietBis.Update(data);
-                var Lstnndc = data.Lstnndc;
-                var dataCheck = uow.nguoiNhanDieuChuyens.GetAll(x => !x.IsDeleted && x.DieuChuyenThietBi_Id == id).ToList();
-                if (dataCheck.Count() > 0)
-                {
-                    foreach (var item in dataCheck)
-                    {
-                        if (!Lstnndc.Exists(x => x.User_Id == item.User_Id))
-                        {
-                            uow.nguoiNhanDieuChuyens.Delete(item.Id);
-                        }
-                    }
-                    foreach (var item in Lstnndc)
-                    {
-                        if (!dataCheck.Exists(x => x.User_Id == item.User_Id))
-                        {
-                            item.DieuChuyenThietBi_Id = id;
-                            item.CreatedDate = DateTime.Now;
-                            item.CreatedBy = Guid.Parse(User.Identity.Name);
-                            uow.nguoiNhanDieuChuyens.Add(item);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var item in Lstnndc)
-                    {
-                        item.DieuChuyenThietBi_Id = id;
-                        item.CreatedDate = DateTime.Now;
-                        item.CreatedBy = Guid.Parse(User.Identity.Name);
-                        uow.nguoiNhanDieuChuyens.Add(item);
-                    }
-                }
-
+                uow.dieuChuyenThietBis.Update(data);               
                 var Lstkho = data.Lstkho;
                 var dataCheckkho = uow.dieuChuyenThietBiKhos.GetAll(x => !x.IsDeleted && x.DieuChuyenThietBi_Id == id).ToList();
                 if (dataCheckkho.Count() > 0)
@@ -434,17 +299,49 @@ namespace NETCORE3.Controllers
                     {
                         if (!Lstkho.Exists(x => x.ThongTinThietBi_Id == item.ThongTinThietBi_Id))
                         {
+                            Guid ktbid = Guid.NewGuid();
+                            var ktb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted && t.ThongTinThietBi_Id == item.ThongTinThietBi_Id).ToArray();
+                            var lstb = uow.lichSuThietBis.GetAll(x => x.ThongTinThietBi_Id == item.ThongTinThietBi_Id).ToArray();
+                            ktb[0].ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                            ktb[0].Id = ktbid;
+                            ktb[0].Kho_Id = data.Kho_Id;
+                            ktb[0].TinhTrangThietBi_Id = item.TinhTrangThietBi_Id;
+                            uow.khoThongTinThietBis.Add(ktb[0]);
+                            uow.lichSuThietBis.Delete(lstb[0].Id);
                             uow.dieuChuyenThietBiKhos.Delete(item.Id);
+                            
+                            
                         }
                     }
                     foreach (var item in Lstkho)
                     {
                         if (!dataCheckkho.Exists(x => x.DieuChuyenThietBi_Id == item.DieuChuyenThietBi_Id))
                         {
+                            var ktb = uow.khoThongTinThietBis.GetAll(t => !t.IsDeleted && t.ThongTinThietBi_Id == item.ThongTinThietBi_Id).ToArray();
                             item.DieuChuyenThietBi_Id = id;
                             item.CreatedDate = DateTime.Now;
                             item.CreatedBy = Guid.Parse(User.Identity.Name);
                             uow.dieuChuyenThietBiKhos.Add(item);
+                            uow.khoThongTinThietBis.Delete(ktb[0].Id);
+                            Guid lstbid = Guid.NewGuid();
+                            /*UserInfoModel model;
+                            model.Id = item2.User_Id.ToString();*/
+                            var appUser = userManager.FindByIdAsync(data.UserNhan_Id.ToString()).Result;
+                            lichsuthietbi.CreatedBy = Guid.Parse(User.Identity.Name);
+                            lichsuthietbi.CreatedDate = DateTime.Now;
+                            lichsuthietbi.Id = lstbid;
+                            lichsuthietbi.User_Id = data.UserNhan_Id;
+                            lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                            lichsuthietbi.DonVi_Id = appUser.DonVi_Id;
+                            lichsuthietbi.PhongBan_Id = appUser.PhongBan_Id;
+                            lichsuthietbi.BoPhan_Id = appUser.BoPhan_Id;
+                            lichsuthietbi.ChucVu_Id = appUser.ChucVu_Id;
+                            lichsuthietbi.DonViTraLuong_Id = appUser.DonViTraLuong_Id;
+                            lichsuthietbi.ThongTinThietBi_Id = item.ThongTinThietBi_Id;
+                            lichsuthietbi.TinhTrangThietBi_Id = item.TinhTrangThietBi_Id;
+                            lichsuthietbi.NgayBatDau = DateTime.Now;
+                            lichsuthietbi.NgayKetThuc = null;
+                            uow.lichSuThietBis.Add(lichsuthietbi);
                         }
                     }
                 }
@@ -466,12 +363,13 @@ namespace NETCORE3.Controllers
                     {
                         return NotFound();
                     }
-                    var dataCheck = uow.nguoiNhanDieuChuyens.GetAll(x => !x.IsDeleted && x.DieuChuyenThietBi_Id == id).ToList();
-                    foreach (var item in dataCheck)
+                    var dataChecktttb = uow.dieuChuyenThietBiKhos.GetAll(x => !x.IsDeleted && x.DieuChuyenThietBi_Id == id).ToList();
+                    foreach (var item in dataChecktttb)
                     {
-                        uow.nguoiNhanDieuChuyens.Delete(item.Id);
+                        var lstb = uow.lichSuThietBis.GetAll(x => x.ThongTinThietBi_Id == item.ThongTinThietBi_Id).ToArray();
+                        uow.dieuChuyenThietBiKhos.Delete(item.Id);
+                        uow.lichSuThietBis.Delete(lstb[0].Id);
                     }
-                   
                     duLieu.DeletedDate = DateTime.Now;
                     duLieu.DeletedBy = Guid.Parse(User.Identity.Name);
                     duLieu.IsDeleted = true;
